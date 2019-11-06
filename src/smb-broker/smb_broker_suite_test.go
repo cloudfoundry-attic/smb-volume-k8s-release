@@ -3,6 +3,7 @@ package main_test
 import (
 	"fmt"
 	"github.com/onsi/gomega/gexec"
+	"io"
 	"io/ioutil"
 	"path"
 	"testing"
@@ -33,4 +34,10 @@ func fixture(name string) string {
 	}
 
 	return string(contents)
+}
+
+func assertHttpResponseContainsSubstring(body io.Reader, expected string) {
+	bytes, err := ioutil.ReadAll(body)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(string(bytes)).Should(ContainSubstring(expected))
 }

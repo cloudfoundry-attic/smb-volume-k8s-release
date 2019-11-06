@@ -5,7 +5,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
-	"io/ioutil"
 	"net/http"
 	"os/exec"
 )
@@ -30,9 +29,6 @@ var _ = Describe("Main", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(resp.Status).To(Equal("200 OK"))
-
-		bytes, err := ioutil.ReadAll(resp.Body)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(string(bytes)).Should(ContainSubstring("services"))
+		assertHttpResponseContainsSubstring(resp.Body, "services")
 	})
 })
