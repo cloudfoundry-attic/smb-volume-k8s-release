@@ -1,13 +1,19 @@
 package main_test
 
 import (
-	. "code.cloudfoundry.org/smb-broker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gbytes"
+	"github.com/onsi/gomega/gexec"
+	"os/exec"
 )
 
 var _ = Describe("Main", func() {
-	It("hi", func() {
-		Expect(Hi()).To(Equal("hi"))
+	JustBeforeEach(func() {
+		smbBrokerCmd := exec.Command(smbBrokerCompiledPath)
+		session, err := gexec.Start(smbBrokerCmd, GinkgoWriter, GinkgoWriter)
+		Expect(err).NotTo(HaveOccurred())
+		Eventually(session).Should(gbytes.Say("Started"))
 	})
+
 })

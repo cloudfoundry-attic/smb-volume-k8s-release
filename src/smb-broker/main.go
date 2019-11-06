@@ -1,10 +1,7 @@
 package main
 
+import "fmt"
+
 func main() {
-
-}
-
-
-func Hi() string {
-	return "hi"
+	fmt.Println("Started")
 }
