@@ -1,7 +1,10 @@
 package main_test
 
 import (
+	"fmt"
 	"github.com/onsi/gomega/gexec"
+	"io/ioutil"
+	"path"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -20,3 +23,14 @@ var _ = BeforeSuite(func() {
 	smbBrokerCompiledPath, err = gexec.Build("code.cloudfoundry.org/smb-broker")
 	Expect(err).NotTo(HaveOccurred())
 })
+
+
+func fixture(name string) string {
+	filePath := path.Join("fixtures", name)
+	contents, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		panic(fmt.Sprintf("Could not read fixture: %s", name))
+	}
+
+	return string(contents)
+}

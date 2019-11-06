@@ -33,6 +33,6 @@ var _ = Describe("Main", func() {
 
 		bytes, err := ioutil.ReadAll(resp.Body)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(bytes).Should(ContainSubstring("Hi"))
+		Expect(string(bytes)).Should(ContainSubstring("services"))
 	})
 })
