@@ -18,11 +18,6 @@ func BrokerHandler() http.Handler {
       "metadata": {
         "displayName": "SMB"
       },
-      "maintenance_info": {
-        "public": {
-          "name": "foo"
-        }
-      },
       "schemas": {
         "service_instance": {
           "create": {
