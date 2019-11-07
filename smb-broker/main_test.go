@@ -7,6 +7,7 @@ import (
 	"github.com/onsi/gomega/gexec"
 	"net/http"
 	"os/exec"
+	"time"
 )
 
 var _ = Describe("Main", func() {
@@ -25,10 +26,16 @@ var _ = Describe("Main", func() {
 	})
 
 	It("should list catalog of services offered by the SMB service broker", func() {
-		resp, err := http.DefaultClient.Get("http://localhost:8080/v2/catalog")
-		Expect(err).NotTo(HaveOccurred())
+		var resp *http.Response
 
-		Expect(resp.Status).To(Equal("200 OK"))
+		Eventually(func() string {
+			resp, _ = http.DefaultClient.Get("http://localhost:8080/v2/catalog")
+			if resp == nil {
+				return ""
+			}
+			return resp.Status
+		}, 10 * time.Second).Should(Equal("200 OK"))
+
 		assertHttpResponseContainsSubstring(resp.Body, "services")
 	})
 })
