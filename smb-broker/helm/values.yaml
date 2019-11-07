@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: cfpersi/smb-broker
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 imagePullSecrets: []
 nameOverride: ""
