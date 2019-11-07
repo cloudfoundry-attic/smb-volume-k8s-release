@@ -15,6 +15,11 @@ fmt:
 image:
 	docker build -t cfpersi/smb-broker .
 
+helm:
+	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade smb-dev-broker ./helm || helm install --name smb-dev-broker ./helm
+
+helm_delete:
+	helm delete --purge smb-dev-broker
 
 # Goreleaser is a tool that allows anyone to integrate a binary releasing
 # process to their pipelines.
@@ -23,4 +28,4 @@ release:
 	git push origin $(VERSION)
 	goreleaser --rm-dist
 
-.PHONY: install test fmt image release
+.PHONY: install test fmt image release helm helm_delete
