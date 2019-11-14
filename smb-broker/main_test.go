@@ -25,17 +25,19 @@ var _ = Describe("Main", func() {
 		session.Kill()
 	})
 
-	It("should list catalog of services offered by the SMB service broker", func() {
-		var resp *http.Response
+	Describe("#Catalog", func() {
+		It("should list catalog of services offered by the SMB service broker", func() {
+			var resp *http.Response
 
-		Eventually(func() string {
-			resp, _ = http.DefaultClient.Get("http://localhost:8080/v2/catalog")
-			if resp == nil {
-				return ""
-			}
-			return resp.Status
-		}, 10 * time.Second).Should(Equal("200 OK"))
+			Eventually(func() string {
+				resp, _ = http.DefaultClient.Get("http://localhost:8080/v2/catalog")
+				if resp == nil {
+					return ""
+				}
+				return resp.Status
+			}, 10 * time.Second).Should(Equal("200 OK"))
 
-		assertHttpResponseContainsSubstring(resp.Body, "services")
+			assertHttpResponseContainsSubstring(resp.Body, "services")
+		})
 	})
 })
