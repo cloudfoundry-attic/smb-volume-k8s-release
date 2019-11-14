@@ -16,7 +16,7 @@ image:
 	docker build -t cfpersi/smb-broker .
 
 helm:
-	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade smb-dev-broker ./helm || helm install --name smb-dev-broker ./helm
+	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade --recreate-pods smb-dev-broker ./helm || helm install --name smb-dev-broker ./helm
 
 helm_delete:
 	helm delete --purge smb-dev-broker
