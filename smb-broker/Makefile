@@ -14,11 +14,16 @@ fmt:
 
 image:
 	docker build -t cfpersi/smb-broker .
+	docker tag cfpersi/smb-broker cfpersi/smb-broker:dev
+	docker push cfpersi/smb-broker:dev
 
 helm:
 	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade --recreate-pods smb-dev-broker ./helm || helm install --name smb-dev-broker ./helm
 
+helm-dev:
+	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade --recreate-pods --set image.tag=dev smb-dev-broker ./helm || helm install --name smb-dev-broker --set image.tag=dev ./helm
+
 helm_delete:
 	helm delete --purge smb-dev-broker
 
-.PHONY: install test fmt image release helm helm_delete
+.PHONY: install test fmt image release helm helm_delete helm-dev
