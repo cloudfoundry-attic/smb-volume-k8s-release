@@ -6,12 +6,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi/domain"
 	"net/http"
+	"os"
 )
 import "github.com/pivotal-cf/brokerapi"
 
 func BrokerHandler() http.Handler {
 	router := mux.NewRouter()
-	brokerapi.AttachRoutes(router, SMBServiceBroker{}, lager.NewLogger("smb-broker"))
+	logger := lager.NewLogger("smb-broker")
+	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
+
+	brokerapi.AttachRoutes(router, SMBServiceBroker{}, logger)
 	return router
 }
 
@@ -45,7 +49,7 @@ func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 }
 
 func (S SMBServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (domain.ProvisionedServiceSpec, error) {
-	panic("implement me")
+	return domain.ProvisionedServiceSpec{}, nil
 }
 
 func (S SMBServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
