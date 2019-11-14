@@ -7,8 +7,11 @@ import (
 	"github.com/pivotal-cf/brokerapi/domain"
 	"net/http"
 	"os"
+	"github.com/pivotal-cf/brokerapi"
 )
-import "github.com/pivotal-cf/brokerapi"
+
+const ServiceID = "123"
+const PlanID = "plan-id"
 
 func BrokerHandler() http.Handler {
 	router := mux.NewRouter()
@@ -24,18 +27,18 @@ type SMBServiceBroker struct {
 
 func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
 	return []domain.Service{{
-		ID:                   "123",
+		ID:                   ServiceID,
 		Name:                 "SMB",
 		Description:          "SMB for K8s",
 		Bindable:             true,
-		InstancesRetrievable: false,
+		InstancesRetrievable: true,
 		BindingsRetrievable:  true,
 		Tags:                 []string{"pivotal", "smb", "volume-services"},
 		PlanUpdatable:        false,
 		Plans: []domain.ServicePlan{
 			{
 				Description: "The only SMB Plan",
-				ID:          "plan-id",
+				ID:          PlanID,
 				Name:        "Existing",
 				Metadata: &domain.ServicePlanMetadata{
 					DisplayName: "SMB",

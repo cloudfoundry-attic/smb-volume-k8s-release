@@ -5,6 +5,7 @@
     "description": "SMB for K8s",
     "bindable": true,
     "bindings_retrievable": true,
+    "instances_retrievable": true,
     "tags": [
       "pivotal",
       "smb",
