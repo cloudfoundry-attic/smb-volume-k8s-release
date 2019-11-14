@@ -25,10 +25,10 @@ type SMBServiceBroker struct {
 func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
 	return []domain.Service{{
 		ID:                   "123",
-		Name:                 "SMB Broker K8s",
-		Description:          "SMB Broker K8s",
+		Name:                 "SMB",
+		Description:          "SMB for K8s",
 		Bindable:             true,
-		InstancesRetrievable: true,
+		InstancesRetrievable: false,
 		BindingsRetrievable:  true,
 		Tags:                 []string{"pivotal", "smb", "volume-services"},
 		PlanUpdatable:        false,
@@ -44,7 +44,7 @@ func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 		},
 		Requires:        []domain.RequiredPermission{},
 		Metadata:        &domain.ServiceMetadata{},
-		DashboardClient: &domain.ServiceDashboardClient{},
+		DashboardClient: nil,
 	}}, nil
 }
 

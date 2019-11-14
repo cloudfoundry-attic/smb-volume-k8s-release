@@ -1,10 +1,9 @@
 {
   "services": [{
     "id": "123",
-    "name": "SMB Broker K8s",
-    "description": "SMB Broker K8s",
+    "name": "SMB",
+    "description": "SMB for K8s",
     "bindable": true,
-    "instances_retrievable": true,
     "bindings_retrievable": true,
     "tags": [
       "pivotal",
@@ -22,11 +21,6 @@
         }
       }
     ],
-    "metadata": {},
-    "dashboard_client": {
-      "id": "",
-      "secret": "",
-      "redirect_uri": ""
-    }
+    "metadata": {}
   }]
 }
