@@ -4,10 +4,10 @@ import (
 	"code.cloudfoundry.org/lager"
 	"context"
 	"github.com/gorilla/mux"
+	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-cf/brokerapi/domain"
 	"net/http"
 	"os"
-	"github.com/pivotal-cf/brokerapi"
 )
 
 const ServiceID = "123"
