@@ -1,3 +1,9 @@
+# code.cloudfoundry.org/lager v2.0.0+incompatible
+code.cloudfoundry.org/lager
+# github.com/google/uuid v1.0.0
+github.com/google/uuid
+# github.com/gorilla/mux v1.7.3
+github.com/gorilla/mux
 # github.com/hpcloud/tail v1.0.0
 github.com/hpcloud/tail
 github.com/hpcloud/tail/ratelimiter
@@ -38,6 +44,18 @@ github.com/onsi/gomega/matchers/support/goraph/bipartitegraph
 github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
+# github.com/pborman/uuid v1.2.0
+github.com/pborman/uuid
+# github.com/pivotal-cf/brokerapi v6.4.2+incompatible
+github.com/pivotal-cf/brokerapi
+github.com/pivotal-cf/brokerapi/auth
+github.com/pivotal-cf/brokerapi/domain
+github.com/pivotal-cf/brokerapi/domain/apiresponses
+github.com/pivotal-cf/brokerapi/handlers
+github.com/pivotal-cf/brokerapi/middlewares
+github.com/pivotal-cf/brokerapi/utils
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
 # golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 golang.org/x/net/html/charset
 golang.org/x/net/html

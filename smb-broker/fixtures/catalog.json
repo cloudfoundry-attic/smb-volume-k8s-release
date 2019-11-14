@@ -1,55 +1,32 @@
 {
   "services": [{
+    "id": "123",
+    "name": "SMB Broker K8s",
+    "description": "SMB Broker K8s",
     "bindable": true,
-    "description": "SMB Broker for k8s",
-    "id": "0A789746-596F-4CEA-BFAC-A0795DA056E3",
-    "name": "smb-broker",
-    "plan_updateable": false,
-    "plans": [{
-      "description": "The only SMB plan",
-      "id": "plan-id",
-      "name": "Existing",
-      "metadata": {
-        "displayName": "SMB"
-      },
-      "schemas": {
-        "service_instance": {
-          "create": {
-            "parameters": {
-              "$schema": "http://json-schema.org/draft-04/schema#",
-              "type": "object",
-              "properties": {}
-            }
-          },
-          "update": {
-            "parameters": {
-              "$schema": "http://json-schema.org/draft-04/schema#",
-              "type": "object",
-              "properties": {}
-            }
-          }
-        },
-        "service_binding": {
-          "create": {
-            "parameters": {
-              "$schema": "http://json-schema.org/draft-04/schema#",
-              "type": "object",
-              "properties": {}
-            }
-          }
-        }
-      }
-    }],
-    "metadata": {
-      "displayName": "SMB",
-      "longDescription": "Long description",
-      "documentationUrl": "http://thedocs.com",
-      "supportUrl": "http://helpme.no"
-    },
+    "instances_retrievable": true,
+    "bindings_retrievable": true,
     "tags": [
       "pivotal",
       "smb",
       "volume-services"
-    ]
+    ],
+    "plan_updateable": false,
+    "plans": [
+      {
+        "id": "plan-id",
+        "name": "Existing",
+        "description": "The only SMB Plan",
+        "metadata": {
+          "displayName": "SMB"
+        }
+      }
+    ],
+    "metadata": {},
+    "dashboard_client": {
+      "id": "",
+      "secret": "",
+      "redirect_uri": ""
+    }
   }]
 }

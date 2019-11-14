@@ -21,7 +21,7 @@ var smbBrokerCompiledPath string
 
 var _ = BeforeSuite(func() {
 	var err error
-	smbBrokerCompiledPath, err = gexec.Build("code.cloudfoundry.org/smb-broker")
+	smbBrokerCompiledPath, err = gexec.Build("code.cloudfoundry.org/smb-broker", "-mod=vendor")
 	Expect(err).NotTo(HaveOccurred())
 })
 
