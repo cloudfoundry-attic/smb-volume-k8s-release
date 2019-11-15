@@ -59,8 +59,6 @@ var _ = Describe("Handlers", func() {
 			instanceID, val1, key1 string
 		)
 		BeforeEach(func() {
-			key1 = randomString()
-			val1 = randomString()
 			instanceID = randomString()
 			request, err = http.NewRequest(http.MethodGet, fmt.Sprintf("/v2/service_instances/%s", instanceID), nil)
 			Expect(err).NotTo(HaveOccurred())
@@ -68,6 +66,9 @@ var _ = Describe("Handlers", func() {
 		})
 
 		BeforeEach(func() {
+			key1 = randomString()
+			val1 = randomString()
+
 			store.GetReturns(map[string]interface{}{
 				key1: val1,
 			})
