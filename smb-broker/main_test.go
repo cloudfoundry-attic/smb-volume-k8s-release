@@ -37,7 +37,7 @@ var _ = Describe("Main", func() {
 					return ""
 				}
 				return resp.Status
-			}, 10 * time.Second).Should(Equal("200 OK"))
+			}, 10*time.Second).Should(Equal("200 OK"))
 
 			assertHttpResponseContainsSubstring(resp.Body, "services")
 		})
@@ -56,7 +56,7 @@ var _ = Describe("Main", func() {
 					return ""
 				}
 				return resp.Status
-			}, 10 * time.Second).Should(Equal("201 Created"))
+			}, 10*time.Second).Should(Equal("201 Created"))
 
 			bytes, err := ioutil.ReadAll(resp.Body)
 			Expect(err).NotTo(HaveOccurred())

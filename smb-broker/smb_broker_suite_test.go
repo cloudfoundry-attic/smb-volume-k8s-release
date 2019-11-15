@@ -28,7 +28,6 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 })
 
-
 func fixture(name string) string {
 	filePath := path.Join("fixtures", name)
 	contents, err := ioutil.ReadFile(filePath)

@@ -62,9 +62,9 @@ func (S SMBServiceBroker) Deprovision(ctx context.Context, instanceID string, de
 
 func (S SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
 	return domain.GetInstanceDetailsSpec{
-		ServiceID: "",
-		PlanID: "",
-		Parameters: map[string]interface{} {"key1": "val1"},
+		ServiceID:  "",
+		PlanID:     "",
+		Parameters: map[string]interface{}{"key1": "val1"},
 	}, nil
 }
 

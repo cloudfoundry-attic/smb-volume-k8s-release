@@ -56,12 +56,11 @@ var _ = Describe("Handlers", func() {
 			var err error
 			request, err = http.NewRequest(http.MethodGet, "/v2/service_instances/123", nil)
 			Expect(err).NotTo(HaveOccurred())
-			request.Header.Add("X-Broker-API-Version","2.14")
+			request.Header.Add("X-Broker-API-Version", "2.14")
 		})
 
-
 		BeforeEach(func() {
-			store.GetReturns(map[string]interface{} {
+			store.GetReturns(map[string]interface{}{
 				"key1": "val1",
 			})
 		})
