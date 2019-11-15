@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"path"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,6 +21,8 @@ func TestSmbBroker(t *testing.T) {
 var smbBrokerCompiledPath string
 
 var _ = BeforeSuite(func() {
+	SetDefaultEventuallyTimeout(1 * time.Minute)
+
 	var err error
 	smbBrokerCompiledPath, err = gexec.Build("code.cloudfoundry.org/smb-broker", "-mod=vendor")
 	Expect(err).NotTo(HaveOccurred())
