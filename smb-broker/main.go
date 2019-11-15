@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -12,5 +13,9 @@ func main() {
 		errChan <- err
 	}()
 	fmt.Println("Started")
-	<-errChan
+	err := <-errChan
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Unable to start server: %v", err))
+		os.Exit(1)
+	}
 }

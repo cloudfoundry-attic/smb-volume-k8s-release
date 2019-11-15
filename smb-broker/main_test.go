@@ -25,6 +25,7 @@ var _ = Describe("Main", func() {
 
 	AfterEach(func() {
 		session.Kill()
+		time.Sleep(1 * time.Second)
 	})
 
 	Describe("#Catalog", func() {
@@ -37,7 +38,7 @@ var _ = Describe("Main", func() {
 					return ""
 				}
 				return resp.Status
-			}, 10*time.Second).Should(Equal("200 OK"))
+			}).Should(Equal("200 OK"))
 
 			assertHttpResponseContainsSubstring(resp.Body, "services")
 		})
@@ -56,11 +57,43 @@ var _ = Describe("Main", func() {
 					return ""
 				}
 				return resp.Status
-			}, 10*time.Second).Should(Equal("201 Created"))
+			}).Should(Equal("201 Created"))
 
 			bytes, err := ioutil.ReadAll(resp.Body)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 		})
 	})
+
+	Context("Unable to start a http server", func() {
+		var server *http.Server
+		BeforeEach(func() {
+			go func() {
+				defer GinkgoRecover()
+				server = &http.Server{Addr: "0.0.0.0:8080", Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					w.WriteHeader(200)
+				})}
+				err := server.ListenAndServe()
+				Expect(err).To(MatchError(http.ErrServerClosed))
+			}()
+
+			Eventually(func() error {
+				_, err := http.Get("http://localhost:8080")
+				return err
+			}).Should(Succeed())
+		})
+
+		AfterEach(func() {
+			if server != nil {
+				Expect(server.Close()).To(Succeed())
+				time.Sleep(1 * time.Second)
+			}
+		})
+
+		It("should log a meaningful error", func() {
+			Eventually(session, 10*time.Second).Should(gbytes.Say("Unable to start server"))
+			Eventually(session).Should(gexec.Exit(1))
+		})
+	})
+
 })
