@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/smb-broker/store"
 	"context"
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi"
@@ -13,7 +14,7 @@ import (
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler() http.Handler {
+func BrokerHandler(store ...store.ServiceInstanceStore) http.Handler {
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
@@ -60,7 +61,11 @@ func (S SMBServiceBroker) Deprovision(ctx context.Context, instanceID string, de
 }
 
 func (S SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
-	panic("implement me")
+	return domain.GetInstanceDetailsSpec{
+		ServiceID: "",
+		PlanID: "",
+		Parameters: map[string]interface{} {"key1": "val1"},
+	}, nil
 }
 
 func (S SMBServiceBroker) Update(ctx context.Context, instanceID string, details domain.UpdateDetails, asyncAllowed bool) (domain.UpdateServiceSpec, error) {

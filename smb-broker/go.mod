@@ -5,6 +5,7 @@ go 1.12
 require (
 	code.cloudfoundry.org/lager v2.0.0+incompatible
 	github.com/gorilla/mux v1.7.3
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
 	github.com/onsi/ginkgo v1.10.3
 	github.com/onsi/gomega v1.7.1
 	github.com/pborman/uuid v1.2.0 // indirect
