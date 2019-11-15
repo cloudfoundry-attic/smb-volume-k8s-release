@@ -8,22 +8,22 @@ import (
 )
 
 type FakeServiceInstanceStore struct {
-	GetStub        func(string) map[string]interface{}
+	GetStub        func(string) store.ServiceInstance
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
 		arg1 string
 	}
 	getReturns struct {
-		result1 map[string]interface{}
+		result1 store.ServiceInstance
 	}
 	getReturnsOnCall map[int]struct {
-		result1 map[string]interface{}
+		result1 store.ServiceInstance
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInstanceStore) Get(arg1 string) map[string]interface{} {
+func (fake *FakeServiceInstanceStore) Get(arg1 string) store.ServiceInstance {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
@@ -47,7 +47,7 @@ func (fake *FakeServiceInstanceStore) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeServiceInstanceStore) GetCalls(stub func(string) map[string]interface{}) {
+func (fake *FakeServiceInstanceStore) GetCalls(stub func(string) store.ServiceInstance) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
@@ -60,26 +60,26 @@ func (fake *FakeServiceInstanceStore) GetArgsForCall(i int) string {
 	return argsForCall.arg1
 }
 
-func (fake *FakeServiceInstanceStore) GetReturns(result1 map[string]interface{}) {
+func (fake *FakeServiceInstanceStore) GetReturns(result1 store.ServiceInstance) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	fake.getReturns = struct {
-		result1 map[string]interface{}
+		result1 store.ServiceInstance
 	}{result1}
 }
 
-func (fake *FakeServiceInstanceStore) GetReturnsOnCall(i int, result1 map[string]interface{}) {
+func (fake *FakeServiceInstanceStore) GetReturnsOnCall(i int, result1 store.ServiceInstance) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	if fake.getReturnsOnCall == nil {
 		fake.getReturnsOnCall = make(map[int]struct {
-			result1 map[string]interface{}
+			result1 store.ServiceInstance
 		})
 	}
 	fake.getReturnsOnCall[i] = struct {
-		result1 map[string]interface{}
+		result1 store.ServiceInstance
 	}{result1}
 }
 

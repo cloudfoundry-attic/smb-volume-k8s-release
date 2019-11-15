@@ -2,6 +2,7 @@ package main_test
 
 import (
 	. "code.cloudfoundry.org/smb-broker"
+	"code.cloudfoundry.org/smb-broker/store"
 	"code.cloudfoundry.org/smb-broker/store/storefakes"
 	"fmt"
 	. "github.com/onsi/ginkgo"
@@ -16,15 +17,15 @@ import (
 var _ = Describe("Handlers", func() {
 	var recorder *httptest.ResponseRecorder
 	var request *http.Request
-	var store *storefakes.FakeServiceInstanceStore
+	var fakeServiceInstanceStore *storefakes.FakeServiceInstanceStore
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
-		store = &storefakes.FakeServiceInstanceStore{}
+		fakeServiceInstanceStore = &storefakes.FakeServiceInstanceStore{}
 	})
 
 	JustBeforeEach(func() {
-		BrokerHandler(store).ServeHTTP(recorder, request)
+		BrokerHandler(fakeServiceInstanceStore).ServeHTTP(recorder, request)
 	})
 
 	Describe("#Catalog endpoint", func() {
@@ -55,35 +56,48 @@ var _ = Describe("Handlers", func() {
 
 	Describe("#GetInstance endpoint", func() {
 		var (
-			err                    error
-			instanceID, val1, key1 string
+			err                                                   error
+			instanceID, val1, val2, key1, key2, serviceID, planID string
 		)
+		var source = rand.NewSource(GinkgoRandomSeed())
+
 		BeforeEach(func() {
-			instanceID = randomString()
+			instanceID = randomString(source)
 			request, err = http.NewRequest(http.MethodGet, fmt.Sprintf("/v2/service_instances/%s", instanceID), nil)
 			Expect(err).NotTo(HaveOccurred())
 			request.Header.Add("X-Broker-API-Version", "2.14")
 		})
 
 		BeforeEach(func() {
-			key1 = randomString()
-			val1 = randomString()
+			key1 = randomString(source)
+			key2 = randomString(source)
+			val1 = randomString(source)
+			val2 = randomString(source)
+			serviceID = randomString(source)
+			planID = randomString(source)
 
-			store.GetReturns(map[string]interface{}{
+			params := map[string]interface{}{
 				key1: val1,
+				key2: val2,
+			}
+			fakeServiceInstanceStore.GetReturns(store.ServiceInstance{
+				ServiceID:  serviceID,
+				PlanID:     planID,
+				Parameters: params,
 			})
 		})
 
 		It("should allow provisioning a new service", func() {
-			Expect(store.GetCallCount()).To(Equal(1))
-			Expect(store.GetArgsForCall(0)).To(Equal(instanceID))
+			Expect(fakeServiceInstanceStore.GetCallCount()).To(Equal(1))
+			Expect(fakeServiceInstanceStore.GetArgsForCall(0)).To(Equal(instanceID))
 			Expect(recorder.Code).To(Equal(200))
-			Expect(recorder.Body).To(MatchJSON(fmt.Sprintf(`{ "service_id": "", "plan_id": "", "parameters": { "%s": "%s" } }`, key1, val1)))
+			Expect(recorder.Body).To(MatchJSON(
+				fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "%s": "%s", "%s": "%s" } }`, serviceID, planID, key1, val1, key2, val2)),
+			)
 		})
 	})
 })
 
-func randomString() string {
-	sourceSeededByGinkgo := rand.NewSource(GinkgoRandomSeed())
+func randomString(sourceSeededByGinkgo rand.Source) string {
 	return strconv.Itoa(rand.New(sourceSeededByGinkgo).Int())
 }
