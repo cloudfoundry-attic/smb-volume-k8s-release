@@ -19,11 +19,14 @@ func BrokerHandler(store ...store.ServiceInstanceStore) http.Handler {
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
-	brokerapi.AttachRoutes(router, SMBServiceBroker{}, logger)
+	brokerapi.AttachRoutes(router, SMBServiceBroker{
+		Store: store,
+	}, logger)
 	return router
 }
 
 type SMBServiceBroker struct {
+	Store []store.ServiceInstanceStore
 }
 
 func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -60,11 +63,22 @@ func (S SMBServiceBroker) Deprovision(ctx context.Context, instanceID string, de
 	panic("implement me")
 }
 
-func (S SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
+func (s SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
+	var get map[string]interface{}
+
+	if s.Store != nil {
+		get = s.Store[0].Get(instanceID)
+	}
+
+	var keyToUse string
+	for key, _ := range get {
+		keyToUse = key
+	}
+
 	return domain.GetInstanceDetailsSpec{
 		ServiceID:  "",
 		PlanID:     "",
-		Parameters: map[string]interface{}{"key1": "val1"},
+		Parameters: map[string]interface{}{keyToUse: get[keyToUse]},
 	}, nil
 }
 

@@ -8,9 +8,10 @@ import (
 )
 
 type FakeServiceInstanceStore struct {
-	GetStub        func() map[string]interface{}
+	GetStub        func(string) map[string]interface{}
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
+		arg1 string
 	}
 	getReturns struct {
 		result1 map[string]interface{}
@@ -22,15 +23,16 @@ type FakeServiceInstanceStore struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInstanceStore) Get() map[string]interface{} {
+func (fake *FakeServiceInstanceStore) Get(arg1 string) map[string]interface{} {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Get", []interface{}{})
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("Get", []interface{}{arg1})
 	fake.getMutex.Unlock()
 	if fake.GetStub != nil {
-		return fake.GetStub()
+		return fake.GetStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
@@ -45,10 +47,17 @@ func (fake *FakeServiceInstanceStore) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeServiceInstanceStore) GetCalls(stub func() map[string]interface{}) {
+func (fake *FakeServiceInstanceStore) GetCalls(stub func(string) map[string]interface{}) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
+}
+
+func (fake *FakeServiceInstanceStore) GetArgsForCall(i int) string {
+	fake.getMutex.RLock()
+	defer fake.getMutex.RUnlock()
+	argsForCall := fake.getArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeServiceInstanceStore) GetReturns(result1 map[string]interface{}) {
