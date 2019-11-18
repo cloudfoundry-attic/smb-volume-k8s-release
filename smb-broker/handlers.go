@@ -19,17 +19,17 @@ func BrokerHandler(store store.ServiceInstanceStore) http.Handler {
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
-	brokerapi.AttachRoutes(router, SMBServiceBroker{
+	brokerapi.AttachRoutes(router, smbServiceBroker{
 		Store: store,
 	}, logger)
 	return router
 }
 
-type SMBServiceBroker struct {
+type smbServiceBroker struct {
 	Store store.ServiceInstanceStore
 }
 
-func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
+func (S smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
 	return []domain.Service{{
 		ID:                   ServiceID,
 		Name:                 "SMB",
@@ -55,15 +55,15 @@ func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 	}}, nil
 }
 
-func (S SMBServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (domain.ProvisionedServiceSpec, error) {
+func (S smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (domain.ProvisionedServiceSpec, error) {
 	return domain.ProvisionedServiceSpec{}, nil
 }
 
-func (S SMBServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
+func (S smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
 	panic("implement me")
 }
 
-func (s SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
+func (s smbServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
 	var get store.ServiceInstance
 
 	if s.Store != nil {
@@ -82,26 +82,26 @@ func (s SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (d
 	}, nil
 }
 
-func (S SMBServiceBroker) Update(ctx context.Context, instanceID string, details domain.UpdateDetails, asyncAllowed bool) (domain.UpdateServiceSpec, error) {
+func (S smbServiceBroker) Update(ctx context.Context, instanceID string, details domain.UpdateDetails, asyncAllowed bool) (domain.UpdateServiceSpec, error) {
 	panic("implement me")
 }
 
-func (S SMBServiceBroker) LastOperation(ctx context.Context, instanceID string, details domain.PollDetails) (domain.LastOperation, error) {
+func (S smbServiceBroker) LastOperation(ctx context.Context, instanceID string, details domain.PollDetails) (domain.LastOperation, error) {
 	panic("implement me")
 }
 
-func (S SMBServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
+func (S smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
 	panic("implement me")
 }
 
-func (S SMBServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
+func (S smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
 	panic("implement me")
 }
 
-func (S SMBServiceBroker) GetBinding(ctx context.Context, instanceID, bindingID string) (domain.GetBindingSpec, error) {
+func (S smbServiceBroker) GetBinding(ctx context.Context, instanceID, bindingID string) (domain.GetBindingSpec, error) {
 	panic("implement me")
 }
 
-func (S SMBServiceBroker) LastBindingOperation(ctx context.Context, instanceID, bindingID string, details domain.PollDetails) (domain.LastOperation, error) {
+func (S smbServiceBroker) LastBindingOperation(ctx context.Context, instanceID, bindingID string, details domain.PollDetails) (domain.LastOperation, error) {
 	panic("implement me")
 }
