@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-cf/brokerapi/domain"
+	"github.com/pkg/errors"
 	"net/http"
 	"os"
 )
@@ -14,15 +15,18 @@ import (
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(store store.ServiceInstanceStore) http.Handler {
+func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore) (http.Handler, error) {
+	if serviceInstanceStore == nil {
+		return nil, errors.New("")
+	}
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
 	brokerapi.AttachRoutes(router, smbServiceBroker{
-		Store: store,
+		Store: serviceInstanceStore,
 	}, logger)
-	return router
+	return router, nil
 }
 
 type smbServiceBroker struct {

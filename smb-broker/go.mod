@@ -10,5 +10,5 @@ require (
 	github.com/onsi/gomega v1.7.1
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pivotal-cf/brokerapi v6.4.2+incompatible
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/pkg/errors v0.8.1
 )

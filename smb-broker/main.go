@@ -1,6 +1,7 @@
 package main
 
 import (
+	"code.cloudfoundry.org/smb-broker/store"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,7 +10,8 @@ import (
 func main() {
 	var errChan = make(chan error)
 	go func() {
-		err := http.ListenAndServe("0.0.0.0:8080", BrokerHandler(nil))
+		handler, _ := BrokerHandler(store.InMemoryServiceInstanceStore{})
+		err := http.ListenAndServe("0.0.0.0:8080", handler)
 		errChan <- err
 	}()
 	fmt.Println("Started")
