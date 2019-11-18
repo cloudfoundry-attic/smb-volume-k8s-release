@@ -17,7 +17,7 @@ const PlanID = "plan-id"
 
 func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore) (http.Handler, error) {
 	if serviceInstanceStore == nil {
-		return nil, errors.New("")
+		return nil, errors.New("missing a Service Instance Store")
 	}
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")

@@ -38,6 +38,7 @@ var _ = Describe("Handlers", func() {
 
 			It("should return a meaningful error message", func() {
 				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("missing a Service Instance Store"))
 			})
 		})
 	})
