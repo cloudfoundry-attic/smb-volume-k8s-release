@@ -8,6 +8,18 @@ import (
 )
 
 type FakeServiceInstanceStore struct {
+	AddStub        func(string, store.ServiceInstance) error
+	addMutex       sync.RWMutex
+	addArgsForCall []struct {
+		arg1 string
+		arg2 store.ServiceInstance
+	}
+	addReturns struct {
+		result1 error
+	}
+	addReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetStub        func(string) store.ServiceInstance
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
@@ -21,6 +33,67 @@ type FakeServiceInstanceStore struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeServiceInstanceStore) Add(arg1 string, arg2 store.ServiceInstance) error {
+	fake.addMutex.Lock()
+	ret, specificReturn := fake.addReturnsOnCall[len(fake.addArgsForCall)]
+	fake.addArgsForCall = append(fake.addArgsForCall, struct {
+		arg1 string
+		arg2 store.ServiceInstance
+	}{arg1, arg2})
+	fake.recordInvocation("Add", []interface{}{arg1, arg2})
+	fake.addMutex.Unlock()
+	if fake.AddStub != nil {
+		return fake.AddStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.addReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeServiceInstanceStore) AddCallCount() int {
+	fake.addMutex.RLock()
+	defer fake.addMutex.RUnlock()
+	return len(fake.addArgsForCall)
+}
+
+func (fake *FakeServiceInstanceStore) AddCalls(stub func(string, store.ServiceInstance) error) {
+	fake.addMutex.Lock()
+	defer fake.addMutex.Unlock()
+	fake.AddStub = stub
+}
+
+func (fake *FakeServiceInstanceStore) AddArgsForCall(i int) (string, store.ServiceInstance) {
+	fake.addMutex.RLock()
+	defer fake.addMutex.RUnlock()
+	argsForCall := fake.addArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInstanceStore) AddReturns(result1 error) {
+	fake.addMutex.Lock()
+	defer fake.addMutex.Unlock()
+	fake.AddStub = nil
+	fake.addReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeServiceInstanceStore) AddReturnsOnCall(i int, result1 error) {
+	fake.addMutex.Lock()
+	defer fake.addMutex.Unlock()
+	fake.AddStub = nil
+	if fake.addReturnsOnCall == nil {
+		fake.addReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.addReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeServiceInstanceStore) Get(arg1 string) store.ServiceInstance {
@@ -86,6 +159,8 @@ func (fake *FakeServiceInstanceStore) GetReturnsOnCall(i int, result1 store.Serv
 func (fake *FakeServiceInstanceStore) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.addMutex.RLock()
+	defer fake.addMutex.RUnlock()
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

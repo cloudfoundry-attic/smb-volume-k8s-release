@@ -10,7 +10,7 @@ import (
 func main() {
 	var errChan = make(chan error)
 	go func() {
-		handler, _ := BrokerHandler(store.InMemoryServiceInstanceStore{})
+		handler, _ := BrokerHandler(&store.InMemoryServiceInstanceStore{})
 		err := http.ListenAndServe("0.0.0.0:8080", handler)
 		errChan <- err
 	}()
