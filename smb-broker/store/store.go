@@ -9,3 +9,9 @@ type ServiceInstance struct {
 type ServiceInstanceStore interface {
 	Get(string) ServiceInstance
 }
+
+type InMemoryServiceInstanceStore struct {}
+
+func (InMemoryServiceInstanceStore) Get(string) ServiceInstance {
+	panic("implement me")
+}

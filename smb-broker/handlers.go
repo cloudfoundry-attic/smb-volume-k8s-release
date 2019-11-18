@@ -14,7 +14,7 @@ import (
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(store ...store.ServiceInstanceStore) http.Handler {
+func BrokerHandler(store store.ServiceInstanceStore) http.Handler {
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
@@ -26,7 +26,7 @@ func BrokerHandler(store ...store.ServiceInstanceStore) http.Handler {
 }
 
 type SMBServiceBroker struct {
-	Store []store.ServiceInstanceStore
+	Store store.ServiceInstanceStore
 }
 
 func (S SMBServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -67,7 +67,7 @@ func (s SMBServiceBroker) GetInstance(ctx context.Context, instanceID string) (d
 	var get store.ServiceInstance
 
 	if s.Store != nil {
-		get = s.Store[0].Get(instanceID)
+		get = s.Store.Get(instanceID)
 	}
 
 	parametersInstanceDetailsMap := map[string]interface{}{}
