@@ -74,6 +74,8 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	}
 
 	err := s.Store.Add(instanceID, store.ServiceInstance{
+		ServiceID: details.ServiceID,
+		PlanID: details.PlanID,
 		Parameters: serviceInstanceParameters,
 	})
 	return domain.ProvisionedServiceSpec{}, err

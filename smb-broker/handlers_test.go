@@ -79,6 +79,8 @@ var _ = Describe("Handlers", func() {
 				Expect(fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).AddCallCount()).To(Equal(1))
 				key, serviceInstance := fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).AddArgsForCall(0)
 				Expect(key).To(Equal(serviceInstanceKey))
+				Expect(serviceInstance.ServiceID).To(Equal("123"))
+				Expect(serviceInstance.PlanID).To(Equal("plan-id"))
 				Expect(serviceInstance.Parameters).To(HaveKeyWithValue("parameter1", "1"))
 				Expect(serviceInstance.Parameters).To(HaveKeyWithValue("parameter2", "foo"))
 			})
