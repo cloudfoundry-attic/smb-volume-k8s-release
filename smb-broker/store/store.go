@@ -8,7 +8,7 @@ type ServiceInstance struct {
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInstanceStore
 type ServiceInstanceStore interface {
-	Get(string) ServiceInstance
+	Get(string) (ServiceInstance, bool)
 	Add(string, ServiceInstance) error
 }
 
@@ -25,6 +25,7 @@ func (i *InMemoryServiceInstanceStore) Add(k string, v ServiceInstance) error {
 	return nil
 }
 
-func (i *InMemoryServiceInstanceStore) Get(k string) ServiceInstance {
-	return i.internalMap[k]
+func (i *InMemoryServiceInstanceStore) Get(k string) (ServiceInstance, bool) {
+	serviceInstance, found := i.internalMap[k]
+	return serviceInstance, found
 }

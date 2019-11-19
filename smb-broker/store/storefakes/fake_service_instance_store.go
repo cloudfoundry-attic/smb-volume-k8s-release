@@ -20,16 +20,18 @@ type FakeServiceInstanceStore struct {
 	addReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetStub        func(string) store.ServiceInstance
+	GetStub        func(string) (store.ServiceInstance, bool)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
 		arg1 string
 	}
 	getReturns struct {
 		result1 store.ServiceInstance
+		result2 bool
 	}
 	getReturnsOnCall map[int]struct {
 		result1 store.ServiceInstance
+		result2 bool
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -96,7 +98,7 @@ func (fake *FakeServiceInstanceStore) AddReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeServiceInstanceStore) Get(arg1 string) store.ServiceInstance {
+func (fake *FakeServiceInstanceStore) Get(arg1 string) (store.ServiceInstance, bool) {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
@@ -108,10 +110,10 @@ func (fake *FakeServiceInstanceStore) Get(arg1 string) store.ServiceInstance {
 		return fake.GetStub(arg1)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
 	fakeReturns := fake.getReturns
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeServiceInstanceStore) GetCallCount() int {
@@ -120,7 +122,7 @@ func (fake *FakeServiceInstanceStore) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeServiceInstanceStore) GetCalls(stub func(string) store.ServiceInstance) {
+func (fake *FakeServiceInstanceStore) GetCalls(stub func(string) (store.ServiceInstance, bool)) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
@@ -133,27 +135,30 @@ func (fake *FakeServiceInstanceStore) GetArgsForCall(i int) string {
 	return argsForCall.arg1
 }
 
-func (fake *FakeServiceInstanceStore) GetReturns(result1 store.ServiceInstance) {
+func (fake *FakeServiceInstanceStore) GetReturns(result1 store.ServiceInstance, result2 bool) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	fake.getReturns = struct {
 		result1 store.ServiceInstance
-	}{result1}
+		result2 bool
+	}{result1, result2}
 }
 
-func (fake *FakeServiceInstanceStore) GetReturnsOnCall(i int, result1 store.ServiceInstance) {
+func (fake *FakeServiceInstanceStore) GetReturnsOnCall(i int, result1 store.ServiceInstance, result2 bool) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	if fake.getReturnsOnCall == nil {
 		fake.getReturnsOnCall = make(map[int]struct {
 			result1 store.ServiceInstance
+			result2 bool
 		})
 	}
 	fake.getReturnsOnCall[i] = struct {
 		result1 store.ServiceInstance
-	}{result1}
+		result2 bool
+	}{result1, result2}
 }
 
 func (fake *FakeServiceInstanceStore) Invocations() map[string][][]interface{} {

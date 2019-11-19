@@ -14,7 +14,8 @@ var _ = Describe("Store", func() {
 		})
 
 		It("should return empty when retrieving from an empty store", func() {
-			serviceInstance := serviceInstanceStore.Get("")
+			serviceInstance, found := serviceInstanceStore.Get("")
+			Expect(found).To(BeFalse())
 			Expect(serviceInstance).To(Equal(store.ServiceInstance{}))
 		})
 
@@ -37,7 +38,8 @@ var _ = Describe("Store", func() {
 			})
 
 			It("Should be able to retrieve the record in the store", func() {
-				fetchedServiceInstance := serviceInstanceStore.Get(key)
+				fetchedServiceInstance, found := serviceInstanceStore.Get(key)
+				Expect(found).To(BeTrue())
 				Expect(fetchedServiceInstance).To(Equal(expectedServiceInstance))
 			})
 		})

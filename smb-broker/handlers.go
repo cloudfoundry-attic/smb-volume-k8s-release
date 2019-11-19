@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/smb-broker/store"
 	"context"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-cf/brokerapi/domain"
+	"github.com/pivotal-cf/brokerapi/domain/apiresponses"
 	"github.com/pkg/errors"
 	"net/http"
 	"os"
@@ -33,7 +36,7 @@ type smbServiceBroker struct {
 	Store store.ServiceInstanceStore
 }
 
-func (S smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
+func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
 	return []domain.Service{{
 		ID:                   ServiceID,
 		Name:                 "SMB",
@@ -59,53 +62,65 @@ func (S smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 	}}, nil
 }
 
-func (S smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (domain.ProvisionedServiceSpec, error) {
-	return domain.ProvisionedServiceSpec{}, nil
+func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (domain.ProvisionedServiceSpec, error) {
+	var serviceInstanceParameters map[string]interface{}
+
+	if details.RawParameters != nil {
+		var decoder = json.NewDecoder(bytes.NewBuffer(details.RawParameters))
+		err := decoder.Decode(&serviceInstanceParameters)
+		if err != nil {
+			return domain.ProvisionedServiceSpec{}, errors.New("unable to decode service instance parameters")
+		}
+	}
+
+	err := s.Store.Add(instanceID, store.ServiceInstance{
+		Parameters: serviceInstanceParameters,
+	})
+	return domain.ProvisionedServiceSpec{}, err
 }
 
-func (S smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
-	panic("implement me")
+func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
+	return domain.DeprovisionServiceSpec{}, nil
 }
 
 func (s smbServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
-	var get store.ServiceInstance
-
-	if s.Store != nil {
-		get = s.Store.Get(instanceID)
+	retrievedServiceInstance, found := s.Store.Get(instanceID)
+	if !found {
+		return domain.GetInstanceDetailsSpec{}, apiresponses.NewFailureResponse(errors.New("unable to find service instance"), 404, "")
 	}
 
 	parametersInstanceDetailsMap := map[string]interface{}{}
-	for key, val := range get.Parameters {
+	for key, val := range retrievedServiceInstance.Parameters {
 		parametersInstanceDetailsMap[key] = val
 	}
 
 	return domain.GetInstanceDetailsSpec{
-		ServiceID:  get.ServiceID,
-		PlanID:     get.PlanID,
+		ServiceID:  retrievedServiceInstance.ServiceID,
+		PlanID:     retrievedServiceInstance.PlanID,
 		Parameters: parametersInstanceDetailsMap,
 	}, nil
 }
 
-func (S smbServiceBroker) Update(ctx context.Context, instanceID string, details domain.UpdateDetails, asyncAllowed bool) (domain.UpdateServiceSpec, error) {
+func (s smbServiceBroker) Update(ctx context.Context, instanceID string, details domain.UpdateDetails, asyncAllowed bool) (domain.UpdateServiceSpec, error) {
 	panic("implement me")
 }
 
-func (S smbServiceBroker) LastOperation(ctx context.Context, instanceID string, details domain.PollDetails) (domain.LastOperation, error) {
+func (s smbServiceBroker) LastOperation(ctx context.Context, instanceID string, details domain.PollDetails) (domain.LastOperation, error) {
 	panic("implement me")
 }
 
-func (S smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
+func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
 	panic("implement me")
 }
 
-func (S smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
+func (s smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
 	panic("implement me")
 }
 
-func (S smbServiceBroker) GetBinding(ctx context.Context, instanceID, bindingID string) (domain.GetBindingSpec, error) {
+func (s smbServiceBroker) GetBinding(ctx context.Context, instanceID, bindingID string) (domain.GetBindingSpec, error) {
 	panic("implement me")
 }
 
-func (S smbServiceBroker) LastBindingOperation(ctx context.Context, instanceID, bindingID string, details domain.PollDetails) (domain.LastOperation, error) {
+func (s smbServiceBroker) LastBindingOperation(ctx context.Context, instanceID, bindingID string, details domain.PollDetails) (domain.LastOperation, error) {
 	panic("implement me")
 }
