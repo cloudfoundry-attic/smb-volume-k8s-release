@@ -13,4 +13,5 @@ require (
 	github.com/pivotal-cf/brokerapi v6.4.2+incompatible
 	github.com/pkg/errors v0.8.1
 	k8s.io/client-go v0.17.0
+	sigs.k8s.io/kind v0.6.1
 )

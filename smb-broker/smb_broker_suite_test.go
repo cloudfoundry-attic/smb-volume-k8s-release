@@ -6,11 +6,14 @@ import (
 	"io"
 	"io/ioutil"
 	"path"
+	"sigs.k8s.io/kind/pkg/apis/config/defaults"
+	"sigs.k8s.io/kind/pkg/cmd"
 	"testing"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"sigs.k8s.io/kind/pkg/cluster"
 )
 
 func TestSmbBroker(t *testing.T) {
@@ -21,12 +24,37 @@ func TestSmbBroker(t *testing.T) {
 var smbBrokerCompiledPath string
 
 var _ = BeforeSuite(func() {
-	SetDefaultEventuallyTimeout(1 * time.Minute)
+	createK8sCluster()
 
 	var err error
+	SetDefaultEventuallyTimeout(1 * time.Minute)
 	smbBrokerCompiledPath, err = gexec.Build("code.cloudfoundry.org/smb-broker", "-mod=vendor")
 	Expect(err).NotTo(HaveOccurred())
 })
+
+func createK8sCluster() {
+	provider := cluster.NewProvider(
+		cluster.ProviderWithLogger(cmd.NewLogger()),
+	)
+	// Check if the cluster name already exists
+	nodeName := "default-smb-broker-test-node"
+	n, err := provider.ListNodes(nodeName)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(n).To(HaveLen(0), "node(s) already exist for a cluster with the name "+nodeName)
+	//kindest/node:v1.13.12
+	// create the cluster
+	kubbeConfigPath := "/tmp/kubeconfig"
+	err = provider.Create(
+		nodeName,
+		cluster.CreateWithNodeImage(defaults.Image),
+		cluster.CreateWithRetain(true),
+		cluster.CreateWithWaitForReady(10*time.Minute),
+		cluster.CreateWithKubeconfigPath(kubbeConfigPath),
+		cluster.CreateWithDisplayUsage(true),
+		cluster.CreateWithDisplaySalutation(true),
+	)
+	Expect(err).NotTo(HaveOccurred())
+}
 
 func fixture(name string) string {
 	filePath := path.Join("fixtures", name)

@@ -1,7 +1,13 @@
 # code.cloudfoundry.org/lager v2.0.0+incompatible
 code.cloudfoundry.org/lager
+# github.com/BurntSushi/toml v0.3.1
+github.com/BurntSushi/toml
+# github.com/alessio/shellescape v0.0.0-20190409004728-b115ca0f9053
+github.com/alessio/shellescape
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
+# github.com/evanphx/json-patch v4.5.0+incompatible
+github.com/evanphx/json-patch
 # github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
@@ -19,8 +25,12 @@ github.com/hpcloud/tail/ratelimiter
 github.com/hpcloud/tail/util
 github.com/hpcloud/tail/watch
 github.com/hpcloud/tail/winfile
+# github.com/inconshreveable/mousetrap v1.0.0
+github.com/inconshreveable/mousetrap
 # github.com/json-iterator/go v1.1.8
 github.com/json-iterator/go
+# github.com/mattn/go-isatty v0.0.10
+github.com/mattn/go-isatty
 # github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
 github.com/maxbrunsfeld/counterfeiter/v6
 github.com/maxbrunsfeld/counterfeiter/v6/arguments
@@ -66,6 +76,8 @@ github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 # github.com/pborman/uuid v1.2.0
 github.com/pborman/uuid
+# github.com/pelletier/go-toml v1.2.0
+github.com/pelletier/go-toml
 # github.com/pivotal-cf/brokerapi v6.4.2+incompatible
 github.com/pivotal-cf/brokerapi
 github.com/pivotal-cf/brokerapi/domain
@@ -76,6 +88,10 @@ github.com/pivotal-cf/brokerapi/middlewares
 github.com/pivotal-cf/brokerapi/utils
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
+# github.com/spf13/cobra v0.0.5
+github.com/spf13/cobra
+# github.com/spf13/pflag v1.0.5
+github.com/spf13/pflag
 # golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
@@ -91,7 +107,7 @@ golang.org/x/net/html/atom
 # golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
-# golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456
+# golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.3.2
@@ -144,8 +160,10 @@ gopkg.in/fsnotify.v1
 gopkg.in/inf.v0
 # gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
 gopkg.in/tomb.v1
-# gopkg.in/yaml.v2 v2.2.4
+# gopkg.in/yaml.v2 v2.2.5
 gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20191106092431-e228e37189d3
+gopkg.in/yaml.v3
 # k8s.io/apimachinery v0.17.0
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/apis/meta/v1
@@ -180,6 +198,7 @@ k8s.io/apimachinery/pkg/runtime/serializer/versioning
 k8s.io/apimachinery/pkg/util/framer
 k8s.io/apimachinery/pkg/util/yaml
 k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
+k8s.io/apimachinery/pkg/util/version
 # k8s.io/client-go v0.17.0
 k8s.io/client-go/rest
 k8s.io/client-go/pkg/version
@@ -199,5 +218,42 @@ k8s.io/client-go/util/keyutil
 k8s.io/klog
 # k8s.io/utils v0.0.0-20191114184206-e782cd3c129f
 k8s.io/utils/integer
+# sigs.k8s.io/kind v0.6.1
+sigs.k8s.io/kind/pkg/cmd/kind/create/cluster
+sigs.k8s.io/kind/pkg/cluster
+sigs.k8s.io/kind/pkg/cmd
+sigs.k8s.io/kind/pkg/errors
+sigs.k8s.io/kind/pkg/log
+sigs.k8s.io/kind/pkg/apis/config/v1alpha3
+sigs.k8s.io/kind/pkg/cluster/constants
+sigs.k8s.io/kind/pkg/cluster/nodes
+sigs.k8s.io/kind/pkg/internal/apis/config/encoding
+sigs.k8s.io/kind/pkg/internal/cluster/context
+sigs.k8s.io/kind/pkg/internal/cluster/create
+sigs.k8s.io/kind/pkg/internal/cluster/delete
+sigs.k8s.io/kind/pkg/internal/cluster/kubeconfig
+sigs.k8s.io/kind/pkg/internal/cluster/logs
+sigs.k8s.io/kind/pkg/internal/cluster/providers/docker
+sigs.k8s.io/kind/pkg/internal/cluster/providers/provider
+sigs.k8s.io/kind/pkg/internal/util/cli
+sigs.k8s.io/kind/pkg/internal/util/env
+sigs.k8s.io/kind/pkg/apis/config/defaults
+sigs.k8s.io/kind/pkg/exec
+sigs.k8s.io/kind/pkg/apis/config/v1alpha4
+sigs.k8s.io/kind/pkg/internal/apis/config
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/config
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/installcni
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/installstorage
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/kubeadminit
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/kubeadmjoin
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/loadbalancer
+sigs.k8s.io/kind/pkg/internal/cluster/create/actions/waitforready
+sigs.k8s.io/kind/pkg/cluster/nodeutils
+sigs.k8s.io/kind/pkg/internal/cluster/kubeconfig/internal/kubeconfig
+sigs.k8s.io/kind/pkg/internal/cluster/loadbalancer
+sigs.k8s.io/kind/pkg/internal/cluster/providers/provider/common
+sigs.k8s.io/kind/pkg/internal/cluster/kubeadm
+sigs.k8s.io/kind/pkg/internal/util/patch
 # sigs.k8s.io/yaml v1.1.0
 sigs.k8s.io/yaml
