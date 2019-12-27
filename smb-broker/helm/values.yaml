@@ -19,12 +19,13 @@ service:
 
 ingress:
   enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/rewrite-target: /
   hosts:
-    - host: chart-example.local
-      paths: []
+    - host: "localhost"
+      paths:
+      - "/v2"
 
   tls: []
   #  - secretName: chart-example-tls
