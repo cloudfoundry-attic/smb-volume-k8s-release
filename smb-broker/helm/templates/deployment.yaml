@@ -1,3 +1,38 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "smb-broker.fullname" . }}
+  labels:
+    app: {{ include "smb-broker.name" . }}
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: create-pv
+rules:
+  - apiGroups: ["v1", ""]
+    resources: ["persistentvolumes", "persistentvolumesclaims"]
+    verbs: ["get", "list", "create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: smb-broker-roles
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "smb-broker.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: create-pv
+  apiGroup: rbac.authorization.k8s.io
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,6 +51,8 @@ spec:
         app.kubernetes.io/name: {{ include "smb-broker.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      serviceAccountName: {{ include "smb-broker.fullname" . }}
+      automountServiceAccountToken: true
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

@@ -2,12 +2,17 @@ package main_test
 
 import (
 	. "code.cloudfoundry.org/smb-broker"
+	smbbrokerfakes "code.cloudfoundry.org/smb-broker/smb-brokerfakes"
 	"code.cloudfoundry.org/smb-broker/store"
 	"code.cloudfoundry.org/smb-broker/store/storefakes"
 	"errors"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -15,20 +20,24 @@ import (
 	"strings"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
+
 var _ = Describe("Handlers", func() {
 	var brokerHandler http.Handler
 	var err error
 	var recorder *httptest.ResponseRecorder
 	var request *http.Request
 	var fakeServiceInstanceStore store.ServiceInstanceStore
+	var fakePersitentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		fakeServiceInstanceStore = &storefakes.FakeServiceInstanceStore{}
+		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(fakeServiceInstanceStore)
+		brokerHandler, err = BrokerHandler(fakeServiceInstanceStore, fakePersitentVolumeClient)
 	})
 
 	Describe("Validation", func() {
@@ -85,6 +94,25 @@ var _ = Describe("Handlers", func() {
 				Expect(serviceInstance.Parameters).To(HaveKeyWithValue("parameter2", "foo"))
 			})
 
+			It("should create a persistent volume", func() {
+				Expect(fakePersitentVolumeClient.CreateCallCount()).To(Equal(1))
+				Expect(fakePersitentVolumeClient.CreateArgsForCall(0)).To(Equal(
+					&v1.PersistentVolume{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "pv-test",
+						},
+						Spec: v1.PersistentVolumeSpec{
+							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+							Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+							PersistentVolumeSource: v1.PersistentVolumeSource{
+								HostPath: &v1.HostPathVolumeSource{
+									Path: "/tmp/",
+								},
+							},
+						},
+					},
+				))
+			})
 
 			Context("when unable to store a service instance", func() {
 				BeforeEach(func() {
@@ -93,6 +121,19 @@ var _ = Describe("Handlers", func() {
 
 				It("should return a meaningful error", func() {
 					Expect(recorder.Code).To(Equal(500))
+				})
+			})
+
+			Context("when unable to create a persistent volume", func() {
+				BeforeEach(func() {
+					fakePersitentVolumeClient.CreateReturns(nil, errors.New("K8s ERROR"))
+				})
+
+				It("should return a meaningful error", func() {
+					Expect(recorder.Code).To(Equal(500))
+					bytes, err := ioutil.ReadAll(recorder.Body)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
 				})
 			})
 

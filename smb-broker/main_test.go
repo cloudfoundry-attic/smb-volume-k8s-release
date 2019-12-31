@@ -30,6 +30,8 @@ var _ = Describe("Main", func() {
 		It("provision a new service", func() {
 			var resp *http.Response
 
+			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found in default namespace."))
+
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", "http://localhost/v2/service_instances/1", strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 				Expect(err).NotTo(HaveOccurred())
@@ -44,6 +46,8 @@ var _ = Describe("Main", func() {
 			bytes, err := ioutil.ReadAll(resp.Body)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
+
+			Expect(kubectl("get", "persistentvolume", "pv-test")).To(ContainSubstring("Available"))
 		})
 	})
 

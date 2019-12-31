@@ -29,6 +29,7 @@ var nodeName string
 var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(1 * time.Minute)
 	createK8sCluster()
+	//upgradeSmbBrokerPod()
 })
 
 var _ = AfterSuite(func() {
@@ -51,7 +52,7 @@ func createK8sCluster() {
 	n, err := provider.ListNodes(nodeName)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(n).To(HaveLen(0), "node(s) already exist for a cluster with the name "+nodeName)
-	//kindest/node:v1.13.12
+
 	// create the cluster
 	err = provider.Create(
 		nodeName,
@@ -72,7 +73,7 @@ nodes:
     hostPort: 80
   - containerPort: 443
     hostPort: 443`)),
-		cluster.CreateWithNodeImage(defaults.Image),
+		cluster.CreateWithNodeImage(defaults.Image), // There's a v1.13 image = kindest/node:v1.13.12
 		cluster.CreateWithRetain(true),
 		cluster.CreateWithWaitForReady(10*time.Minute),
 		cluster.CreateWithKubeconfigPath(kubeConfigPath),
@@ -85,28 +86,34 @@ nodes:
 	kubectl("cluster-info", "--context", kubeContext, "--kubeconfig", kubeConfigPath)
 	kubectl("apply", "-f", "./assets/ingress-nginx")
 	kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
-	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "install", "smb-broker", "./helm", "--set", "ingress.enabled=true")
+	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "install", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "image.tag=dev")
 }
 
-func helm(cmd ...string) {
-	command := exec.Command("helm", cmd...)
+func upgradeSmbBrokerPod() {
+	nodeName = "default-smb-broker-test-node"
+	kubeConfigPath = "/tmp/kubeconfig"
+	kubeContext := "kind-" + nodeName
+	kubectl("cluster-info", "--context", kubeContext, "--kubeconfig", kubeConfigPath)
+	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "upgrade", "--recreate-pods", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "image.tag=dev")
+}
+
+func helm(cmd ...string) string {
+	return runTestCommand("helm", cmd...)
+}
+
+func kubectl(cmd ...string) string {
+	return runTestCommand("kubectl", cmd...)
+}
+
+func runTestCommand(name string, cmds ...string) string {
+	command := exec.Command(name, cmds...)
 	command.Env = append(command.Env, "KUBECONFIG="+kubeConfigPath)
 	fmt.Println(fmt.Sprintf("Running %v", command.Args))
 
 	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
-
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(session).Should(gexec.Exit(0))
-}
-
-func kubectl(cmd ...string) {
-	command := exec.Command("kubectl", cmd...)
-	command.Env = append(command.Env, "KUBECONFIG="+kubeConfigPath)
-	fmt.Println(fmt.Sprintf("Running %v", command.Args))
-	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
-
-	Expect(err).NotTo(HaveOccurred())
-	Eventually(session).Should(gexec.Exit(0))
+	Eventually(session).Should(gexec.Exit(0), string(session.Out.Contents()))
+	return string(session.Out.Contents()) + string(session.Err.Contents())
 }
 
 func fixture(name string) string {

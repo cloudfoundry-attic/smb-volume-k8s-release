@@ -3,9 +3,10 @@ package main
 import (
 	"code.cloudfoundry.org/smb-broker/store"
 	"fmt"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"net/http"
 	"os"
-	"k8s.io/client-go/rest"
 )
 
 func main() {
@@ -13,11 +14,15 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	println(fmt.Sprintf("%v", config))
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
 
 	var errChan = make(chan error)
 	go func() {
-		handler, _ := BrokerHandler(&store.InMemoryServiceInstanceStore{})
+		handler, _ := BrokerHandler(&store.InMemoryServiceInstanceStore{}, clientset.CoreV1().PersistentVolumes())
 		err := http.ListenAndServe("0.0.0.0:8080", handler)
 		errChan <- err
 	}()

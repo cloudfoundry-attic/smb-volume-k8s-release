@@ -11,6 +11,10 @@ import (
 	"github.com/pivotal-cf/brokerapi/domain"
 	"github.com/pivotal-cf/brokerapi/domain/apiresponses"
 	"github.com/pkg/errors"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"net/http"
 	"os"
 )
@@ -18,7 +22,7 @@ import (
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore) (http.Handler, error) {
+func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore, pv corev1.PersistentVolumeInterface) (http.Handler, error) {
 	if serviceInstanceStore == nil {
 		return nil, errors.New("missing a Service Instance Store")
 	}
@@ -27,13 +31,15 @@ func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore) (http.Handle
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
 	brokerapi.AttachRoutes(router, smbServiceBroker{
-		Store: serviceInstanceStore,
+		Store:            serviceInstanceStore,
+		PersistentVolume: pv,
 	}, logger)
 	return router, nil
 }
 
 type smbServiceBroker struct {
-	Store store.ServiceInstanceStore
+	Store            store.ServiceInstanceStore
+	PersistentVolume corev1.PersistentVolumeInterface
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -74,9 +80,27 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	}
 
 	err := s.Store.Add(instanceID, store.ServiceInstance{
-		ServiceID: details.ServiceID,
-		PlanID: details.PlanID,
+		ServiceID:  details.ServiceID,
+		PlanID:     details.PlanID,
 		Parameters: serviceInstanceParameters,
+	})
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+
+	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "pv-test",
+		},
+		Spec: v1.PersistentVolumeSpec{
+			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+			PersistentVolumeSource: v1.PersistentVolumeSource{
+				HostPath: &v1.HostPathVolumeSource{
+					Path: "/tmp/",
+				},
+			},
+		},
 	})
 	return domain.ProvisionedServiceSpec{}, err
 }
