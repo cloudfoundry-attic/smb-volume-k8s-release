@@ -27,7 +27,7 @@ var kubeConfigPath string
 var nodeName string
 
 var _ = BeforeSuite(func() {
-	SetDefaultEventuallyTimeout(1 * time.Minute)
+	SetDefaultEventuallyTimeout(10 * time.Minute)
 	createK8sCluster()
 	//upgradeSmbBrokerPod()
 })

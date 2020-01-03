@@ -6,10 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var _ = Describe("Main", func() {
-
+	BeforeEach(func() {
+		http.DefaultClient.Timeout = 30 * time.Second
+	})
 	Describe("#Catalog", func() {
 		It("should list catalog of services offered by the SMB service broker", func() {
 			var resp *http.Response
