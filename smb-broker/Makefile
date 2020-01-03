@@ -7,7 +7,7 @@ install:
 
 test:
 	GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo
-	GO111MODULE=on ginkgo -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
+	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
 	go fmt ./... -v
