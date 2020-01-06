@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: golang
+    repository: cfpersi/smb-broker-k8s-tests
     tag: latest
 
 inputs:
