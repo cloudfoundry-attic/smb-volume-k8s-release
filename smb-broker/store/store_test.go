@@ -42,6 +42,17 @@ var _ = Describe("Store", func() {
 				Expect(found).To(BeTrue())
 				Expect(fetchedServiceInstance).To(Equal(expectedServiceInstance))
 			})
+
+			It("Should be able to remove the record in the store", func() {
+				fetchedServiceInstance, found := serviceInstanceStore.Get(key)
+				Expect(found).To(BeTrue())
+				Expect(fetchedServiceInstance).To(Equal(expectedServiceInstance))
+
+				serviceInstanceStore.Remove(key)
+
+				_, found = serviceInstanceStore.Get(key)
+				Expect(found).To(BeFalse())
+			})
 		})
 
 	})

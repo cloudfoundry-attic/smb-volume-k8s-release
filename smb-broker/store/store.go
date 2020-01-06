@@ -10,6 +10,7 @@ type ServiceInstance struct {
 type ServiceInstanceStore interface {
 	Get(string) (ServiceInstance, bool)
 	Add(string, ServiceInstance) error
+	Remove(string)
 }
 
 type InMemoryServiceInstanceStore struct{
@@ -28,4 +29,8 @@ func (i *InMemoryServiceInstanceStore) Add(k string, v ServiceInstance) error {
 func (i *InMemoryServiceInstanceStore) Get(k string) (ServiceInstance, bool) {
 	serviceInstance, found := i.internalMap[k]
 	return serviceInstance, found
+}
+
+func (i *InMemoryServiceInstanceStore) Remove(k string) {
+	delete(i.internalMap, k)
 }

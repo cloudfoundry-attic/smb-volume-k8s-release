@@ -33,6 +33,11 @@ type FakeServiceInstanceStore struct {
 		result1 store.ServiceInstance
 		result2 bool
 	}
+	RemoveStub        func(string)
+	removeMutex       sync.RWMutex
+	removeArgsForCall []struct {
+		arg1 string
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -161,6 +166,37 @@ func (fake *FakeServiceInstanceStore) GetReturnsOnCall(i int, result1 store.Serv
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInstanceStore) Remove(arg1 string) {
+	fake.removeMutex.Lock()
+	fake.removeArgsForCall = append(fake.removeArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("Remove", []interface{}{arg1})
+	fake.removeMutex.Unlock()
+	if fake.RemoveStub != nil {
+		fake.RemoveStub(arg1)
+	}
+}
+
+func (fake *FakeServiceInstanceStore) RemoveCallCount() int {
+	fake.removeMutex.RLock()
+	defer fake.removeMutex.RUnlock()
+	return len(fake.removeArgsForCall)
+}
+
+func (fake *FakeServiceInstanceStore) RemoveCalls(stub func(string)) {
+	fake.removeMutex.Lock()
+	defer fake.removeMutex.Unlock()
+	fake.RemoveStub = stub
+}
+
+func (fake *FakeServiceInstanceStore) RemoveArgsForCall(i int) string {
+	fake.removeMutex.RLock()
+	defer fake.removeMutex.RUnlock()
+	argsForCall := fake.removeArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeServiceInstanceStore) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -168,6 +204,8 @@ func (fake *FakeServiceInstanceStore) Invocations() map[string][][]interface{} {
 	defer fake.addMutex.RUnlock()
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
+	fake.removeMutex.RLock()
+	defer fake.removeMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
