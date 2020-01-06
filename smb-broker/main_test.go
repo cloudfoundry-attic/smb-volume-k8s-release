@@ -34,6 +34,7 @@ var _ = Describe("Main", func() {
 			var resp *http.Response
 
 			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found"))
+			Expect(kubectl("get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", "http://localhost/v2/service_instances/1", strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
@@ -51,6 +52,7 @@ var _ = Describe("Main", func() {
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
 			Expect(kubectl("get", "persistentvolume", "pv-test")).To(ContainSubstring("Available"))
+			Expect(kubectl("get", "persistentvolumeclaim", "pvc-test")).To(ContainSubstring("Pending"))
 		})
 	})
 

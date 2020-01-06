@@ -22,7 +22,8 @@ func main() {
 
 	var errChan = make(chan error)
 	go func() {
-		handler, _ := BrokerHandler(&store.InMemoryServiceInstanceStore{}, clientset.CoreV1().PersistentVolumes())
+		namespace := "default"
+		handler, _ := BrokerHandler(&store.InMemoryServiceInstanceStore{}, clientset.CoreV1().PersistentVolumes(), clientset.CoreV1().PersistentVolumeClaims(namespace))
 		err := http.ListenAndServe("0.0.0.0:8080", handler)
 		errChan <- err
 	}()

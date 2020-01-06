@@ -21,6 +21,7 @@ import (
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeClaimInterface
 
 var _ = Describe("Handlers", func() {
 	var brokerHandler http.Handler
@@ -29,15 +30,17 @@ var _ = Describe("Handlers", func() {
 	var request *http.Request
 	var fakeServiceInstanceStore store.ServiceInstanceStore
 	var fakePersitentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
+	var fakePersitentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		fakeServiceInstanceStore = &storefakes.FakeServiceInstanceStore{}
 		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
+		fakePersitentVolumeClaimClient = &smbbrokerfakes.FakePersistentVolumeClaimInterface{}
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(fakeServiceInstanceStore, fakePersitentVolumeClient)
+		brokerHandler, err = BrokerHandler(fakeServiceInstanceStore, fakePersitentVolumeClient, fakePersitentVolumeClaimClient)
 	})
 
 	Describe("Validation", func() {
@@ -114,6 +117,24 @@ var _ = Describe("Handlers", func() {
 				))
 			})
 
+			It("should create a persistent volume claim", func() {
+				Expect(fakePersitentVolumeClaimClient.CreateCallCount()).To(Equal(1))
+				Expect(fakePersitentVolumeClaimClient.CreateArgsForCall(0)).To(Equal(
+					&v1.PersistentVolumeClaim{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "pvc-test",
+						},
+						Spec: v1.PersistentVolumeClaimSpec{
+							VolumeName:  "pv-test",
+							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+							Resources: v1.ResourceRequirements{
+								Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
+							},
+						},
+					},
+				))
+			})
+
 			Context("when unable to store a service instance", func() {
 				BeforeEach(func() {
 					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).AddReturns(errors.New("unable to store"))
@@ -127,6 +148,19 @@ var _ = Describe("Handlers", func() {
 			Context("when unable to create a persistent volume", func() {
 				BeforeEach(func() {
 					fakePersitentVolumeClient.CreateReturns(nil, errors.New("K8s ERROR"))
+				})
+
+				It("should return a meaningful error", func() {
+					Expect(recorder.Code).To(Equal(500))
+					bytes, err := ioutil.ReadAll(recorder.Body)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
+				})
+			})
+
+			Context("when unable to create a persistent volume claim", func() {
+				BeforeEach(func() {
+					fakePersitentVolumeClaimClient.CreateReturns(nil, errors.New("K8s ERROR"))
 				})
 
 				It("should return a meaningful error", func() {
@@ -199,8 +233,7 @@ var _ = Describe("Handlers", func() {
 				})
 				It("Should return an FailureError with a 404 status code", func() {
 					Expect(recorder.Code).To(Equal(404))
-					Expect(recorder.Body).To(MatchJSON(`{"description": "unable to find service instance"}`),
-					)
+					Expect(recorder.Body).To(MatchJSON(`{"description": "unable to find service instance"}`))
 				})
 
 			})

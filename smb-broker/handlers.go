@@ -22,7 +22,7 @@ import (
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore, pv corev1.PersistentVolumeInterface) (http.Handler, error) {
+func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface) (http.Handler, error) {
 	if serviceInstanceStore == nil {
 		return nil, errors.New("missing a Service Instance Store")
 	}
@@ -31,15 +31,17 @@ func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore, pv corev1.Pe
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
 	brokerapi.AttachRoutes(router, smbServiceBroker{
-		Store:            serviceInstanceStore,
-		PersistentVolume: pv,
+		Store:                 serviceInstanceStore,
+		PersistentVolume:      pv,
+		PersistentVolumeClaim: pvc,
 	}, logger)
 	return router, nil
 }
 
 type smbServiceBroker struct {
-	Store            store.ServiceInstanceStore
-	PersistentVolume corev1.PersistentVolumeInterface
+	Store                 store.ServiceInstanceStore
+	PersistentVolume      corev1.PersistentVolumeInterface
+	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -83,6 +85,22 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		ServiceID:  details.ServiceID,
 		PlanID:     details.PlanID,
 		Parameters: serviceInstanceParameters,
+	})
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+
+	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "pvc-test",
+		},
+		Spec: v1.PersistentVolumeClaimSpec{
+			VolumeName: "pv-test",
+			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+			Resources: v1.ResourceRequirements{
+				Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
+			},
+		},
 	})
 	if err != nil {
 		return domain.ProvisionedServiceSpec{}, err

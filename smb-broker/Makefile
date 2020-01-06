@@ -18,7 +18,7 @@ image-local-registry:
 	[ $(running) != "true" ] && docker run \
 	    -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
-	docker build -t cfpersi/smb-broker .
+	docker build --no-cache -t cfpersi/smb-broker .
 	docker tag cfpersi/smb-broker localhost:5000/cfpersi/smb-broker:local-test
 	docker push localhost:5000/cfpersi/smb-broker:local-test
 

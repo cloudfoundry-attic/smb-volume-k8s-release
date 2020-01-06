@@ -28,6 +28,9 @@ var nodeName string
 
 var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(10 * time.Minute)
+	nodeName = "default-smb-broker-test-node"
+	kubeConfigPath = "/tmp/kubeconfig"
+
 	createK8sCluster()
 	//upgradeSmbBrokerPod()
 })
@@ -41,8 +44,6 @@ var _ = AfterSuite(func() {
 })
 
 func createK8sCluster() {
-	nodeName = "default-smb-broker-test-node"
-	kubeConfigPath = "/tmp/kubeconfig"
 
 	provider := cluster.NewProvider(
 		cluster.ProviderWithLogger(cmd.NewLogger()),
