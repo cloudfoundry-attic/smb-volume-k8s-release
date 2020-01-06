@@ -26,4 +26,7 @@ helm-dev:
 helm_delete:
 	helm delete --purge smb-dev-broker
 
-.PHONY: install test fmt image release helm helm_delete helm-dev
+fly:
+	fly -t persi execute -c /Users/pivotal/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=/Users/pivotal/workspace/smb-volume-k8s-release -p
+
+.PHONY: install test fmt image release helm helm_delete helm-dev fly
