@@ -58,6 +58,10 @@ func createK8sCluster() {
 		nodeName,
 		cluster.CreateWithRawConfig([]byte(`kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+containerdConfigPatches: 
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry:5000"]
+    endpoint = ["http://registry:5000"]
 nodes:
 - role: control-plane
   kubeadmConfigPatches:
@@ -86,15 +90,9 @@ nodes:
 	kubectl("cluster-info", "--context", kubeContext, "--kubeconfig", kubeConfigPath)
 	kubectl("apply", "-f", "./assets/ingress-nginx")
 	kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
-	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "install", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "image.tag=dev")
-}
+	runTestCommand("bash", "-c", "./assets/setup-local-registry.sh " + nodeName+"-control-plane")
 
-func upgradeSmbBrokerPod() {
-	nodeName = "default-smb-broker-test-node"
-	kubeConfigPath = "/tmp/kubeconfig"
-	kubeContext := "kind-" + nodeName
-	kubectl("cluster-info", "--context", kubeContext, "--kubeconfig", kubeConfigPath)
-	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "upgrade", "--recreate-pods", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "image.tag=dev")
+	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "install", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
 }
 
 func helm(cmd ...string) string {

@@ -29,5 +29,9 @@ if [ "$rc" -ne "0" ]; then
   exit 1
 fi
 
-make --directory=smb-volume-k8s-release/smb-broker test
-pkill dockerd
+function kill_docker() {
+    pkill dockerd
+}
+trap kill_docker EXIT
+
+make --directory=smb-volume-k8s-release/smb-broker image-local-registry test

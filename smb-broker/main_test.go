@@ -33,7 +33,7 @@ var _ = Describe("Main", func() {
 		It("provision a new service", func() {
 			var resp *http.Response
 
-			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found in default namespace."))
+			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found"))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", "http://localhost/v2/service_instances/1", strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
