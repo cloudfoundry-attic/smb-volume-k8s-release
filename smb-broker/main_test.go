@@ -102,35 +102,4 @@ var _ = Describe("Main", func() {
 			Expect(kubectl("get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 		})
 	})
-
-	//XContext("Unable to start a http server", func() {
-	//	var server *http.Server
-	//	BeforeEach(func() {
-	//		go func() {
-	//			defer GinkgoRecover()
-	//			server = &http.Server{Addr: "0.0.0.0", Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//				w.WriteHeader(200)
-	//			})}
-	//			err := server.ListenAndServe()
-	//			Expect(err).To(MatchError(http.ErrServerClosed))
-	//		}()
-	//
-	//		Eventually(func() error {
-	//			_, err := http.Get("http://localhost")
-	//			return err
-	//		}).Should(Succeed())
-	//	})
-	//
-	//	AfterEach(func() {
-	//		if server != nil {
-	//			Expect(server.Close()).To(Succeed())
-	//			time.Sleep(1 * time.Second)
-	//		}
-	//	})
-	//
-	//	It("should log a meaningful error", func() {
-	//		Eventually(session, 10*time.Second).Should(gbytes.Say("Unable to start server"))
-	//		Eventually(session).Should(gexec.Exit(1))
-	//	})
-	//})
 })
