@@ -44,7 +44,6 @@ var _ = AfterSuite(func() {
 })
 
 func createK8sCluster() {
-
 	provider := cluster.NewProvider(
 		cluster.ProviderWithLogger(cmd.NewLogger()),
 	)

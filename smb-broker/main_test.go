@@ -30,6 +30,11 @@ var _ = Describe("Main", func() {
 	})
 
 	Describe("#Provision", func() {
+		AfterEach(func() {
+			kubectl("delete", "persistentvolume", "pv-test")
+			kubectl("delete", "persistentvolumeclaims", "pvc-test")
+		})
+
 		It("provision a new service", func() {
 			var resp *http.Response
 
@@ -53,6 +58,48 @@ var _ = Describe("Main", func() {
 
 			Expect(kubectl("get", "persistentvolume", "pv-test")).To(ContainSubstring("Available"))
 			Expect(kubectl("get", "persistentvolumeclaim", "pvc-test")).To(ContainSubstring("Pending"))
+		})
+	})
+
+	Describe("#Deprovision", func() {
+		BeforeEach(func() {
+			Eventually(func() string {
+				request, err := http.NewRequest("PUT", "http://localhost/v2/service_instances/1", strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				Expect(err).NotTo(HaveOccurred())
+
+				resp, _ := http.DefaultClient.Do(request)
+				if resp == nil {
+					return ""
+				}
+				return resp.Status
+			}).Should(Equal("201 Created"))
+
+
+		})
+
+		It("deprovision a new service", func() {
+			var resp *http.Response
+
+			Expect(kubectl("get", "persistentvolume", "pv-test")).To(ContainSubstring("Available"))
+			Expect(kubectl("get", "persistentvolumeclaim", "pvc-test")).To(ContainSubstring("Pending"))
+
+			Eventually(func() string {
+				request, err := http.NewRequest("DELETE", "http://localhost/v2/service_instances/1?service_id=123&plan_id=plan-id", nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				resp, _ = http.DefaultClient.Do(request)
+				if resp == nil {
+					return ""
+				}
+				return resp.Status
+			}).Should(ContainSubstring("200"))
+
+			bytes, err := ioutil.ReadAll(resp.Body)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(bytes)).Should(ContainSubstring(`{}`))
+
+			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found"))
+			Expect(kubectl("get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 		})
 	})
 

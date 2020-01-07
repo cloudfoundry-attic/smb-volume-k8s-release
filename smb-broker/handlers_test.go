@@ -185,6 +185,67 @@ var _ = Describe("Handlers", func() {
 			})
 		})
 
+		Describe("#Deprovision endpoint", func() {
+			var serviceInstanceKey string
+			BeforeEach(func() {
+				serviceInstanceKey = "123"
+
+				var err error
+				request, err = http.NewRequest(http.MethodDelete, "/v2/service_instances/"+serviceInstanceKey+"?service_id=123&plan_id=plan-id", nil)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should remove the service from the store", func() {
+				Expect(recorder.Code).To(Equal(200))
+				Expect(recorder.Body).To(MatchJSON(`{}`))
+
+				Expect(fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).RemoveCallCount()).To(Equal(1))
+				key := fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).RemoveArgsForCall(0)
+				Expect(key).To(Equal(serviceInstanceKey))
+			})
+
+			It("should delete a persistent volume", func() {
+				Expect(fakePersitentVolumeClient.DeleteCallCount()).To(Equal(1))
+				name, options := fakePersitentVolumeClient.DeleteArgsForCall(0)
+				Expect(name).To(Equal("pv-test"))
+				Expect(options).To(Equal(&metav1.DeleteOptions{}))
+			})
+
+			It("should delete a persistent volume claim", func() {
+				Expect(fakePersitentVolumeClaimClient.DeleteCallCount()).To(Equal(1))
+				name, options := fakePersitentVolumeClaimClient.DeleteArgsForCall(0)
+				Expect(name).To(Equal("pvc-test"))
+				Expect(options).To(Equal(&metav1.DeleteOptions{}))
+			})
+
+
+			Context("when unable to delete a persistent volume", func() {
+				BeforeEach(func() {
+					fakePersitentVolumeClient.DeleteReturns(errors.New("K8s ERROR"))
+				})
+
+				It("should return a meaningful error", func() {
+					Expect(recorder.Code).To(Equal(500))
+					bytes, err := ioutil.ReadAll(recorder.Body)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
+				})
+			})
+
+			Context("when unable to delete a persistent volume claim", func() {
+				BeforeEach(func() {
+					fakePersitentVolumeClaimClient.DeleteReturns(errors.New("K8s ERROR"))
+				})
+
+				It("should return a meaningful error", func() {
+					Expect(recorder.Code).To(Equal(500))
+					bytes, err := ioutil.ReadAll(recorder.Body)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
+				})
+			})
+		})
+
 		Describe("#GetInstance endpoint", func() {
 			var (
 				err                                                   error
