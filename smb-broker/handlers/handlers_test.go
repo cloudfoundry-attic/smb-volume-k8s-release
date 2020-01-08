@@ -1,7 +1,7 @@
-package main_test
+package handlers_test
 
 import (
-	. "code.cloudfoundry.org/smb-broker"
+	. "code.cloudfoundry.org/smb-broker/handlers"
 	smbbrokerfakes "code.cloudfoundry.org/smb-broker/smb-brokerfakes"
 	"code.cloudfoundry.org/smb-broker/store"
 	"code.cloudfoundry.org/smb-broker/store/storefakes"

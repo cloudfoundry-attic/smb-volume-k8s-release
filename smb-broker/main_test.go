@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -110,3 +111,6 @@ var _ = Describe("Main", func() {
 	})
 })
 
+func randomString(sourceSeededByGinkgo rand.Source) string {
+	return strconv.Itoa(rand.New(sourceSeededByGinkgo).Int())
+}

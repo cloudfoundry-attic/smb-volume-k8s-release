@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os/exec"
-	"path"
 	"sigs.k8s.io/kind/pkg/apis/config/defaults"
 	"sigs.k8s.io/kind/pkg/cmd"
 	"testing"
@@ -112,16 +111,6 @@ func runTestCommand(name string, cmds ...string) string {
 	Expect(err).NotTo(HaveOccurred())
 	Eventually(session).Should(gexec.Exit(0), string(session.Out.Contents()))
 	return string(session.Out.Contents()) + string(session.Err.Contents())
-}
-
-func fixture(name string) string {
-	filePath := path.Join("fixtures", name)
-	contents, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		panic(fmt.Sprintf("Could not read fixture: %s", name))
-	}
-
-	return string(contents)
 }
 
 func assertHttpResponseContainsSubstring(body io.Reader, expected string) {
