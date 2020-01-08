@@ -18,5 +18,5 @@ make helm
 ## Testing 
 ```
 cd smb-broker
-make test
+make image-local-registry test
 ```
