@@ -57,6 +57,7 @@ var _ = Describe("Handlers", func() {
 	})
 
 	Describe("Endpoints", func() {
+		var source = rand.NewSource(GinkgoRandomSeed())
 		JustBeforeEach(func() {
 			brokerHandler.ServeHTTP(recorder, request)
 		})
@@ -76,8 +77,9 @@ var _ = Describe("Handlers", func() {
 
 		Describe("#Provision endpoint", func() {
 			var serviceInstanceKey string
+
 			BeforeEach(func() {
-				serviceInstanceKey = "123"
+				serviceInstanceKey = randomString(source)
 
 				var err error
 				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "parameter1": "1", "parameter2": "foo" } }`))
@@ -102,7 +104,7 @@ var _ = Describe("Handlers", func() {
 				Expect(fakePersitentVolumeClient.CreateArgsForCall(0)).To(Equal(
 					&v1.PersistentVolume{
 						ObjectMeta: metav1.ObjectMeta{
-							Name: "pv-test",
+							Name: serviceInstanceKey,
 						},
 						Spec: v1.PersistentVolumeSpec{
 							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
@@ -122,10 +124,10 @@ var _ = Describe("Handlers", func() {
 				Expect(fakePersitentVolumeClaimClient.CreateArgsForCall(0)).To(Equal(
 					&v1.PersistentVolumeClaim{
 						ObjectMeta: metav1.ObjectMeta{
-							Name: "pvc-test",
+							Name: serviceInstanceKey,
 						},
 						Spec: v1.PersistentVolumeClaimSpec{
-							VolumeName:  "pv-test",
+							VolumeName:  serviceInstanceKey,
 							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
@@ -188,7 +190,7 @@ var _ = Describe("Handlers", func() {
 		Describe("#Deprovision endpoint", func() {
 			var serviceInstanceKey string
 			BeforeEach(func() {
-				serviceInstanceKey = "123"
+				serviceInstanceKey = randomString(source)
 
 				var err error
 				request, err = http.NewRequest(http.MethodDelete, "/v2/service_instances/"+serviceInstanceKey+"?service_id=123&plan_id=plan-id", nil)
@@ -207,17 +209,16 @@ var _ = Describe("Handlers", func() {
 			It("should delete a persistent volume", func() {
 				Expect(fakePersitentVolumeClient.DeleteCallCount()).To(Equal(1))
 				name, options := fakePersitentVolumeClient.DeleteArgsForCall(0)
-				Expect(name).To(Equal("pv-test"))
+				Expect(name).To(Equal(serviceInstanceKey))
 				Expect(options).To(Equal(&metav1.DeleteOptions{}))
 			})
 
 			It("should delete a persistent volume claim", func() {
 				Expect(fakePersitentVolumeClaimClient.DeleteCallCount()).To(Equal(1))
 				name, options := fakePersitentVolumeClaimClient.DeleteArgsForCall(0)
-				Expect(name).To(Equal("pvc-test"))
+				Expect(name).To(Equal(serviceInstanceKey))
 				Expect(options).To(Equal(&metav1.DeleteOptions{}))
 			})
-
 
 			Context("when unable to delete a persistent volume", func() {
 				BeforeEach(func() {
@@ -251,7 +252,6 @@ var _ = Describe("Handlers", func() {
 				err                                                   error
 				instanceID, val1, val2, key1, key2, serviceID, planID string
 			)
-			var source = rand.NewSource(GinkgoRandomSeed())
 
 			BeforeEach(func() {
 				instanceID = randomString(source)

@@ -92,10 +92,10 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 
 	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "pvc-test",
+			Name: instanceID,
 		},
 		Spec: v1.PersistentVolumeClaimSpec{
-			VolumeName: "pv-test",
+			VolumeName:  instanceID,
 			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			Resources: v1.ResourceRequirements{
 				Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
@@ -108,7 +108,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "pv-test",
+			Name: instanceID,
 		},
 		Spec: v1.PersistentVolumeSpec{
 			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
@@ -124,12 +124,12 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 }
 
 func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
-	err := s.PersistentVolumeClaim.Delete("pvc-test", &metav1.DeleteOptions{})
+	err := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}
 
-	err = s.PersistentVolume.Delete("pv-test", &metav1.DeleteOptions{})
+	err = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}

@@ -13,7 +13,7 @@ type ServiceInstanceStore interface {
 	Remove(string)
 }
 
-type InMemoryServiceInstanceStore struct{
+type InMemoryServiceInstanceStore struct {
 	internalMap map[string]ServiceInstance
 }
 

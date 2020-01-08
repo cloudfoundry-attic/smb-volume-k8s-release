@@ -1,18 +1,25 @@
 package main_test
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
 )
 
 var _ = Describe("Main", func() {
+	var instanceID string
+	var source = rand.NewSource(GinkgoRandomSeed())
+
 	BeforeEach(func() {
 		http.DefaultClient.Timeout = 30 * time.Second
+		instanceID = randomString(source)
 	})
+
 	Describe("#Catalog", func() {
 		It("should list catalog of services offered by the SMB service broker", func() {
 			var resp *http.Response
@@ -31,8 +38,8 @@ var _ = Describe("Main", func() {
 
 	Describe("#Provision", func() {
 		AfterEach(func() {
-			kubectl("delete", "persistentvolume", "pv-test")
-			kubectl("delete", "persistentvolumeclaims", "pvc-test")
+			kubectl("delete", "persistentvolume", instanceID)
+			kubectl("delete", "persistentvolumeclaims", instanceID)
 		})
 
 		It("provision a new service", func() {
@@ -42,7 +49,7 @@ var _ = Describe("Main", func() {
 			Expect(kubectl("get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", "http://localhost/v2/service_instances/1", strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -56,15 +63,15 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(kubectl("get", "persistentvolume", "pv-test")).To(ContainSubstring("Available"))
-			Expect(kubectl("get", "persistentvolumeclaim", "pvc-test")).To(ContainSubstring("Pending"))
+			Expect(kubectl("get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(kubectl("get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 		})
 	})
 
 	Describe("#Deprovision", func() {
 		BeforeEach(func() {
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", "http://localhost/v2/service_instances/1", strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ := http.DefaultClient.Do(request)
@@ -74,17 +81,16 @@ var _ = Describe("Main", func() {
 				return resp.Status
 			}).Should(Equal("201 Created"))
 
-
 		})
 
 		It("deprovision a new service", func() {
 			var resp *http.Response
 
-			Expect(kubectl("get", "persistentvolume", "pv-test")).To(ContainSubstring("Available"))
-			Expect(kubectl("get", "persistentvolumeclaim", "pvc-test")).To(ContainSubstring("Pending"))
+			Expect(kubectl("get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(kubectl("get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 
 			Eventually(func() string {
-				request, err := http.NewRequest("DELETE", "http://localhost/v2/service_instances/1?service_id=123&plan_id=plan-id", nil)
+				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", instanceID), nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -103,3 +109,4 @@ var _ = Describe("Main", func() {
 		})
 	})
 })
+

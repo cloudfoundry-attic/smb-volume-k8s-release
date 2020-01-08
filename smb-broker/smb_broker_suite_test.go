@@ -90,7 +90,7 @@ nodes:
 	kubectl("cluster-info", "--context", kubeContext, "--kubeconfig", kubeConfigPath)
 	kubectl("apply", "-f", "./assets/ingress-nginx")
 	kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
-	runTestCommand("bash", "-c", "./assets/setup-local-registry.sh " + nodeName+"-control-plane")
+	runTestCommand("bash", "-c", "./assets/setup-local-registry.sh "+nodeName+"-control-plane")
 
 	helm("--kubeconfig", kubeConfigPath, "--kube-context", kubeContext, "install", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
 }
