@@ -23,10 +23,10 @@ image-local-registry:
 	docker push localhost:5000/cfpersi/smb-broker:local-test
 
 helm:
-	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade --recreate-pods smb-dev-broker ./helm || helm install --name smb-dev-broker ./helm
+    helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker ./helm || helm install smb-broker ./helm
 
 helm-dev:
-	helm status smb-dev-broker | grep 'STATUS: DEPLOYED' && helm upgrade --recreate-pods --set image.tag=dev smb-dev-broker ./helm || helm install --name smb-dev-broker --set image.tag=dev ./helm
+	helm status smb-dev-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods --set image.tag=dev smb-dev-broker ./helm || helm install smb-dev-broker --set image.tag=dev ./helm
 
 helm_delete:
 	helm delete --purge smb-dev-broker
