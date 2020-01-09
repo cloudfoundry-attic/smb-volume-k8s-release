@@ -199,7 +199,12 @@ func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string
 }
 
 func (s smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
-	panic("implement me")
+	_, found := s.Store.Get(instanceID)
+	if !found {
+		return domain.UnbindSpec{}, apiresponses.ErrInstanceDoesNotExist
+	}
+
+	return domain.UnbindSpec{}, nil
 }
 
 func (s smbServiceBroker) GetBinding(ctx context.Context, instanceID, bindingID string) (domain.GetBindingSpec, error) {

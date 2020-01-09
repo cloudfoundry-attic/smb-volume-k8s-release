@@ -152,6 +152,56 @@ var _ = Describe("Main", func() {
 			Expect(string(bytes)).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/tmp", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
 		})
 	})
+
+	Describe("#Unbind", func() {
+		var resp *http.Response
+		var bindingID string
+
+		AfterEach(func() {
+			kubectl("delete", "persistentvolume", instanceID)
+			kubectl("delete", "persistentvolumeclaims", instanceID)
+		})
+
+		BeforeEach(func(){
+			bindingID = randomString(source)
+
+			Eventually(func() string {
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				Expect(err).NotTo(HaveOccurred())
+
+				resp, _ = http.DefaultClient.Do(request)
+				if resp == nil {
+					return ""
+				}
+				return resp.Status
+			}).Should(Equal("201 Created"))
+
+			Eventually(func() string {
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
+					strings.NewReader(`{"service_id": "123", "plan_id": "plan_id", "bind_resource": {"app_guid": "123"}}`))
+
+				Expect(err).NotTo(HaveOccurred())
+				resp, _ = http.DefaultClient.Do(request)
+				if resp == nil {
+					return ""
+				}
+				return resp.Status
+			}).Should(Equal("201 Created"))
+		})
+
+		It("returns 200", func() {
+			Eventually(func() string {
+				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan_id", instanceID, bindingID), nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				resp, _ = http.DefaultClient.Do(request)
+				if resp == nil {
+					return ""
+				}
+				return resp.Status
+			}).Should(ContainSubstring("200"))
+		})
+	})
 })
 
 func randomString(sourceSeededByGinkgo rand.Source) string {

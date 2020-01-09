@@ -332,6 +332,35 @@ var _ = Describe("Handlers", func() {
 				})
 			})
 		})
+
+		Describe("Unbind endpoint", func(){
+			var instanceID, bindingID string
+
+			BeforeEach(func() {
+				fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
+
+				instanceID = randomString(source)
+				bindingID = randomString(source)
+				request, err = http.NewRequest(http.MethodDelete, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan-id", instanceID, bindingID), nil)
+			})
+
+			It("returns 200", func(){
+				Expect(err).NotTo(HaveOccurred())
+				Expect(recorder.Code).To(Equal(200))
+			})
+
+			Context("given the service instance doesnt exist", func() {
+				BeforeEach(func(){
+					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
+				})
+
+				It("should return an error", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(recorder.Code).To(Equal(410))
+				})
+			})
+
+		})
 	})
 })
 
