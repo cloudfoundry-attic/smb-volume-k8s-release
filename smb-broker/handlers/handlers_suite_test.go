@@ -14,7 +14,6 @@ func TestHandlers(t *testing.T) {
 	RunSpecs(t, "Handlers Suite")
 }
 
-
 func fixture(name string) string {
 	filePath := path.Join("../fixtures", name)
 	contents, err := ioutil.ReadFile(filePath)

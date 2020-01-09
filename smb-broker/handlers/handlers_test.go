@@ -299,6 +299,39 @@ var _ = Describe("Handlers", func() {
 
 			})
 		})
+
+		Describe("#Bind endpoint", func() {
+			var instanceID, bindingID string
+
+			BeforeEach(func(){
+				fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
+
+				instanceID = randomString(source)
+				bindingID = randomString(source)
+				request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
+					strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"} }`))
+			})
+
+			Context("given a service instance", func() {
+
+				It("returns a bind response", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(recorder.Code).To(Equal(201))
+					Expect(recorder.Body).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/tmp", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
+				})
+			})
+
+			Context("given the service instance doesnt exist", func() {
+				BeforeEach(func(){
+					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
+				})
+
+				It("should return an error", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(recorder.Code).To(Equal(404))
+				})
+			})
+		})
 	})
 })
 

@@ -6,6 +6,7 @@
     "bindable": true,
     "bindings_retrievable": true,
     "instances_retrievable": true,
+    "requires":["volume_mount"],
     "tags": [
       "pivotal",
       "smb",

@@ -64,7 +64,7 @@ func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 				},
 			},
 		},
-		Requires:        []domain.RequiredPermission{},
+		Requires:        []domain.RequiredPermission{"volume_mount"},
 		Metadata:        &domain.ServiceMetadata{},
 		DashboardClient: nil,
 	}}, nil
@@ -166,7 +166,36 @@ func (s smbServiceBroker) LastOperation(ctx context.Context, instanceID string, 
 }
 
 func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
-	panic("implement me")
+
+	_, found := s.Store.Get(instanceID)
+	if !found {
+		return domain.Binding{}, apiresponses.ErrInstanceDoesNotExist
+	}
+
+	var volumeMounts []domain.VolumeMount
+
+	mountConfig := map[string]interface{}{
+		"name": instanceID,
+	}
+
+	device := domain.SharedDevice{
+		VolumeId:    bindingID,
+		MountConfig: mountConfig,
+	}
+	volumeMount := domain.VolumeMount{
+		Driver:       "smb",
+		ContainerDir: "/tmp",
+		Mode:         "rw",
+		DeviceType:   "shared",
+		Device:       device,
+	}
+
+	volumeMounts = append(volumeMounts, volumeMount)
+	binding := domain.Binding{
+		Credentials: struct{}{},  // if nil, cloud controller chokes on response
+		VolumeMounts: volumeMounts,
+	}
+	return binding, nil
 }
 
 func (s smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
