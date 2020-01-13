@@ -23,10 +23,12 @@ image-local-registry:
 	docker push localhost:5000/cfpersi/smb-broker:local-test
 
 helm:
-	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker ./helm || helm install smb-broker ./helm
+	helm version | grep 'v3.0.2' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
+	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true ./helm
 
 helm-dev:
-	helm status smb-dev-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods --set image.tag=dev smb-dev-broker ./helm || helm install smb-dev-broker --set image.tag=dev ./helm
+	helm version | grep 'v3.0.2' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
+	helm status smb-dev-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods --set ingress.enabled=true --set image.tag=dev smb-dev-broker ./helm || helm install smb-dev-broker --set ingress.enabled=true --set image.tag=dev ./helm
 
 helm_delete:
 	helm delete --purge smb-dev-broker
