@@ -6,6 +6,7 @@ install:
 	go install -v
 
 test:
+	ulimit -n 10000
 	GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo
 	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
