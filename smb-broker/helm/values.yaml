@@ -23,7 +23,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     ingress.kubernetes.io/rewrite-target: /
   hosts:
-    - host: "localhost"
+    - host: "smb-broker-dev.app.cf.ephemeral-eirini-gke-2.cf-app.com"
       paths:
       - "/v2"
 

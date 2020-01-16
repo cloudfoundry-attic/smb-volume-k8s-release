@@ -107,6 +107,7 @@ var _ = Describe("Handlers", func() {
 							Name: serviceInstanceKey,
 						},
 						Spec: v1.PersistentVolumeSpec{
+							StorageClassName: "standard",
 							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
@@ -317,7 +318,7 @@ var _ = Describe("Handlers", func() {
 				It("returns a bind response", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(recorder.Code).To(Equal(201))
-					Expect(recorder.Body).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/tmp", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
+					Expect(recorder.Body).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/home/vcap/data/", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
 				})
 			})
 

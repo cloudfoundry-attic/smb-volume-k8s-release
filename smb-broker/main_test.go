@@ -39,15 +39,15 @@ var _ = Describe("Main", func() {
 
 	Describe("#Provision", func() {
 		AfterEach(func() {
-			kubectl("delete", "persistentvolume", instanceID)
-			kubectl("delete", "persistentvolumeclaims", instanceID)
+			kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
+			kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
 		It("provision a new service", func() {
 			var resp *http.Response
 
-			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found"))
-			Expect(kubectl("get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
@@ -64,8 +64,8 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(kubectl("get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
-			Expect(kubectl("get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 		})
 	})
 
@@ -87,8 +87,8 @@ var _ = Describe("Main", func() {
 		It("deprovision a new service", func() {
 			var resp *http.Response
 
-			Expect(kubectl("get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
-			Expect(kubectl("get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", instanceID), nil)
@@ -105,8 +105,8 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(kubectl("get", "persistentvolumes")).To(ContainSubstring("No resources found"))
-			Expect(kubectl("get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
+			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 		})
 	})
 
@@ -115,8 +115,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			kubectl("delete", "persistentvolume", instanceID)
-			kubectl("delete", "persistentvolumeclaims", instanceID)
+			kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
+			kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
 		BeforeEach(func(){
@@ -149,7 +149,7 @@ var _ = Describe("Main", func() {
 
 			bytes, err := ioutil.ReadAll(resp.Body)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(string(bytes)).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/tmp", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
+			Expect(string(bytes)).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/home/vcap/data/", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
 		})
 	})
 
@@ -158,8 +158,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			kubectl("delete", "persistentvolume", instanceID)
-			kubectl("delete", "persistentvolumeclaims", instanceID)
+			kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
+			kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
 		BeforeEach(func(){

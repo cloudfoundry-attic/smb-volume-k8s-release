@@ -111,6 +111,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			Name: instanceID,
 		},
 		Spec: v1.PersistentVolumeSpec{
+			StorageClassName: "standard",
 			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
@@ -184,7 +185,7 @@ func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string
 	}
 	volumeMount := domain.VolumeMount{
 		Driver:       "smb",
-		ContainerDir: "/tmp",
+		ContainerDir: "/home/vcap/data/",
 		Mode:         "rw",
 		DeviceType:   "shared",
 		Device:       device,

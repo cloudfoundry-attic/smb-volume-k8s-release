@@ -22,6 +22,11 @@ image-local-registry:
 	docker tag cfpersi/smb-broker localhost:5000/cfpersi/smb-broker:local-test
 	docker push localhost:5000/cfpersi/smb-broker:local-test
 
+image-dev:
+	docker build -t cfpersi/smb-broker .
+	docker tag cfpersi/smb-broker cfpersi/smb-broker:dev
+	docker push cfpersi/smb-broker:dev
+
 helm:
 	helm version | grep 'v3.0.2' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
 	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true ./helm
@@ -36,4 +41,4 @@ helm_delete:
 fly:
 	fly -t persi execute -c /Users/pivotal/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=/Users/pivotal/workspace/smb-volume-k8s-release -p
 
-.PHONY: install test fmt image-local-registry release helm helm_delete helm-dev fly
+.PHONY: install test fmt image-local-registry release helm helm_delete helm-dev fly image-dev
