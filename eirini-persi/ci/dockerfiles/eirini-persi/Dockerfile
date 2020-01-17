@@ -1,5 +1,6 @@
 FROM golang:alpine as builder
 RUN mkdir /app
+RUN wget https://api.github.com/repos/SUSE/eirini-persi/git/ref/heads/master && cat master
 ADD https://github.com/SUSE/eirini-persi/archive/master.tar.gz /app/eirini-persi.tar.gz
 RUN cd /app/ && tar xvfz eirini-persi.tar.gz
 WORKDIR /app/eirini-persi-master
