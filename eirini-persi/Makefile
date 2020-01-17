@@ -4,9 +4,9 @@ build:
 delete:
 	kubectl delete mutatingwebhookconfiguration eirini-x-mutating-hook-eirini -n eirini || true
 	kubectl delete secret eirini-x-setupcertificate -n eirini || true
-	kubectl kustomize ./base | kubectl delete -f -
+	kubectl kustomize ./ephemeral-env | kubectl delete -f -
 
 status:
-	kubectl kustomize ./base | kubectl describe -f -
+	kubectl kustomize ./ephemeral-env | kubectl describe -f -
 
 .PHONY: build delete status
