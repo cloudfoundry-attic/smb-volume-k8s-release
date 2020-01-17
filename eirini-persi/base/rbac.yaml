@@ -22,7 +22,6 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: eirini-ext-volume-services
-    namespace: eirini
 roleRef:
   kind: ClusterRole
   name: register-eirini-ext-volume-services-webhook

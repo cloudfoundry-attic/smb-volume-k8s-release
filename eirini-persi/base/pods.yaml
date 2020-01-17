@@ -18,7 +18,7 @@ spec:
     - name: OPERATOR_WEBHOOK_PORT
       value: "443"
     - name: OPERATOR_SERVICE_NAME
-      value: "eirini-ext-svc"
+      value: $(EIRINI_EXT_SERVICE)
     - name: OPERATOR_WEBHOOK_NAMESPACE
       value: "eirini"
     ports:
