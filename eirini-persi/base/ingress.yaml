@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: nginx
+  name: eirini-ext
+spec:
+  rules:
+    - host: eirini-ext.app.cf.ephemeral-eirini-gke-2.cf-app.com
+      http:
+        paths:
+          - backend:
+              serviceName: eirini-ext-svc
+              servicePort: https
+            path: /
