@@ -6,4 +6,7 @@ delete:
 	kubectl delete secret eirini-x-setupcertificate -n eirini || true
 	kubectl kustomize ./base | kubectl delete -f -
 
-.PHONY: build delete
+status:
+	kubectl kustomize ./base | kubectl describe -f -
+
+.PHONY: build delete status

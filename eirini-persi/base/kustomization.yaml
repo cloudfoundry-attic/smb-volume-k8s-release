@@ -7,7 +7,7 @@ vars:
   - name: EIRINI_EXT_SERVICE
     objref:
       kind: Service
-      name: eirini-ext-svc
+      name: eirini-persi-svc
       apiVersion: v1
 
 resources:
