@@ -108,8 +108,8 @@ var _ = Describe("Handlers", func() {
 						},
 						Spec: v1.PersistentVolumeSpec{
 							StorageClassName: "standard",
-							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-							Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+							AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+							Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
 								HostPath: &v1.HostPathVolumeSource{
 									Path: "/tmp/",
@@ -304,7 +304,7 @@ var _ = Describe("Handlers", func() {
 		Describe("#Bind endpoint", func() {
 			var instanceID, bindingID string
 
-			BeforeEach(func(){
+			BeforeEach(func() {
 				fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
 
 				instanceID = randomString(source)
@@ -314,16 +314,60 @@ var _ = Describe("Handlers", func() {
 			})
 
 			Context("given a service instance", func() {
-
 				It("returns a bind response", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(recorder.Code).To(Equal(201))
 					Expect(recorder.Body).To(MatchJSON(fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "/home/vcap/data/", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`, bindingID, instanceID)))
 				})
+
+				Context("given container-dir bind option", func() {
+					var mountBindConfig string
+					BeforeEach(func() {
+						fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
+
+						instanceID = randomString(source)
+						bindingID = randomString(source)
+						mountBindConfig = "/foo/bar"
+						request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
+							strings.NewReader(fmt.Sprintf(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"}, "parameters": {"mount": "%s"} }`, mountBindConfig)))
+					})
+
+					It("should honor that bind option", func() {
+						Expect(err).NotTo(HaveOccurred())
+						Expect(recorder.Code).To(Equal(201))
+						Expect(recorder.Body).To(
+							MatchJSON(
+								fmt.Sprintf(`{"credentials": {}, "volume_mounts": [{"driver": "smb", "container_dir": "%s", "mode": "rw", "device_type": "shared", "device": {"volume_id": "%s", "mount_config": {"name": "%s"}} }]}`,
+									mountBindConfig, bindingID, instanceID),
+							),
+						)
+					})
+				})
+
+				Context("given invalid parameters", func() {
+					BeforeEach(func() {
+						fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
+
+						instanceID = randomString(source)
+						bindingID = randomString(source)
+						request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
+							strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"}, "parameters": {"mount": 123} }`))
+					})
+
+					It("should return a 422", func() {
+						Expect(err).NotTo(HaveOccurred())
+						Expect(recorder.Code).To(Equal(422))
+						Expect(recorder.Body).To(
+							MatchJSON(
+								`{"description": "The format of the parameters is not valid JSON"}`,
+							),
+						)
+					})
+				})
 			})
 
 			Context("given the service instance doesnt exist", func() {
-				BeforeEach(func(){
+				BeforeEach(func() {
 					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
 				})
 
@@ -334,7 +378,7 @@ var _ = Describe("Handlers", func() {
 			})
 		})
 
-		Describe("Unbind endpoint", func(){
+		Describe("Unbind endpoint", func() {
 			var instanceID, bindingID string
 
 			BeforeEach(func() {
@@ -345,13 +389,13 @@ var _ = Describe("Handlers", func() {
 				request, err = http.NewRequest(http.MethodDelete, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan-id", instanceID, bindingID), nil)
 			})
 
-			It("returns 200", func(){
+			It("returns 200", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(recorder.Code).To(Equal(200))
 			})
 
 			Context("given the service instance doesnt exist", func() {
-				BeforeEach(func(){
+				BeforeEach(func() {
 					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
 				})
 

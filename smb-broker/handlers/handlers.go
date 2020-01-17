@@ -19,6 +19,9 @@ import (
 	"os"
 )
 
+const MountConfigKey = "name"
+const MountBindOptionKey = "mount"
+const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
 
@@ -112,8 +115,8 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		},
 		Spec: v1.PersistentVolumeSpec{
 			StorageClassName: "standard",
-			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+			Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
 				HostPath: &v1.HostPathVolumeSource{
 					Path: "/tmp/",
@@ -173,10 +176,19 @@ func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string
 		return domain.Binding{}, apiresponses.ErrInstanceDoesNotExist
 	}
 
-	var volumeMounts []domain.VolumeMount
-
 	mountConfig := map[string]interface{}{
-		"name": instanceID,
+		MountConfigKey: instanceID,
+	}
+
+	var bindOpts = map[string]string{
+		MountBindOptionKey: DefaultMountPath,
+	}
+
+	if len(details.RawParameters) > 0 {
+		err := json.Unmarshal(details.RawParameters, &bindOpts)
+		if err != nil {
+			return domain.Binding{}, apiresponses.ErrRawParamsInvalid
+		}
 	}
 
 	device := domain.SharedDevice{
@@ -185,15 +197,16 @@ func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string
 	}
 	volumeMount := domain.VolumeMount{
 		Driver:       "smb",
-		ContainerDir: "/home/vcap/data/",
+		ContainerDir: bindOpts[MountBindOptionKey],
 		Mode:         "rw",
 		DeviceType:   "shared",
 		Device:       device,
 	}
 
+	var volumeMounts []domain.VolumeMount
 	volumeMounts = append(volumeMounts, volumeMount)
 	binding := domain.Binding{
-		Credentials: struct{}{},  // if nil, cloud controller chokes on response
+		Credentials:  struct{}{}, // if nil, cloud controller chokes on response
 		VolumeMounts: volumeMounts,
 	}
 	return binding, nil
