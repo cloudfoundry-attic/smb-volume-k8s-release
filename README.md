@@ -3,6 +3,7 @@ This is a repository in development, pre alpha, not feature complete.
 This contains helm releases that packages
 
 - an smbbroker
+- a smb csi driver
 
 
 # Deploying to Cloud Foundry
