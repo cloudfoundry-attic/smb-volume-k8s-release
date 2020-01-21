@@ -9,6 +9,12 @@ This contains helm releases that packages
 ## Prerequisites
 - Install Cloud Foundry on a k8s cluster
 
+## Installing eirini-persi (eirini-ext volume services extension)
+```
+cd eirini-persi
+make build
+```
+
 ## Installing smbbroker
 ```
 cd smb-broker
