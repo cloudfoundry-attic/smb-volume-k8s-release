@@ -16,6 +16,12 @@ cd eirini-persi
 make build
 ```
 
+## Installing smb-csi-driver
+```
+cd smb-csi-driver
+make build
+```
+
 ## Installing smbbroker
 ```
 cd smb-broker
