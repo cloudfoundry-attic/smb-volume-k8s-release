@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/ginkgo"
 )
 
-var _ = Describe("Identity", func() {
+var _ = Describe("Main", func() {
 	config := sanity.NewTestConfig()
 	config.Address = "localhost:2910"
 	sanity.GinkgoTest(&config)
