@@ -13,7 +13,7 @@ var session *gexec.Session
 
 func TestSmbCsiDriver(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "SmbCsiDriver Suite")
+	RunSpecs(t, "Main Suite")
 }
 
 var _ = BeforeSuite(func() {
@@ -27,5 +27,5 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	Expect(session.Kill().Wait().ExitCode()).To(Equal(137))
+	Expect(session.Kill().Wait().ExitCode()).NotTo(Equal(0))
 })
