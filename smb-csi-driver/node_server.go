@@ -8,6 +8,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var errorFmt = "Error: a required property [%s] was not provided"
+
 type noOpNodeServer struct{}
 
 func (noOpNodeServer) NodeGetCapabilities(context.Context, *csi.NodeGetCapabilitiesRequest) (*csi.NodeGetCapabilitiesResponse, error) {

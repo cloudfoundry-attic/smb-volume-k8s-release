@@ -8,8 +8,6 @@ import (
 	"net"
 )
 
-var errorFmt = "Error: a required property [%s] was not provided"
-
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 2910))
 	if err != nil {
