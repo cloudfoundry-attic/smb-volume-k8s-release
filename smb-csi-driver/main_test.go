@@ -9,4 +9,9 @@ var _ = Describe("Main", func() {
 	config := sanity.NewTestConfig()
 	config.Address = "localhost:2910"
 	sanity.GinkgoTest(&config)
+
+
+	Context("deploying to k8s", func() {
+
+	})
 })
