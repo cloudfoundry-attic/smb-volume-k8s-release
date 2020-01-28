@@ -13,7 +13,9 @@ image-local-registry:
 
 start-docker:
 	start-docker &
-	until docker info; do sleep 1; done
+	echo 'until docker info; do sleep 5; done' >/usr/local/bin/wait_for_docker
+	chmod +x /usr/local/bin/wait_for_docker
+	timeout 300 wait_for_docker
 
 kill-docker:
 	pkill dockerd
