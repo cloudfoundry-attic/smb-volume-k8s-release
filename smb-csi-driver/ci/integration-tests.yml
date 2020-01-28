@@ -5,7 +5,7 @@ image_resource:
   type: docker-image
   privileged: true
   source:
-    repository: cfpersi/smb-broker-k8s-tests
+    repository: cfpersi/smb-k8s-kind
     tag: latest
 
 inputs:
