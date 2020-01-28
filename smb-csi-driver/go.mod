@@ -8,5 +8,5 @@ require (
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
 	google.golang.org/grpc v1.25.1
-	sigs.k8s.io/kind v0.7.0 // indirect
+	sigs.k8s.io/kind v0.7.0
 )

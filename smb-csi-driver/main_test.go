@@ -7,7 +7,7 @@ import (
 
 var _ = Describe("Main", func() {
 	config := sanity.NewTestConfig()
-	config.Address = "localhost:2910"
+	config.Address = "unix:/tmp/csi.sock"
 	sanity.GinkgoTest(&config)
 
 
