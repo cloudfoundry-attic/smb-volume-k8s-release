@@ -96,6 +96,7 @@ nodes:
 	runTestCommand("bash", "-c", "./assets/setup-local-registry.sh "+nodeName+"-control-plane")
 
 	kubectl("apply", "--kustomize", "./base")
+	Eventually("/tmp/csi.sock").Should(BeAnExistingFile())
 }
 
 func kubectl(cmd ...string) string {

@@ -9,9 +9,4 @@ var _ = Describe("Main", func() {
 	config := sanity.NewTestConfig()
 	config.Address = "unix:/tmp/csi.sock"
 	sanity.GinkgoTest(&config)
-
-
-	Context("deploying to k8s", func() {
-
-	})
 })
