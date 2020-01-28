@@ -3,6 +3,7 @@ platform: linux
 
 image_resource:
   type: docker-image
+  privileged: true
   source:
     repository: cfpersi/smb-broker-k8s-tests
     tag: latest
