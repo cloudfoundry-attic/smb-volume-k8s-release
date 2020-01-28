@@ -4,7 +4,6 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    privileged: true
     repository: cfpersi/smb-k8s-kind
     tag: latest
 
