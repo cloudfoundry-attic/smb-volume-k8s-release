@@ -10,7 +10,7 @@ type noOpIdentityServer struct {
 
 func (*noOpIdentityServer) GetPluginInfo(ctx context.Context, req *csi.GetPluginInfoRequest) (*csi.GetPluginInfoResponse, error) {
 	return &csi.GetPluginInfoResponse{
-		Name: "A0A",
+		Name: "SMB-csi",
 	}, nil
 }
 func (*noOpIdentityServer) GetPluginCapabilities(ctx context.Context, req *csi.GetPluginCapabilitiesRequest) (*csi.GetPluginCapabilitiesResponse, error) {
