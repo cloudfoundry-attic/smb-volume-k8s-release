@@ -27,4 +27,10 @@ test:
 fly:
 	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/integration-tests.yml -i smb-volume-k8s-release=/Users/pivotal/workspace/smb-volume-k8s-release
 
+kustomize:
+	kubectl apply --kustomize ./overlays/deploy
+
+kustomize-delete:
+	kubectl delete --kustomize ./overlays/deploy
+
 .PHONY: build test image-local-registry
