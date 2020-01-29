@@ -8,3 +8,4 @@ spec:
       containers:
         - name: smb
           image: cfpersi/smb-csi-driver
+          imagePullPolicy: Always
