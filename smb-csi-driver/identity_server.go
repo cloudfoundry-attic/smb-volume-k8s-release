@@ -10,7 +10,7 @@ type noOpIdentityServer struct {
 
 func (*noOpIdentityServer) GetPluginInfo(ctx context.Context, req *csi.GetPluginInfoRequest) (*csi.GetPluginInfoResponse, error) {
 	return &csi.GetPluginInfoResponse{
-		Name: "SMB-csi",
+		Name: "org.cloudfoundry.smb",
 	}, nil
 }
 func (*noOpIdentityServer) GetPluginCapabilities(ctx context.Context, req *csi.GetPluginCapabilitiesRequest) (*csi.GetPluginCapabilitiesResponse, error) {
