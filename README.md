@@ -4,6 +4,7 @@ This contains helm releases that packages
 
 - an smb broker
 - a smb csi driver
+- eirini persi
 
 # Deploying to Cloud Foundry
 ## Prerequisites
