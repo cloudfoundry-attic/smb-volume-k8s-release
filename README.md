@@ -37,5 +37,5 @@ make image-local-registry test
 ## Testing csi driver
 ```
 cd smb-csi-driver
-make image-local-registry test
+make fly
 ```
