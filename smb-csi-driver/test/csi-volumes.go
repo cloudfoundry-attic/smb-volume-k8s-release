@@ -9,7 +9,9 @@ import (
 	"k8s.io/kubernetes/test/e2e/storage/utils"
 )
 
-var CSITestSuites = []func() testsuites.TestSuite{ }
+var CSITestSuites = []func() testsuites.TestSuite{
+	testsuites.InitVolumesTestSuite,
+}
 
 // This executes testSuites for csi volumes.
 var _ = utils.SIGDescribe("CSI Volumes", func() {
@@ -23,13 +25,12 @@ var _ = utils.SIGDescribe("CSI Volumes", func() {
 type noopTestDriver struct {}
 
 func (noopTestDriver) GetDriverInfo() *testsuites.DriverInfo {
-	panic("implement me")
+	return &testsuites.DriverInfo{}
 }
 
 func (noopTestDriver) SkipUnsupportedTest(testpatterns.TestPattern) {
-	panic("implement me")
 }
 
 func (noopTestDriver) PrepareTest(f *framework.Framework) (*testsuites.PerTestConfig, func()) {
-	panic("implement me")
+	return nil, nil
 }
