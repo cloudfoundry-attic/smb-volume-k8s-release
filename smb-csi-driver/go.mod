@@ -10,7 +10,6 @@ require (
 	google.golang.org/grpc v1.26.0
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.17.0
-	k8s.io/client-go v0.0.0
 	k8s.io/kubernetes v1.18.0-alpha.2.0.20200203095321-4c3aa3f26b84
 	sigs.k8s.io/kind v0.7.0
 )
