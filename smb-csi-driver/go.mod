@@ -3,16 +3,16 @@ module code.cloudfoundry.org/smb-csi-driver
 go 1.13
 
 require (
-	github.com/checkpoint-restore/go-criu v0.0.0-20190109184317-bdb7599cd87b // indirect
 	github.com/container-storage-interface/spec v1.2.0
 	github.com/kubernetes-csi/csi-test/v3 v3.0.0
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.8.1
-	github.com/opencontainers/runc v1.0.0-rc9 // indirect
 	google.golang.org/grpc v1.26.0
+	k8s.io/api v0.0.0
+	k8s.io/apimachinery v0.17.0
+	k8s.io/client-go v0.0.0
 	k8s.io/kubernetes v1.18.0-alpha.2.0.20200203095321-4c3aa3f26b84
 	sigs.k8s.io/kind v0.7.0
-	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
 
 replace (

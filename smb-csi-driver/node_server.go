@@ -6,6 +6,7 @@ import (
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"os"
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
@@ -29,12 +30,22 @@ func (noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVol
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
 
+	err := os.MkdirAll(r.TargetPath, os.ModePerm)
+	if err != nil {
+		println(err.Error())
+	}
+	
 	return &csi.NodePublishVolumeResponse{}, nil
 }
 
 func (noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
 	if r.TargetPath == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
+	}
+
+	err := os.RemoveAll(r.TargetPath)
+	if err != nil {
+		println(err.Error())
 	}
 
 	return &csi.NodeUnpublishVolumeResponse{}, nil
