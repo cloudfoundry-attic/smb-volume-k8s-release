@@ -20,6 +20,8 @@ func TestSmbCsiDriver(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	Expect(runtime.GOOS).To(Equal("linux"), "This test suite can only run in linux due to requiring connecting to a linux socket. Use `make fly` to run these test!")
+
 	SetDefaultEventuallyTimeout(10 * time.Minute)
 	nodeName = "default-smb-csi-driver-test-node"
 	kubeConfigPath = "/tmp/csi-kubeconfig"
