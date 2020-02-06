@@ -2,6 +2,8 @@ package local_k8s_cluster
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"time"
@@ -66,11 +68,36 @@ nodes:
 	Expect(err).NotTo(HaveOccurred())
 
 	kubeContext := "kind-" + nodeName
-	kubectl("cluster-info", "--context", kubeContext, "--kubeconfig", kubeConfigPath)
-	kubectl("apply", "-f", "./assets/ingress-nginx")
+	kubectl("--context", kubeContext, "--kubeconfig", kubeConfigPath)
+
+	ngninxYamlTempFile, err := ioutil.TempFile("/tmp", "nginx")
+	Expect(err).NotTo(HaveOccurred())
+
+	_, err = io.WriteString(ngninxYamlTempFile, NGNIX_YAML)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(ngninxYamlTempFile.Close()).To(Succeed())
+
+	kubectl("apply", "-f", ngninxYamlTempFile.Name())
+
 	kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
 
-	runTestCommand("bash", "-c", "./assets/setup-local-registry.sh "+nodeName+"-control-plane")
+	registryBashTempFile, err := ioutil.TempFile("/tmp", "test")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(os.Chmod(registryBashTempFile.Name(), os.ModePerm)).To(Succeed())
+
+	_, err = io.WriteString(registryBashTempFile, SPIN_UP_LOCAL_REGISTRY_BASH)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(registryBashTempFile.Close()).To(Succeed())
+
+	runTestCommand("bash", "-c", registryBashTempFile.Name()+" "+nodeName+"-control-plane")
+}
+
+func DeleteK8sCluster(nodeName string, kubeConfigPath string) {
+	provider := cluster.NewProvider(
+		cluster.ProviderWithLogger(cmd.NewLogger()),
+	)
+
+	_ = provider.Delete(nodeName, kubeConfigPath)
 }
 
 func kubectl(cmd ...string) string {
@@ -79,10 +106,11 @@ func kubectl(cmd ...string) string {
 
 func runTestCommand(name string, cmds ...string) string {
 	command := exec.Command(name, cmds...)
+
 	fmt.Println(fmt.Sprintf("Running %v", command.Args))
 
 	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(session).Should(gexec.Exit(0), string(session.Out.Contents()))
+	Eventually(session, time.Minute).Should(gexec.Exit(0), string(session.Out.Contents()))
 	return string(session.Out.Contents()) + string(session.Err.Contents())
 }

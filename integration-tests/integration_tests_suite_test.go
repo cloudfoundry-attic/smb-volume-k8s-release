@@ -14,5 +14,9 @@ func TestIntegrationTests(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	local_k8s_cluster.CreateK8sCluster("test", "/tmp/lol")
+	local_k8s_cluster.CreateK8sCluster("test", "/tmp/kubeconfig")
+})
+
+var _ = AfterSuite(func() {
+	local_k8s_cluster.DeleteK8sCluster("test", "/tmp/kubeconfig")
 })
