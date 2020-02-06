@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"code.cloudfoundry.org/local-k8s-cluster"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -39,15 +40,15 @@ var _ = Describe("Main", func() {
 
 	Describe("#Provision", func() {
 		AfterEach(func() {
-			kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
-			kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
+			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
 		It("provision a new service", func() {
 			var resp *http.Response
 
-			Expect(kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
-			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
@@ -64,8 +65,8 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(kubectl("-n", "eirini", "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
-			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 		})
 	})
 
@@ -87,8 +88,8 @@ var _ = Describe("Main", func() {
 		It("deprovision a new service", func() {
 			var resp *http.Response
 
-			Expect(kubectl("-n", "eirini", "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
-			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", instanceID), nil)
@@ -105,8 +106,8 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
-			Expect(kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
+			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 		})
 	})
 
@@ -115,8 +116,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
-			kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
+			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
 		BeforeEach(func(){
@@ -158,8 +159,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
-			kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolume", instanceID)
+			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
 		BeforeEach(func(){
