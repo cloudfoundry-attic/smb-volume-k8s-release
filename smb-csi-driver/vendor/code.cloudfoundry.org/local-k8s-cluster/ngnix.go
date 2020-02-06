@@ -1,4 +1,7 @@
-apiVersion: v1
+package local_k8s_cluster
+
+
+const NGNIX_YAML = `apiVersion: v1
 kind: Namespace
 metadata:
   name: ingress-nginx
@@ -292,3 +295,4 @@ spec:
       memory: 90Mi
       cpu: 100m
     type: Container
+`
