@@ -1,6 +1,7 @@
 package integration_tests_test
 
 import (
+	local_k8s_cluster "code.cloudfoundry.org/local-k8s-cluster"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -11,3 +12,7 @@ func TestIntegrationTests(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "IntegrationTests Suite")
 }
+
+var _ = BeforeSuite(func() {
+	local_k8s_cluster.CreateK8sCluster("test", "/tmp/lol")
+})
