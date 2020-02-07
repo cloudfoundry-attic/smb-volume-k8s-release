@@ -26,11 +26,18 @@ var _ = utils.SIGDescribe("CSI Volumes", func() {
 })
 
 type noopTestDriver struct {}
-var _ testsuites.TestVolume = &noopTestDriver{}
+
+type smbVolume struct {
+	serverIP  string
+	serverPod *v1.Pod
+	f         *framework.Framework
+}
+
+var _ testsuites.TestVolume = &smbVolume{}
 var _ testsuites.PreprovisionedVolumeTestDriver = &noopTestDriver{}
 var _ testsuites.PreprovisionedPVTestDriver = &noopTestDriver{}
 
-func (d noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, testVolume testsuites.TestVolume) (*v1.PersistentVolumeSource, *v1.VolumeNodeAffinity) {
+func (n noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, testVolume testsuites.TestVolume) (*v1.PersistentVolumeSource, *v1.VolumeNodeAffinity) {
 	vol, _ := testVolume.(*smbVolume)
 	return &v1.PersistentVolumeSource{
 		CSI: &v1.CSIPersistentVolumeSource{
@@ -45,14 +52,19 @@ func (d noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, 
 	}, nil
 }
 
-func (noopTestDriver) GetDriverInfo() *testsuites.DriverInfo {
+func (n noopTestDriver) GetDriverInfo() *testsuites.DriverInfo {
 	return &testsuites.DriverInfo{
-		Name: "org.cloudfoundry.smb",
+		Name:            "org.cloudfoundry.smb",
 		SupportedFsType: sets.NewString("ext4"),
+		Capabilities: map[testsuites.Capability]bool{
+		},
 	}
 }
 
-func (noopTestDriver) SkipUnsupportedTest(testpatterns.TestPattern) {
+func (n noopTestDriver) SkipUnsupportedTest(pattern testpatterns.TestPattern) {
+	if pattern.VolType == testpatterns.DynamicPV {
+		framework.Skipf("SMB Driver does not support dynamic provisioning -- skipping")
+	}
 }
 
 
@@ -65,7 +77,7 @@ func (n noopTestDriver) PrepareTest(f *framework.Framework) (*testsuites.PerTest
 	}, nil
 }
 
-func (d noopTestDriver) CreateVolume(config *testsuites.PerTestConfig, volType testpatterns.TestVolType) testsuites.TestVolume {
+func (n noopTestDriver) CreateVolume(config *testsuites.PerTestConfig, volType testpatterns.TestVolType) testsuites.TestVolume {
 	f := config.Framework
 	cs := f.ClientSet
 	ns := f.Namespace
@@ -88,14 +100,7 @@ func (d noopTestDriver) CreateVolume(config *testsuites.PerTestConfig, volType t
 	}
 }
 
-type smbVolume struct {
-	serverIP  string
-	serverPod *v1.Pod
-	f         *framework.Framework
-}
-func (smbVolume) DeleteVolume(){
 
-}
+func (v smbVolume) DeleteVolume(){
 
-func (noopTestDriver) DeleteVolume() {
 }
