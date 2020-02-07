@@ -63,6 +63,7 @@ func (n noopTestDriver) GetDriverInfo() *testsuites.DriverInfo {
 		SupportedFsType: sets.NewString(""),
 		Capabilities: map[testsuites.Capability]bool{
 			testsuites.CapPersistence: true,
+			testsuites.CapExec: true,
 		},
 	}
 }
