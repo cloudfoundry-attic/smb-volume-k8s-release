@@ -30,6 +30,8 @@ type noopTestDriver struct{}
 type smbVolume struct {
 	serverIP  string
 	serverPod *v1.Pod
+	username  string
+	password  string
 	framework *framework.Framework
 	config    volume.TestConfig
 }
@@ -46,6 +48,8 @@ func (n noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, 
 			VolumeHandle: "volume-handle",
 			VolumeAttributes: map[string]string{
 				"server":   vol.serverIP,
+				"username": vol.username,
+				"password": vol.password,
 				"share":    "/example1",
 				"readOnly": "true",
 			},
@@ -97,6 +101,8 @@ func (n noopTestDriver) CreateVolume(config *testsuites.PerTestConfig, volType t
 	return &smbVolume{
 		serverIP:  serverIP,
 		serverPod: serverPod,
+		username: "example",
+		password: "badpass",
 		framework: f,
 		config:    serverConfig,
 	}

@@ -37,13 +37,17 @@ func (noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVol
 	}
 	serverIP := r.GetVolumeContext()["server"]
 	share := r.GetVolumeContext()["share"]
+	username := r.GetVolumeContext()["username"]
+	password := r.GetVolumeContext()["password"]
 
 	fmt.Println(fmt.Sprintf("target path: %s", r.TargetPath))
 
 	uncPath := fmt.Sprintf("//%s%s", serverIP, share)
 	fmt.Println(fmt.Sprintf("about to mount to %s", uncPath))
 
-	cmd := exec.Command("mount", "-t", "cifs", "-o", "username=example1,password=badpass", uncPath, r.TargetPath)
+	mountOptions := fmt.Sprintf("username=%s,password=%s", username, password)
+
+	cmd := exec.Command("mount", "-t", "cifs", "-o", mountOptions, uncPath, r.TargetPath)
 	err = cmd.Start()
 	if err != nil {
 		println(err.Error())
