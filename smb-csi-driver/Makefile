@@ -27,8 +27,7 @@ test:
 e2e: SHELL:=/bin/bash
 e2e:
 	go get github.com/onsi/ginkgo/ginkgo
-	cd test
-	~/go/bin/ginkgo -r -focus "CSI Volumes"
+	cd test && pwd && ~/go/bin/ginkgo -r -focus "CSI Volumes"
 
 fly:
 	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/integration-tests.yml -i smb-volume-k8s-release=/Users/pivotal/workspace/smb-volume-k8s-release
