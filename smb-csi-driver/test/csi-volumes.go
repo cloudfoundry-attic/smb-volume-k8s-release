@@ -55,8 +55,9 @@ func (n noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, 
 func (n noopTestDriver) GetDriverInfo() *testsuites.DriverInfo {
 	return &testsuites.DriverInfo{
 		Name:            "org.cloudfoundry.smb",
-		SupportedFsType: sets.NewString("ext4"),
+		SupportedFsType: sets.NewString(""),
 		Capabilities: map[testsuites.Capability]bool{
+			testsuites.CapPersistence: true,
 		},
 	}
 }

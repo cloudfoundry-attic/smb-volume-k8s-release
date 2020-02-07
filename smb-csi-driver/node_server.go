@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"os"
+	"os/exec"
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
@@ -34,7 +35,27 @@ func (noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVol
 	if err != nil {
 		println(err.Error())
 	}
-	
+	serverIP := r.GetVolumeContext()["server"]
+	share := r.GetVolumeContext()["share"]
+
+	fmt.Println(fmt.Sprintf("target path: %s", r.TargetPath))
+
+	uncPath := fmt.Sprintf("//%s%s", serverIP, share)
+	fmt.Println(fmt.Sprintf("about to mount to %s", uncPath))
+
+	cmd := exec.Command("mount", "-t", "cifs", "-o", "username=example1,password=badpass", uncPath, r.TargetPath)
+	err = cmd.Start()
+	if err != nil {
+		println(err.Error())
+	}
+	fmt.Println(fmt.Sprintf("started mount to %s", uncPath))
+
+	err = cmd.Wait()
+	if err != nil {
+		println(err.Error())
+	}
+	fmt.Println(fmt.Sprintf("finished mount to %s", uncPath))
+
 	return &csi.NodePublishVolumeResponse{}, nil
 }
 
@@ -43,10 +64,27 @@ func (noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublis
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
 	}
 
-	err := os.RemoveAll(r.TargetPath)
+	fmt.Println(fmt.Sprintf("about to remove dir"))
+
+	cmd := exec.Command("umount", r.TargetPath)
+	err := cmd.Start()
 	if err != nil {
 		println(err.Error())
 	}
+	fmt.Println("started umount")
+
+	err = cmd.Wait()
+	if err != nil {
+		println(err.Error())
+	}
+	fmt.Println("finished umount")
+
+	err = os.Remove(r.TargetPath)
+	if err != nil {
+		println(err.Error())
+	}
+
+	fmt.Println(fmt.Sprintf("removed dir"))
 
 	return &csi.NodeUnpublishVolumeResponse{}, nil
 }
