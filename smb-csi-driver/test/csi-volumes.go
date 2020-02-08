@@ -102,7 +102,7 @@ func (n noopTestDriver) CreateVolume(config *testsuites.PerTestConfig, volType t
 	return &smbVolume{
 		serverIP:  serverIP,
 		serverPod: serverPod,
-		username: "example",
+		username: "example1",
 		password: "badpass",
 		framework: f,
 		config:    serverConfig,
