@@ -30,6 +30,7 @@ RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add 
 RUN echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
 RUN apt-get update
 RUN apt-get install -y kubectl
+RUN ln -s /usr/bin/kubectl /usr/local/bin/kubectl
 
 RUN wget https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz
 RUN tar -zxvf helm-v3.0.2-linux-amd64.tar.gz
