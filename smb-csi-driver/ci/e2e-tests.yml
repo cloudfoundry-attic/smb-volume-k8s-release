@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfpersi/smb-k8s-kind
+    tag: latest
+
+inputs:
+  - name: smb-volume-k8s-release
+
+run:
+  path: make
+  args: [ "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "image-local-registry", "e2e", "kill-docker" ]
