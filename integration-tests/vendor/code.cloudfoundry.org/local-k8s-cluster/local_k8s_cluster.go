@@ -56,6 +56,10 @@ nodes:
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
+  - containerPort: 139
+    hostPort: 139
+  - containerPort: 445
+    hostPort: 445
   - containerPort: 443
     hostPort: 443`)),
 		cluster.CreateWithNodeImage(defaults.Image), // There's a v1.13 image = kindest/node:v1.13.12
@@ -68,7 +72,7 @@ nodes:
 	Expect(err).NotTo(HaveOccurred())
 
 	kubeContext := "kind-" + nodeName
-	kubectl("--context", kubeContext, "--kubeconfig", kubeConfigPath)
+	Kubectl("--context", kubeContext, "--kubeconfig", kubeConfigPath)
 
 	ngninxYamlTempFile, err := ioutil.TempFile("/tmp", "nginx")
 	Expect(err).NotTo(HaveOccurred())
@@ -77,9 +81,9 @@ nodes:
 	Expect(err).NotTo(HaveOccurred())
 	Expect(ngninxYamlTempFile.Close()).To(Succeed())
 
-	kubectl("apply", "-f", ngninxYamlTempFile.Name())
+	Kubectl("apply", "-f", ngninxYamlTempFile.Name())
 
-	kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
+	Kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
 
 	registryBashTempFile, err := ioutil.TempFile("/tmp", "test")
 	Expect(err).NotTo(HaveOccurred())
@@ -100,8 +104,12 @@ func DeleteK8sCluster(nodeName string, kubeConfigPath string) {
 	_ = provider.Delete(nodeName, kubeConfigPath)
 }
 
-func kubectl(cmd ...string) string {
+func Kubectl(cmd ...string) string {
 	return runTestCommand("kubectl", cmd...)
+}
+
+func Helm(cmd ...string) string {
+	return runTestCommand("helm", cmd...)
 }
 
 func runTestCommand(name string, cmds ...string) string {

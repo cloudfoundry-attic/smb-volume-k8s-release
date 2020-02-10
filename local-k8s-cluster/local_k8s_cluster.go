@@ -56,6 +56,10 @@ nodes:
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
+  - containerPort: 139
+    hostPort: 139
+  - containerPort: 445
+    hostPort: 445
   - containerPort: 443
     hostPort: 443`)),
 		cluster.CreateWithNodeImage(defaults.Image), // There's a v1.13 image = kindest/node:v1.13.12

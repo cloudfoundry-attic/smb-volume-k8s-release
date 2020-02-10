@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: dev
+  name: dev
+  namespace: eirini
+spec:
+  containers:
+    - command:
+        - bash
+      image: ubuntu
+      securityContext:
+        privileged: true
+      imagePullPolicy: Always
+      name: dev
