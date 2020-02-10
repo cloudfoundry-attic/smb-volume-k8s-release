@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: dev
+  name: dev
+  namespace: eirini
+spec:
+  containers:
+    - command:
+        - bash
+      args:
+        - -c
+        - echo 'hi' > /instance1/foo; sleep 3600
+      image: ubuntu
+      securityContext:
+        privileged: true
+      imagePullPolicy: Always
+      name: dev
+      volumeMounts:
+        - mountPath: /instance1
+          name: instance-1-volume
+  volumes:
+    - name: instance-1-volume
+      persistentVolumeClaim:
+        claimName: instance1
