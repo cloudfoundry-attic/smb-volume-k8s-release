@@ -112,10 +112,20 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	va := map[string]string{}
 	if username, found := serviceInstanceParameters["username"]; found {
 		va["username"] = username.(string)
+	} else {
+		if _, found := serviceInstanceParameters["password"]; found {
+			return domain.ProvisionedServiceSpec{}, apiresponses.NewFailureResponse(errors.New("both username and password must be provided"), 400, "invalid-parameters")
+		}
+
 	}
 
 	if password, found := serviceInstanceParameters["password"]; found {
 		va["password"] = password.(string)
+	} else {
+		if _, found := serviceInstanceParameters["username"]; found {
+			return domain.ProvisionedServiceSpec{}, apiresponses.NewFailureResponse(errors.New("both username and password must be provided"), 400, "invalid-parameters")
+		}
+
 	}
 
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{

@@ -183,6 +183,34 @@ var _ = Describe("Handlers", func() {
 					Expect(recorder.Body).To(MatchJSON(`{}`))
 
 				})
+
+				Context("when username is not supplied", func() {
+
+					BeforeEach(func() {
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"password": "foo"}}`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should respond with an error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "both username and password must be provided"}`))
+
+					})
+				})
+
+				Context("when password is not supplied", func() {
+
+					BeforeEach(func() {
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"username": "foo"}}`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should respond with an error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "both username and password must be provided"}`))
+
+					})
+				})
 			})
 
 			Context("when a username and password are supplied", func() {
