@@ -106,8 +106,13 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
-			Expect(local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumes")
+			}).Should(ContainSubstring("No resources found"))
+
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("-n", "eirini", "get", "persistentvolumeclaims")
+			}).Should(ContainSubstring("No resources found"))
 		})
 	})
 
