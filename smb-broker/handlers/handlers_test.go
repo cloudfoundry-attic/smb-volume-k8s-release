@@ -245,6 +245,32 @@ var _ = Describe("Handlers", func() {
 					))
 				})
 			})
+
+			Context("when an invalid username is supplied", func() {
+				BeforeEach(func() {
+					var err error
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": 123, "password": "321" } }`))
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should respond with an error", func() {
+					Expect(recorder.Code).To(Equal(400))
+					Expect(recorder.Body).To(MatchJSON(`{ "description": "username must be a string value"}`))
+				})
+			})
+
+			Context("when an invalid password is supplied", func() {
+				BeforeEach(func() {
+					var err error
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "123", "password": 321 } }`))
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should respond with an error", func() {
+					Expect(recorder.Code).To(Equal(400))
+					Expect(recorder.Body).To(MatchJSON(`{ "description": "password must be a string value"}`))
+				})
+			})
 		})
 
 		Describe("#Deprovision endpoint", func() {
