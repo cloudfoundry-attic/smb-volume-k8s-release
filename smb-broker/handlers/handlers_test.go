@@ -107,7 +107,6 @@ var _ = Describe("Handlers", func() {
 							Name: serviceInstanceKey,
 						},
 						Spec: v1.PersistentVolumeSpec{
-							StorageClassName: "standard",
 							AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
@@ -124,12 +123,14 @@ var _ = Describe("Handlers", func() {
 
 			It("should create a persistent volume claim", func() {
 				Expect(fakePersitentVolumeClaimClient.CreateCallCount()).To(Equal(1))
+				storageClass := ""
 				Expect(fakePersitentVolumeClaimClient.CreateArgsForCall(0)).To(Equal(
 					&v1.PersistentVolumeClaim{
 						ObjectMeta: metav1.ObjectMeta{
 							Name: serviceInstanceKey,
 						},
 						Spec: v1.PersistentVolumeClaimSpec{
+							StorageClassName: &storageClass,
 							VolumeName:  serviceInstanceKey,
 							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Resources: v1.ResourceRequirements{
@@ -233,7 +234,6 @@ var _ = Describe("Handlers", func() {
 								Name: serviceInstanceKey,
 							},
 							Spec: v1.PersistentVolumeSpec{
-								StorageClassName: "standard",
 								AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 								Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 								PersistentVolumeSource: v1.PersistentVolumeSource{

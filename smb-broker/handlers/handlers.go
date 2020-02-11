@@ -94,11 +94,14 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
+	storageClass := ""
+
 	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
 		},
 		Spec: v1.PersistentVolumeClaimSpec{
+			StorageClassName: &storageClass,
 			VolumeName:  instanceID,
 			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			Resources: v1.ResourceRequirements{
@@ -129,12 +132,19 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
+	if server, found := serviceInstanceParameters["server"]; found {
+		va["server"] = server.(string)
+	}
+
+	if share, found := serviceInstanceParameters["share"]; found {
+		va["share"] = fmt.Sprintf("/%s", share)
+	}
+
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
 		},
 		Spec: v1.PersistentVolumeSpec{
-			StorageClassName: "standard",
 			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
