@@ -147,17 +147,6 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	return domain.ProvisionedServiceSpec{}, err
 }
 
-func addToVolumeAttributes(source map[string]interface{}, va map[string]string, key string) error {
-	if valueFromSource, found := source[key]; found {
-		if value, ok := valueFromSource.(string); ok {
-			va[key] = value
-		} else {
-			return invalidParametersResponse(fmt.Sprintf("%s must be a string value", key))
-		}
-	}
-	return nil
-}
-
 func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
 	err := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
 	if err != nil {
@@ -267,4 +256,15 @@ func invalidParametersResponse(description string) *apiresponses.FailureResponse
 func (s smbServiceBroker) containsKey(serviceInstanceParameters map[string]interface{}, key string) bool {
 	_, found := serviceInstanceParameters[key]
 	return found
+}
+
+func addToVolumeAttributes(source map[string]interface{}, va map[string]string, key string) error {
+	if valueFromSource, found := source[key]; found {
+		if value, ok := valueFromSource.(string); ok {
+			va[key] = value
+		} else {
+			return invalidParametersResponse(fmt.Sprintf("%s must be a string value", key))
+		}
+	}
+	return nil
 }
