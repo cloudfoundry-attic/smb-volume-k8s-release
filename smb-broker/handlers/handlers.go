@@ -110,22 +110,20 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	}
 
 	va := map[string]string{}
+
+	hasProvidedUsername := s.containsKey(serviceInstanceParameters, "username")
+	hasProvidedPassword := s.containsKey(serviceInstanceParameters, "password")
+
+	if hasProvidedUsername != hasProvidedPassword {
+		return domain.ProvisionedServiceSpec{}, invalidParametersResponse()
+	}
+
 	if username, found := serviceInstanceParameters["username"]; found {
 		va["username"] = username.(string)
-	} else {
-		if _, found := serviceInstanceParameters["password"]; found {
-			return domain.ProvisionedServiceSpec{}, apiresponses.NewFailureResponse(errors.New("both username and password must be provided"), 400, "invalid-parameters")
-		}
-
 	}
 
 	if password, found := serviceInstanceParameters["password"]; found {
 		va["password"] = password.(string)
-	} else {
-		if _, found := serviceInstanceParameters["username"]; found {
-			return domain.ProvisionedServiceSpec{}, apiresponses.NewFailureResponse(errors.New("both username and password must be provided"), 400, "invalid-parameters")
-		}
-
 	}
 
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
@@ -145,6 +143,12 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	})
 	return domain.ProvisionedServiceSpec{}, err
 }
+
+func (s smbServiceBroker) containsKey(serviceInstanceParameters map[string]interface{}, key string) bool {
+	_, found := serviceInstanceParameters[key]
+	return found
+}
+
 
 func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
 	err := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
@@ -246,4 +250,8 @@ func (s smbServiceBroker) GetBinding(ctx context.Context, instanceID, bindingID 
 
 func (s smbServiceBroker) LastBindingOperation(ctx context.Context, instanceID, bindingID string, details domain.PollDetails) (domain.LastOperation, error) {
 	panic("implement me")
+}
+
+func invalidParametersResponse() *apiresponses.FailureResponse {
+	return apiresponses.NewFailureResponse(errors.New("both username and password must be provided"), 400, "invalid-parameters")
 }
