@@ -111,7 +111,11 @@ var _ = Describe("Handlers", func() {
 							AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
-								CSI: &v1.CSIPersistentVolumeSource{VolumeAttributes: map[string]string{}},
+								CSI: &v1.CSIPersistentVolumeSource{
+									Driver:           "org.cloudfoundry.smb",
+									VolumeHandle:     "volume-handle",
+									VolumeAttributes: map[string]string{},
+								},
 							},
 						},
 					},
@@ -234,6 +238,8 @@ var _ = Describe("Handlers", func() {
 								Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 								PersistentVolumeSource: v1.PersistentVolumeSource{
 									CSI: &v1.CSIPersistentVolumeSource{
+										Driver: "org.cloudfoundry.smb",
+										VolumeHandle: "volume-handle",
 										VolumeAttributes: map[string]string{
 											"username": "foo",
 											"password": "bar",

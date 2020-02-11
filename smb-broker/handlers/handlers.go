@@ -139,6 +139,8 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
 				CSI: &v1.CSIPersistentVolumeSource{
+					Driver: "org.cloudfoundry.smb",
+					VolumeHandle: "volume-handle",
 					VolumeAttributes: va,
 				},
 			},
