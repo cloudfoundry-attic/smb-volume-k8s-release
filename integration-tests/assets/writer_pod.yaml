@@ -11,7 +11,7 @@ spec:
         - bash
       args:
         - -c
-        - echo 'hi' > /instance1/foo; sleep 3600
+        - echo {{.ExpectedFileContents}} > /instance1/foo; sleep 3600
       image: ubuntu
       securityContext:
         privileged: true
@@ -23,4 +23,4 @@ spec:
   volumes:
     - name: instance-1-volume
       persistentVolumeClaim:
-        claimName: instance1
+        claimName: {{.InstanceID}}
