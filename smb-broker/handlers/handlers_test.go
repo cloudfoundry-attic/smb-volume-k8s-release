@@ -111,9 +111,7 @@ var _ = Describe("Handlers", func() {
 							AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
-								HostPath: &v1.HostPathVolumeSource{
-									Path: "/tmp/",
-								},
+								CSI: &v1.CSIPersistentVolumeSource{VolumeAttributes: map[string]string{}},
 							},
 						},
 					},
@@ -184,6 +182,39 @@ var _ = Describe("Handlers", func() {
 					Expect(recorder.Code).To(Equal(201))
 					Expect(recorder.Body).To(MatchJSON(`{}`))
 
+				})
+			})
+
+			Context("when a username and password are supplied", func() {
+
+				BeforeEach(func() {
+					var err error
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should store the username and password in the PVs volume attributes", func() {
+					Expect(fakePersitentVolumeClient.CreateCallCount()).To(Equal(1))
+					Expect(fakePersitentVolumeClient.CreateArgsForCall(0)).To(Equal(
+						&v1.PersistentVolume{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: serviceInstanceKey,
+							},
+							Spec: v1.PersistentVolumeSpec{
+								StorageClassName: "standard",
+								AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+								Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+								PersistentVolumeSource: v1.PersistentVolumeSource{
+									CSI: &v1.CSIPersistentVolumeSource{
+										VolumeAttributes: map[string]string{
+											"username": "foo",
+											"password": "bar",
+										},
+									},
+								},
+							},
+						},
+					))
 				})
 			})
 		})

@@ -109,6 +109,15 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
+	va := map[string]string{}
+	if username, found := serviceInstanceParameters["username"]; found {
+		va["username"] = username.(string)
+	}
+
+	if password, found := serviceInstanceParameters["password"]; found {
+		va["password"] = password.(string)
+	}
+
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
@@ -118,8 +127,8 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
-				HostPath: &v1.HostPathVolumeSource{
-					Path: "/tmp/",
+				CSI: &v1.CSIPersistentVolumeSource{
+					VolumeAttributes: va,
 				},
 			},
 		},
