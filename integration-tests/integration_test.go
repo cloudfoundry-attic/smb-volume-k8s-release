@@ -17,7 +17,9 @@ var _ = Describe("Integration", func() {
 	var expectedFileContents = "hi"
 
 	BeforeEach(func() {
-		var podIP, username, password string
+		var podIP string
+		username := "user"
+		password := "pass"
 
 		By("deploying a smb server", func() {
 			overrides := fmt.Sprintf(`{"spec": {"template":  {"spec": {"containers": [{"name": "test-smb1", "command": [ "/sbin/tini", "--", "/usr/bin/samba.sh", "-p","-u","%s;%s","-s","user;/export;no;no;no;user","-p","-S" ], "image": "dperson/samba", "securityContext":{"privileged":true}, "ports": [{"containerPort": 139, "protocol": "TCP"}, {"containerPort": 445, "protocol": "TCP"}]}]}}}}`, username, password)
@@ -82,8 +84,13 @@ var _ = Describe("Integration", func() {
 		Expect(local_k8s_cluster.Kubectl("apply", "-f", interpolatedYamlPath)).To(ContainSubstring("created"))
 		Expect(local_k8s_cluster.Kubectl("apply", "-f", "./assets/reader_pod.yaml")).To(ContainSubstring("created"))
 
-		mountCommand := fmt.Sprintf("mkdir /instance1 && mount -t cifs -o username=%s,password=%s //%s/user /instance1 && cat /instance1/foo || true", username, password, podIP)
-		fileReadContents = local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "bash", "-c", mountCommand)
+		Eventually(func() string {
+			return local_k8s_cluster.Kubectl("get", "events", "-n", "eirini")
+		}).Should(ContainSubstring("Started container integration-test-reader"))
+
+		mountCommand := fmt.Sprintf("mkdir /instance1 && mount -t cifs -o username=%s,password=%s //%s/user /instance1", username, password, podIP)
+		local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", mountCommand)
+		fileReadContents = local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", "cat /instance1/foo || true")
 	})
 
 	It("the file contents written by a pod with a pvc (created by the broker) should be written to the smb share", func() {
