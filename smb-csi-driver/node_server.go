@@ -35,30 +35,28 @@ func (noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVol
 	if err != nil {
 		println(err.Error())
 	}
-	serverIP := r.GetVolumeContext()["server"]
 	share := r.GetVolumeContext()["share"]
 	username := r.GetVolumeContext()["username"]
 	password := r.GetVolumeContext()["password"]
 
 	fmt.Println(fmt.Sprintf("target path: %s", r.TargetPath))
 
-	uncPath := fmt.Sprintf("//%s%s", serverIP, share)
-	fmt.Println(fmt.Sprintf("about to mount to %s", uncPath))
+	fmt.Println(fmt.Sprintf("about to mount to %s", share))
 
 	mountOptions := fmt.Sprintf("username=%s,password=%s", username, password)
 
-	cmd := exec.Command("mount", "-t", "cifs", "-o", mountOptions, uncPath, r.TargetPath)
+	cmd := exec.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
 	err = cmd.Start()
 	if err != nil {
 		println(err.Error())
 	}
-	fmt.Println(fmt.Sprintf("started mount to %s", uncPath))
+	fmt.Println(fmt.Sprintf("started mount to %s", share))
 
 	err = cmd.Wait()
 	if err != nil {
 		println(err.Error())
 	}
-	fmt.Println(fmt.Sprintf("finished mount to %s", uncPath))
+	fmt.Println(fmt.Sprintf("finished mount to %s", share))
 
 	return &csi.NodePublishVolumeResponse{}, nil
 }

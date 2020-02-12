@@ -132,12 +132,8 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	if server, found := serviceInstanceParameters["server"]; found {
-		va["server"] = server.(string)
-	}
-
 	if share, found := serviceInstanceParameters["share"]; found {
-		va["share"] = fmt.Sprintf("/%s", share)
+		va["share"] = share.(string)
 	}
 
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{

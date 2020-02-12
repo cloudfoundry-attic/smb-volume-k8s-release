@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	_ "github.com/onsi/gomega"
 	"k8s.io/api/core/v1"
@@ -42,15 +43,17 @@ var _ testsuites.PreprovisionedPVTestDriver = &noopTestDriver{}
 
 func (n noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, testVolume testsuites.TestVolume) (*v1.PersistentVolumeSource, *v1.VolumeNodeAffinity) {
 	vol, _ := testVolume.(*smbVolume)
+
+	share := fmt.Sprintf("//%s/example1", vol.serverIP)
+
 	return &v1.PersistentVolumeSource{
 		CSI: &v1.CSIPersistentVolumeSource{
 			Driver:       "org.cloudfoundry.smb",
 			VolumeHandle: "volume-handle",
 			VolumeAttributes: map[string]string{
-				"server":   vol.serverIP,
 				"username": vol.username,
 				"password": vol.password,
-				"share":    "/example1",
+				"share":    share,
 				"readOnly": "true",
 			},
 		},
