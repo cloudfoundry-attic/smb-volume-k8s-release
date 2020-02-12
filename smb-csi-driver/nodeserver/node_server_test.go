@@ -139,6 +139,12 @@ var _ = Describe("NodeServer", func() {
 
 		It("should unpublish the target path", func() {
 			Expect(err).NotTo(HaveOccurred())
+			Expect(fakeExec.CommandCallCount()).To(Equal(1))
+			command, args := fakeExec.CommandArgsForCall(0)
+			Expect(command).To(Equal("umount"))
+			Expect(args).To(ContainElements(request.TargetPath))
+			Expect(fakeCmd.StartCallCount()).To(Equal(1))
+			Expect(fakeCmd.WaitCallCount()).To(Equal(1))
 		})
 
 		Context("when target path is not provided", func() {
@@ -153,7 +159,5 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [TargetPath] was not provided"))
 			})
 		})
-
-
 	})
 })

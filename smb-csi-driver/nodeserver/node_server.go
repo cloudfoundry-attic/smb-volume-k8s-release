@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/status"
 	"log"
 	"os"
-	"os/exec"
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
@@ -69,14 +68,14 @@ func (n noOpNodeServer) NodePublishVolume(_ context.Context, r *csi.NodePublishV
 	return &csi.NodePublishVolumeResponse{}, nil
 }
 
-func (noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
+func (n noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
 	if r.TargetPath == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
 	}
 
 	log.Printf("about to remove dir")
 
-	cmd := exec.Command("umount", r.TargetPath)
+	cmd := n.execshim.Command("umount", r.TargetPath)
 	err := cmd.Start()
 	if err != nil {
 		println(err.Error())
