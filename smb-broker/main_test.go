@@ -125,7 +125,7 @@ var _ = Describe("Main", func() {
 			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
-		BeforeEach(func(){
+		BeforeEach(func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
@@ -168,7 +168,7 @@ var _ = Describe("Main", func() {
 			local_k8s_cluster.Kubectl("-n", "eirini", "delete", "persistentvolumeclaims", instanceID)
 		})
 
-		BeforeEach(func(){
+		BeforeEach(func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
