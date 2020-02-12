@@ -31,7 +31,7 @@ make helm
 ## Testing broker
 ```
 cd smb-broker
-make image-local-registry test
+make test
 ```
 
 ## Testing csi driver
