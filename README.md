@@ -12,6 +12,7 @@ This contains helm releases that packages
 
 ## Installing eirini-persi (eirini-ext volume services extension)
 ```
+kubectl create namespace eirini
 cd eirini-persi
 make build
 ```
@@ -19,13 +20,26 @@ make build
 ## Installing smb-csi-driver
 ```
 cd smb-csi-driver
-make build
+make kustomize
 ```
 
 ## Installing smbbroker
 ```
 cd smb-broker
 make helm
+broker_ip=`kubectl get svc -n default smb-broker -o jsonpath='{.spec.clusterIP}'`
+cf create-service-broker smbbroker admin admin http://${broker_ip}
+cf enable-service-access smb
+```
+
+## Push pora and bind and smb volume
+```
+cd /tmp
+cf push pora -o cfpersi/pora --no-start
+cf create-service smb Existing mysmb -c '{"share": "//persi.file.core.windows.net/testshare", "username": "persi", "password": "<password>" }'
+cf bind-service pora mysmb
+cf start pora
+curl https://pora.<system-domain>/write
 ```
 
 ## Testing broker
