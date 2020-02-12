@@ -74,27 +74,27 @@ func (noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublis
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
 	}
 
-	fmt.Println(fmt.Sprintf("about to remove dir"))
+	log.Printf("about to remove dir")
 
 	cmd := exec.Command("umount", r.TargetPath)
 	err := cmd.Start()
 	if err != nil {
 		println(err.Error())
 	}
-	fmt.Println("started umount")
+	log.Print("started umount")
 
 	err = cmd.Wait()
 	if err != nil {
 		println(err.Error())
 	}
-	fmt.Println("finished umount")
+	log.Printf("finished umount")
 
 	err = os.Remove(r.TargetPath)
 	if err != nil {
 		println(err.Error())
 	}
 
-	fmt.Println(fmt.Sprintf("removed dir"))
+	log.Printf("removed dir")
 
 	return &csi.NodeUnpublishVolumeResponse{}, nil
 }
