@@ -3,6 +3,7 @@ module code.cloudfoundry.org/smb-csi-driver
 go 1.13
 
 require (
+	code.cloudfoundry.org/goshims v0.0.0-20191203003759-f83b303abbb8
 	code.cloudfoundry.org/local-k8s-cluster v0.0.0
 	github.com/container-storage-interface/spec v1.2.0
 	github.com/kubernetes-csi/csi-test/v3 v3.0.0

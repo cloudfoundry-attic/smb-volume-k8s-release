@@ -1,18 +1,28 @@
-package main
+package nodeserver
 
 import (
+	"code.cloudfoundry.org/goshims/execshim"
 	"context"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log"
 	"os"
 	"os/exec"
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
 
-type noOpNodeServer struct{}
+type noOpNodeServer struct{
+	execshim execshim.Exec
+}
+
+func NewNodeServer(execshim execshim.Exec) csi.NodeServer {
+	return &noOpNodeServer{
+		execshim,
+	}
+}
 
 func (noOpNodeServer) NodeGetCapabilities(context.Context, *csi.NodeGetCapabilitiesRequest) (*csi.NodeGetCapabilitiesResponse, error) {
 	return &csi.NodeGetCapabilitiesResponse{}, nil
@@ -26,7 +36,7 @@ func (noOpNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeR
 	panic("implement me")
 }
 
-func (noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
+func (n noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
 	if r.VolumeCapability == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
@@ -39,22 +49,20 @@ func (noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVol
 	username := r.GetVolumeContext()["username"]
 	password := r.GetVolumeContext()["password"]
 
-	fmt.Println(fmt.Sprintf("target path: %s", r.TargetPath))
-
-	fmt.Println(fmt.Sprintf("about to mount to %s", share))
+	log.Printf("local target path: %s", r.TargetPath)
 
 	mountOptions := fmt.Sprintf("username=%s,password=%s", username, password)
 
-	cmd := exec.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
-	err = cmd.Start()
+	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
+	err = cmdshim.Start()
 	if err != nil {
-		println(err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	fmt.Println(fmt.Sprintf("started mount to %s", share))
 
-	err = cmd.Wait()
+	err = cmdshim.Wait()
 	if err != nil {
-		println(err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	fmt.Println(fmt.Sprintf("finished mount to %s", share))
 
