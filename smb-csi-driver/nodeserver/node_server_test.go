@@ -2,6 +2,7 @@ package nodeserver_test
 
 import (
 	"code.cloudfoundry.org/goshims/execshim/exec_fake"
+	"code.cloudfoundry.org/goshims/osshim/os_fake"
 	. "code.cloudfoundry.org/smb-csi-driver/nodeserver"
 	"context"
 	"errors"
@@ -15,16 +16,18 @@ var _ = Describe("NodeServer", func() {
 	var (
 		nodeServer csi.NodeServer
 
+		fakeOs *os_fake.FakeOs
 		fakeExec *exec_fake.FakeExec
 		fakeCmd  *exec_fake.FakeCmd
 	)
 
 	BeforeEach(func() {
+		fakeOs = &os_fake.FakeOs{}
 		fakeExec = &exec_fake.FakeExec{}
 		fakeCmd = &exec_fake.FakeCmd{}
 		fakeExec.CommandReturns(fakeCmd)
 
-		nodeServer = NewNodeServer(fakeExec)
+		nodeServer = NewNodeServer(fakeExec, fakeOs)
 	})
 
 	Describe("#NodePublishVolume", func() {
@@ -181,6 +184,17 @@ var _ = Describe("NodeServer", func() {
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = wait-failed"))
+			})
+		})
+
+		Context("when removing the unmounted target path fails", func() {
+			BeforeEach(func() {
+				fakeOs.RemoveReturns(errors.New("remove-failed"))
+			})
+
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = remove-failed"))
 			})
 		})
 	})

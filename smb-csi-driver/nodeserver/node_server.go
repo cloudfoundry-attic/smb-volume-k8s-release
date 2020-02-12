@@ -2,6 +2,7 @@ package nodeserver
 
 import (
 	"code.cloudfoundry.org/goshims/execshim"
+	"code.cloudfoundry.org/goshims/osshim"
 	"context"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
@@ -15,11 +16,12 @@ var errorFmt = "Error: a required property [%s] was not provided"
 
 type noOpNodeServer struct {
 	execshim execshim.Exec
+	osshim osshim.Os
 }
 
-func NewNodeServer(execshim execshim.Exec) csi.NodeServer {
+func NewNodeServer(execshim execshim.Exec, osshim osshim.Os) csi.NodeServer {
 	return &noOpNodeServer{
-		execshim,
+		execshim, osshim,
 	}
 }
 
@@ -89,9 +91,9 @@ func (n noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubl
 	}
 	log.Printf("finished umount")
 
-	err = os.Remove(r.TargetPath)
+	err = n.osshim.Remove(r.TargetPath)
 	if err != nil {
-		println(err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Printf("removed dir")
