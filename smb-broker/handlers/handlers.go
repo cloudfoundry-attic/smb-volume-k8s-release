@@ -102,8 +102,8 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		},
 		Spec: v1.PersistentVolumeClaimSpec{
 			StorageClassName: &storageClass,
-			VolumeName:  instanceID,
-			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+			VolumeName:       instanceID,
+			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 			Resources: v1.ResourceRequirements{
 				Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
 			},
@@ -141,12 +141,12 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			Name: instanceID,
 		},
 		Spec: v1.PersistentVolumeSpec{
-			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-			Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
 				CSI: &v1.CSIPersistentVolumeSource{
-					Driver: "org.cloudfoundry.smb",
-					VolumeHandle: "volume-handle",
+					Driver:           "org.cloudfoundry.smb",
+					VolumeHandle:     "volume-handle",
 					VolumeAttributes: va,
 				},
 			},

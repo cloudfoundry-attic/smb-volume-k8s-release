@@ -107,8 +107,8 @@ var _ = Describe("Handlers", func() {
 							Name: serviceInstanceKey,
 						},
 						Spec: v1.PersistentVolumeSpec{
-							AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-							Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+							Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
 								CSI: &v1.CSIPersistentVolumeSource{
 									Driver:           "org.cloudfoundry.smb",
@@ -131,8 +131,8 @@ var _ = Describe("Handlers", func() {
 						},
 						Spec: v1.PersistentVolumeClaimSpec{
 							StorageClassName: &storageClass,
-							VolumeName:  serviceInstanceKey,
-							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+							VolumeName:       serviceInstanceKey,
+							AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
 							},
@@ -234,11 +234,11 @@ var _ = Describe("Handlers", func() {
 								Name: serviceInstanceKey,
 							},
 							Spec: v1.PersistentVolumeSpec{
-								AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-								Capacity:         v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+								AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+								Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 								PersistentVolumeSource: v1.PersistentVolumeSource{
 									CSI: &v1.CSIPersistentVolumeSource{
-										Driver: "org.cloudfoundry.smb",
+										Driver:       "org.cloudfoundry.smb",
 										VolumeHandle: "volume-handle",
 										VolumeAttributes: map[string]string{
 											"username": "foo",
