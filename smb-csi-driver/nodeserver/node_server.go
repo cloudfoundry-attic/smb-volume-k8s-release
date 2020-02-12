@@ -14,30 +14,30 @@ import (
 
 var errorFmt = "Error: a required property [%s] was not provided"
 
-type noOpNodeServer struct {
+type smbNodeServer struct {
 	execshim execshim.Exec
 	osshim osshim.Os
 }
 
 func NewNodeServer(execshim execshim.Exec, osshim osshim.Os) csi.NodeServer {
-	return &noOpNodeServer{
+	return &smbNodeServer{
 		execshim, osshim,
 	}
 }
 
-func (noOpNodeServer) NodeGetCapabilities(context.Context, *csi.NodeGetCapabilitiesRequest) (*csi.NodeGetCapabilitiesResponse, error) {
+func (smbNodeServer) NodeGetCapabilities(context.Context, *csi.NodeGetCapabilitiesRequest) (*csi.NodeGetCapabilitiesResponse, error) {
 	return &csi.NodeGetCapabilitiesResponse{}, nil
 }
 
-func (noOpNodeServer) NodeStageVolume(c context.Context, r *csi.NodeStageVolumeRequest) (*csi.NodeStageVolumeResponse, error) {
+func (smbNodeServer) NodeStageVolume(c context.Context, r *csi.NodeStageVolumeRequest) (*csi.NodeStageVolumeResponse, error) {
 	return &csi.NodeStageVolumeResponse{}, nil
 }
 
-func (noOpNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRequest) (*csi.NodeUnstageVolumeResponse, error) {
+func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRequest) (*csi.NodeUnstageVolumeResponse, error) {
 	panic("implement me")
 }
 
-func (n noOpNodeServer) NodePublishVolume(_ context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
+func (n smbNodeServer) NodePublishVolume(_ context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
 	if r.VolumeCapability == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
@@ -70,7 +70,7 @@ func (n noOpNodeServer) NodePublishVolume(_ context.Context, r *csi.NodePublishV
 	return &csi.NodePublishVolumeResponse{}, nil
 }
 
-func (n noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
+func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
 	if r.TargetPath == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
 	}
@@ -101,15 +101,15 @@ func (n noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubl
 	return &csi.NodeUnpublishVolumeResponse{}, nil
 }
 
-func (noOpNodeServer) NodeGetVolumeStats(context.Context, *csi.NodeGetVolumeStatsRequest) (*csi.NodeGetVolumeStatsResponse, error) {
+func (smbNodeServer) NodeGetVolumeStats(context.Context, *csi.NodeGetVolumeStatsRequest) (*csi.NodeGetVolumeStatsResponse, error) {
 	panic("implement me")
 }
 
-func (noOpNodeServer) NodeExpandVolume(context.Context, *csi.NodeExpandVolumeRequest) (*csi.NodeExpandVolumeResponse, error) {
+func (smbNodeServer) NodeExpandVolume(context.Context, *csi.NodeExpandVolumeRequest) (*csi.NodeExpandVolumeResponse, error) {
 	panic("implement me")
 }
 
-func (noOpNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*csi.NodeGetInfoResponse, error) {
+func (smbNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*csi.NodeGetInfoResponse, error) {
 	return &csi.NodeGetInfoResponse{
 		NodeId: "node-id",
 	}, nil
