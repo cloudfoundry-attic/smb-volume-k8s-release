@@ -16,7 +16,7 @@ var _ = Describe("NodeServer", func() {
 		nodeServer csi.NodeServer
 
 		fakeExec *exec_fake.FakeExec
-		fakeCmd *exec_fake.FakeCmd
+		fakeCmd  *exec_fake.FakeCmd
 	)
 
 	BeforeEach(func() {
@@ -30,17 +30,17 @@ var _ = Describe("NodeServer", func() {
 	Describe("#NodePublishVolume", func() {
 
 		var (
-			ctx context.Context
+			ctx     context.Context
 			request *csi.NodePublishVolumeRequest
-			err error
+			err     error
 		)
 
 		BeforeEach(func() {
 			request = &csi.NodePublishVolumeRequest{
-				VolumeCapability : &csi.VolumeCapability{},
-				TargetPath: "/tmp/target_path",
+				VolumeCapability: &csi.VolumeCapability{},
+				TargetPath:       "/tmp/target_path",
 				VolumeContext: map[string]string{
-					"share": "//server/export",
+					"share":    "//server/export",
 					"username": "user1",
 					"password": "pass1",
 				},
@@ -56,14 +56,14 @@ var _ = Describe("NodeServer", func() {
 				request.VolumeCapability = nil
 			})
 
-			It("should return a error", func(){
+			It("should return a error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
 			})
 		})
 
 		Context("when making the target directory already exists", func() {
-			BeforeEach(func(){
+			BeforeEach(func() {
 				request.TargetPath = "/tmp"
 			})
 
@@ -73,7 +73,7 @@ var _ = Describe("NodeServer", func() {
 		})
 
 		PContext("when making the target directory already that already exists with different arguments", func() {
-			BeforeEach(func(){
+			BeforeEach(func() {
 				request.TargetPath = "/tmp"
 			})
 

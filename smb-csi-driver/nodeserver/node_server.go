@@ -14,7 +14,7 @@ import (
 
 var errorFmt = "Error: a required property [%s] was not provided"
 
-type noOpNodeServer struct{
+type noOpNodeServer struct {
 	execshim execshim.Exec
 }
 
@@ -36,7 +36,7 @@ func (noOpNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeR
 	panic("implement me")
 }
 
-func (n noOpNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
+func (n noOpNodeServer) NodePublishVolume(_ context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
 	if r.VolumeCapability == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
