@@ -31,11 +31,11 @@ image-dev:
 	docker push cfpersi/smb-broker:dev
 
 helm:
-	helm version | grep 'v3.0.2' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
+	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
 	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true ./helm
 
 helm-dev:
-	helm version | grep 'v3.0.2' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
+	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
 	helm status smb-dev-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods --set ingress.enabled=true --set image.tag=dev smb-dev-broker ./helm || helm install smb-dev-broker --set ingress.enabled=true --set image.tag=dev ./helm
 
 helm_delete:
