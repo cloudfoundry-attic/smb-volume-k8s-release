@@ -1,4 +1,5 @@
 IMAGE_NAME      :=      cfpersi/smb-broker-k8s
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
 all: install
 
@@ -6,12 +7,13 @@ install:
 	go install -v
 
 test:
+	@$(MAKE) -f $(THIS_FILE) image-local-registry
 	ulimit -n 10000
 	GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo
 	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
-	go fmt ./... -v
+	go fmt ./...
 
 running	:=	"$(shell docker inspect -f '{{.State.Running}}' "kind-registry" 2>/dev/null || true)"
 image-local-registry: SHELL:=/bin/bash

@@ -34,4 +34,4 @@ function kill_docker() {
 }
 trap kill_docker EXIT
 
-make --directory=smb-volume-k8s-release/smb-broker image-local-registry test
+make --directory=smb-volume-k8s-release/smb-broker test
