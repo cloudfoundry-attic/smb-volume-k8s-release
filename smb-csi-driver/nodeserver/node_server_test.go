@@ -171,5 +171,17 @@ var _ = Describe("NodeServer", func() {
 				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = start-failed"))
 			})
 		})
+
+		Context("when the command fails to wait", func() {
+
+			BeforeEach(func() {
+				fakeCmd.WaitReturns(errors.New("wait-failed"))
+			})
+
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = wait-failed"))
+			})
+		})
 	})
 })

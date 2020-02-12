@@ -85,7 +85,7 @@ func (n noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubl
 
 	err = cmdshim.Wait()
 	if err != nil {
-		println(err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	log.Printf("finished umount")
 
