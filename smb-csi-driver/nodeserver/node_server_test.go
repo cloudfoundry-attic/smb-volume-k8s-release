@@ -140,5 +140,20 @@ var _ = Describe("NodeServer", func() {
 		It("should unpublish the target path", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
+
+		Context("when target path is not provided", func() {
+			BeforeEach(func() {
+				request = &csi.NodeUnpublishVolumeRequest{
+					TargetPath: "",
+				}
+			})
+
+			It("should return a meaningful error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [TargetPath] was not provided"))
+			})
+		})
+
+
 	})
 })
