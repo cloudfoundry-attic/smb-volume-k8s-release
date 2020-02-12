@@ -159,5 +159,17 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [TargetPath] was not provided"))
 			})
 		})
+
+		Context("when the command fails to start", func() {
+
+			BeforeEach(func() {
+				fakeCmd.StartReturns(errors.New("start-failed"))
+			})
+
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = start-failed"))
+			})
+		})
 	})
 })

@@ -75,14 +75,15 @@ func (n noOpNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubl
 
 	log.Printf("about to remove dir")
 
-	cmd := n.execshim.Command("umount", r.TargetPath)
-	err := cmd.Start()
+	cmdshim := n.execshim.Command("umount", r.TargetPath)
+	err := cmdshim.Start()
 	if err != nil {
-		println(err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	log.Print("started umount")
 
-	err = cmd.Wait()
+	err = cmdshim.Wait()
 	if err != nil {
 		println(err.Error())
 	}
