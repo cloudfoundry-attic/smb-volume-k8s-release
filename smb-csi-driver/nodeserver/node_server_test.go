@@ -120,4 +120,25 @@ var _ = Describe("NodeServer", func() {
 		})
 	})
 
+	Describe("#NodeUnpublishVolume", func() {
+		var (
+			ctx     context.Context
+			request *csi.NodeUnpublishVolumeRequest
+			err     error
+		)
+
+		JustBeforeEach(func() {
+			_, err = nodeServer.NodeUnpublishVolume(ctx, request)
+		})
+
+		BeforeEach(func() {
+			request = &csi.NodeUnpublishVolumeRequest{
+				TargetPath: "/tmp/target_path",
+			}
+		})
+
+		It("should unpublish the target path", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
 })
