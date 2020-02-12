@@ -12,4 +12,4 @@ inputs:
 
 run:
   path: make
-  args: [ "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "image-local-registry", "test", "kill-docker" ]
+  args: [ "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "test", "kill-docker" ]
