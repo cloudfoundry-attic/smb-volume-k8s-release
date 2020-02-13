@@ -44,4 +44,4 @@ helm_delete:
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
-.PHONY: test fly image-local-registry
+.PHONY: test fly image-local-registry helm
