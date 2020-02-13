@@ -29,7 +29,7 @@ func (smbNodeServer) NodeGetCapabilities(context.Context, *csi.NodeGetCapabiliti
 	return &csi.NodeGetCapabilitiesResponse{}, nil
 }
 
-func (smbNodeServer) NodeStageVolume(c context.Context, r *csi.NodeStageVolumeRequest) (*csi.NodeStageVolumeResponse, error) {
+func (smbNodeServer) NodeStageVolume(context.Context, *csi.NodeStageVolumeRequest) (*csi.NodeStageVolumeResponse, error) {
 	return &csi.NodeStageVolumeResponse{}, nil
 }
 
@@ -37,7 +37,7 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 	panic("implement me")
 }
 
-func (n smbNodeServer) NodePublishVolume(_ context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
+func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
 	if r.VolumeCapability == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
@@ -109,8 +109,13 @@ func (smbNodeServer) NodeExpandVolume(context.Context, *csi.NodeExpandVolumeRequ
 	panic("implement me")
 }
 
-func (smbNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*csi.NodeGetInfoResponse, error) {
+func (s smbNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*csi.NodeGetInfoResponse, error) {
+	nodeId, err := s.osshim.Hostname()
+	if err != nil {
+		return nil, err
+	}
+
 	return &csi.NodeGetInfoResponse{
-		NodeId: "node-id",
+		NodeId: nodeId,
 	}, nil
 }

@@ -15,8 +15,9 @@ var _ = Describe("NodeServer", func() {
 
 	var (
 		nodeServer csi.NodeServer
+		ctx        context.Context
 
-		fakeOs *os_fake.FakeOs
+		fakeOs   *os_fake.FakeOs
 		fakeExec *exec_fake.FakeExec
 		fakeCmd  *exec_fake.FakeCmd
 	)
@@ -26,6 +27,7 @@ var _ = Describe("NodeServer", func() {
 		fakeExec = &exec_fake.FakeExec{}
 		fakeCmd = &exec_fake.FakeCmd{}
 		fakeExec.CommandReturns(fakeCmd)
+		ctx = context.Background()
 
 		nodeServer = NewNodeServer(fakeExec, fakeOs)
 	})
@@ -33,7 +35,6 @@ var _ = Describe("NodeServer", func() {
 	Describe("#NodePublishVolume", func() {
 
 		var (
-			ctx     context.Context
 			request *csi.NodePublishVolumeRequest
 			err     error
 		)
@@ -125,7 +126,6 @@ var _ = Describe("NodeServer", func() {
 
 	Describe("#NodeUnpublishVolume", func() {
 		var (
-			ctx     context.Context
 			request *csi.NodeUnpublishVolumeRequest
 			err     error
 		)
@@ -196,6 +196,48 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = remove-failed"))
 			})
+		})
+	})
+
+	Describe("#NodeGetCapabilities", func() {
+		It("should return no capabilities, and no errors", func() {
+			resp, err := nodeServer.NodeGetCapabilities(ctx, &csi.NodeGetCapabilitiesRequest{})
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(resp).To(Equal(&csi.NodeGetCapabilitiesResponse{}))
+		})
+	})
+
+	Describe("#NodeGetInfo", func() {
+
+		var (
+			resp *csi.NodeGetInfoResponse
+			err  error
+		)
+		BeforeEach(func() {
+			fakeOs.HostnameReturns("hostWithTheMost", nil)
+		})
+
+		JustBeforeEach(func() {
+			resp, err = nodeServer.NodeGetInfo(ctx, &csi.NodeGetInfoRequest{})
+		})
+
+		It("should return the hostname as the node id", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(resp).To(Equal(&csi.NodeGetInfoResponse{NodeId: "hostWithTheMost"}))
+			Expect(fakeOs.HostnameCallCount()).To(Equal(1))
+		})
+
+		Context("when unable to retrieve the hostname", func() {
+			BeforeEach(func() {
+				fakeOs.HostnameReturns("", errors.New("catastrophe!"))
+			})
+
+			It("should handle OS errors correctly", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("catastrophe"))
+			})
+
 		})
 	})
 })
