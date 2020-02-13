@@ -3,6 +3,7 @@ package main
 import (
 	"code.cloudfoundry.org/goshims/execshim"
 	"code.cloudfoundry.org/goshims/osshim"
+	"code.cloudfoundry.org/smb-csi-driver/identityserver"
 	"code.cloudfoundry.org/smb-csi-driver/nodeserver"
 	"flag"
 	"fmt"
@@ -45,7 +46,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	csi.RegisterIdentityServer(grpcServer, &smbIdentityServer{})
+	csi.RegisterIdentityServer(grpcServer, &identityserver.smbIdentityServer{})
 	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(&execshim.ExecShim{}, &osshim.OsShim{}))
 
 	err = grpcServer.Serve(lis)
