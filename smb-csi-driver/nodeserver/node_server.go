@@ -30,7 +30,7 @@ func (smbNodeServer) NodeGetCapabilities(context.Context, *csi.NodeGetCapabiliti
 }
 
 func (smbNodeServer) NodeStageVolume(context.Context, *csi.NodeStageVolumeRequest) (*csi.NodeStageVolumeResponse, error) {
-	return &csi.NodeStageVolumeResponse{}, nil
+	panic("implement me")
 }
 
 func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRequest) (*csi.NodeUnstageVolumeResponse, error) {
