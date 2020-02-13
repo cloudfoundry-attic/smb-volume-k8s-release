@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 )
 
 var _ = Describe("Integration", func() {
@@ -28,7 +29,7 @@ var _ = Describe("Integration", func() {
 			Eventually(func() string {
 				podIP = local_k8s_cluster.Kubectl("get", "pods", "-l", "run=test-smb1", "-o", "jsonpath={.items[0].status.podIPs[0].ip}")
 				return podIP
-			}).Should(Not(Equal("")))
+			}, 10 * time.Minute, 2 * time.Second).Should(Not(Equal("")))
 		})
 
 		var resp *http.Response
@@ -88,7 +89,7 @@ var _ = Describe("Integration", func() {
 
 		Eventually(func() string {
 			return local_k8s_cluster.Kubectl("get", "events", "-n", "eirini")
-		}).Should(ContainSubstring("Started container integration-test-reader"))
+		}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring("Started container integration-test-reader"))
 
 		mountCommand := fmt.Sprintf("mkdir /instance1 && mount -t cifs -o username=%s,password=%s //%s/%s /instance1", username, password, podIP, share)
 		local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", mountCommand)
@@ -97,6 +98,6 @@ var _ = Describe("Integration", func() {
 	It("the file contents written by a pod with a pvc (created by the broker) should be written to the smb share", func() {
 		Eventually(func() string {
 			return local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", "cat /instance1/foo || true")
-		}).Should(ContainSubstring(expectedFileContents))
+		}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring(expectedFileContents))
 	})
 })
