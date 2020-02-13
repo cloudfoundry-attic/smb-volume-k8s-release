@@ -45,7 +45,8 @@ var _ = Describe("Integration", func() {
 		bindingID := "binding1"
 
 		Eventually(func() string {
-			requestPayload := fmt.Sprintf(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"server": "%s", "share": "%s", "username": "%s", "password": "%s"} }`, podIP, share, username, password)
+			share := fmt.Sprintf("//%s/%s", podIP, share)
+			requestPayload := fmt.Sprintf(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"share": "%s", "username": "%s", "password": "%s"} }`, share, username, password)
 			request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(requestPayload))
 			Expect(err).NotTo(HaveOccurred())
 
