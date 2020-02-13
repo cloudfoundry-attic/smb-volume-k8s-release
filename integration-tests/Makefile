@@ -3,6 +3,3 @@ test:
 	make --directory=../smb-broker image-local-registry
 	make --directory=../smb-csi-driver image-local-registry
 	~/go/bin/ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1 .
-
-fly:
-	# fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/integration-tests.yml -i smb-volume-k8s-release=/Users/pivotal/workspace/smb-volume-k8s-release
