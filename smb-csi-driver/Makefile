@@ -22,6 +22,7 @@ start-docker:
 kill-docker:
 	pkill dockerd
 
+test: SHELL:=/bin/bash
 test: image-local-registry
 	go get github.com/onsi/ginkgo/ginkgo
 	pushd identityserver; ~/go/bin/ginkgo -race . || exit 1; popd
@@ -36,7 +37,7 @@ e2e:
 	cd test && pwd && ~/go/bin/ginkgo -r -focus "CSI Volumes"
 
 fly:
-	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/integration-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release
+	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/unit-and-sanity-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release
 
 fly-e2e:
 	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/e2e-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release
