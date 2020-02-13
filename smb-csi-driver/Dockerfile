@@ -4,9 +4,8 @@ ADD . /app/
 WORKDIR /app
 RUN go build -o main -mod=vendor .
 
-RUN apt update && apt -y install cifs-utils
-
 FROM golang
+RUN apt update && apt -y install cifs-utils
 RUN mkdir /app
 COPY --from=builder /app/main /app/main
 WORKDIR /app
