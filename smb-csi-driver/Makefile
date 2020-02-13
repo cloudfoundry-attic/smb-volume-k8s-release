@@ -23,8 +23,10 @@ kill-docker:
 	pkill dockerd
 
 test:
-	@$(MAKE) -f $(THIS_FILE) image-local-registry
 	go get github.com/onsi/ginkgo/ginkgo
+	pushd identityserver; ~/go/bin/ginkgo -race . || exit 1; popd
+	pushd nodeserver; ~/go/bin/ginkgo -race . || exit 1; popd
+	@$(MAKE) -f $(THIS_FILE) image-local-registry
 	~/go/bin/ginkgo -flakeAttempts 3 -race -focus "(Identity|Node) Service"
 
 e2e: SHELL:=/bin/bash
@@ -44,3 +46,5 @@ kustomize:
 
 kustomize-delete:
 	kubectl delete --kustomize ./overlays/deploy
+
+.PHONY: test fly fly-e2e image-local-registry
