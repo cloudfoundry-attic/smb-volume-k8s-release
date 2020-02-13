@@ -12,6 +12,7 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+targetNamespace: "cf-workloads"
 
 service:
   type: ClusterIP
