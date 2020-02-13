@@ -46,7 +46,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	csi.RegisterIdentityServer(grpcServer, &identityserver.smbIdentityServer{})
+	csi.RegisterIdentityServer(grpcServer, identityserver.NewSmbIdentityServer())
 	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(&execshim.ExecShim{}, &osshim.OsShim{}))
 
 	err = grpcServer.Serve(lis)

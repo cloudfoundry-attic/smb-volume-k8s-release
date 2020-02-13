@@ -8,6 +8,10 @@ import (
 type smbIdentityServer struct {
 }
 
+func NewSmbIdentityServer()  csi.IdentityServer{
+	return &smbIdentityServer{}
+}
+
 func (*smbIdentityServer) GetPluginInfo(ctx context.Context, req *csi.GetPluginInfoRequest) (*csi.GetPluginInfoResponse, error) {
 	return &csi.GetPluginInfoResponse{
 		Name: "org.cloudfoundry.smb",
