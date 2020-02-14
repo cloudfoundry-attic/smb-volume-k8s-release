@@ -38,8 +38,11 @@ helm-dev:
 	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
 	helm status smb-dev-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods --set ingress.enabled=true --set image.tag=dev smb-dev-broker ./helm || helm install smb-dev-broker --set ingress.enabled=true --set image.tag=dev ./helm
 
+helm_dev_delete:
+	helm delete smb-dev-broker
+
 helm_delete:
-	helm delete --purge smb-dev-broker
+	helm delete smb-broker
 
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
