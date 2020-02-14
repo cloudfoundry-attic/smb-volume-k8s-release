@@ -44,6 +44,9 @@ helm_dev_delete:
 helm_delete:
 	helm delete smb-broker
 
+helm_scf:
+	helm install smb-broker ./helm --set targetNamespace=eirini
+	
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
