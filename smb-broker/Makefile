@@ -45,8 +45,9 @@ helm_delete:
 	helm delete smb-broker
 
 helm_scf:
-	helm install smb-broker ./helm --set targetNamespace=eirini
-	
+	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
+	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set targetNamespace=eirini --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true --set targetNamespace=eirini ./helm
+
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
