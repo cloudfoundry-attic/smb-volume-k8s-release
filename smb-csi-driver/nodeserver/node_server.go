@@ -13,6 +13,7 @@ import (
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
+var defaultMountOptions = "uid=2000,gid=2000"
 
 type smbNodeServer struct {
 	execshim execshim.Exec
@@ -52,7 +53,7 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 
 	log.Printf("local target path: %s", r.TargetPath)
 
-	mountOptions := fmt.Sprintf("username=%s,password=%s", username, password)
+	mountOptions := fmt.Sprintf("%s,username=%s,password=%s", defaultMountOptions, username, password)
 
 	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
 	err = cmdshim.Start()

@@ -93,7 +93,7 @@ var _ = Describe("NodeServer", func() {
 				Expect(fakeExec.CommandCallCount()).To(Equal(1))
 				command, args := fakeExec.CommandArgsForCall(0)
 				Expect(command).To(Equal("mount"))
-				Expect(args).To(ContainElements("-t", "cifs", "-o", "username=user1,password=pass1", "//server/export", request.TargetPath))
+				Expect(args).To(ContainElements("-t", "cifs", "-o", "uid=2000,gid=2000,username=user1,password=pass1", "//server/export", request.TargetPath))
 				Expect(fakeCmd.StartCallCount()).To(Equal(1))
 				Expect(fakeCmd.WaitCallCount()).To(Equal(1))
 			})
