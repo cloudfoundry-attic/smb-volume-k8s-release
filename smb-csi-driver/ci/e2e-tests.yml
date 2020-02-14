@@ -12,4 +12,4 @@ inputs:
 
 run:
   path: make
-  args: [ "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "e2e", "kill-docker" ]
+  args: [ "--keep-going", "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "e2e", "kill-docker" ]
