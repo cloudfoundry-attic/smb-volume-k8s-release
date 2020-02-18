@@ -341,7 +341,7 @@ var _ = Describe("Handlers", func() {
 
 		Describe("#GetInstance endpoint", func() {
 			var (
-				err                                                   error
+				err                                                               error
 				instanceID, val1, val2, val3, key1, key2, key3, serviceID, planID string
 			)
 
@@ -373,7 +373,7 @@ var _ = Describe("Handlers", func() {
 				}, nil)
 			})
 
-			It("should retrieve a service instance that was earlier provisioned", func(){
+			It("should retrieve a service instance that was earlier provisioned", func() {
 				Expect(fakePersitentVolumeClient.GetCallCount()).To(Equal(1))
 
 				instanceIDArg, getOpts := fakePersitentVolumeClient.GetArgsForCall(0)
@@ -384,7 +384,7 @@ var _ = Describe("Handlers", func() {
 
 			})
 
-			It("shows share and username but not password", func(){
+			It("shows share and username but not password", func() {
 				Expect(recorder.Body).To(MatchJSON(
 					fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "%s": "%s", "%s": "%s" } }`, serviceID, planID, key1, val1, key2, val2)),
 				)
@@ -407,12 +407,19 @@ var _ = Describe("Handlers", func() {
 			var instanceID, bindingID string
 
 			BeforeEach(func() {
-				fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
+				fakePersitentVolumeClient.GetReturns(&v1.PersistentVolume{}, nil)
 
 				instanceID = randomString(source)
 				bindingID = randomString(source)
 				request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
 					strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"} }`))
+			})
+
+			It("fetches the PV from k8s", func(){
+				Expect(fakePersitentVolumeClient.GetCallCount()).To(Equal(1))
+				instanceIDArg, optionsArg := fakePersitentVolumeClient.GetArgsForCall(0)
+				Expect(instanceIDArg).To(Equal(instanceID))
+				Expect(optionsArg).To(Equal(metav1.GetOptions{}))
 			})
 
 			Context("given a service instance", func() {
@@ -425,8 +432,6 @@ var _ = Describe("Handlers", func() {
 				Context("given container-dir bind option", func() {
 					var mountBindConfig string
 					BeforeEach(func() {
-						fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
-
 						instanceID = randomString(source)
 						bindingID = randomString(source)
 						mountBindConfig = "/foo/bar"
@@ -448,8 +453,6 @@ var _ = Describe("Handlers", func() {
 
 				Context("given invalid parameters", func() {
 					BeforeEach(func() {
-						fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
-
 						instanceID = randomString(source)
 						bindingID = randomString(source)
 						request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
@@ -470,7 +473,7 @@ var _ = Describe("Handlers", func() {
 
 			Context("given the service instance doesnt exist", func() {
 				BeforeEach(func() {
-					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
+					fakePersitentVolumeClient.GetReturns(&v1.PersistentVolume{}, errors.New("pv not found"))
 				})
 
 				It("should return an error", func() {

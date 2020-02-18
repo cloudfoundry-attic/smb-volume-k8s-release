@@ -198,8 +198,8 @@ func (s smbServiceBroker) LastOperation(ctx context.Context, instanceID string, 
 
 func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
 
-	_, found := s.Store.Get(instanceID)
-	if !found {
+	_, err := s.PersistentVolume.Get(instanceID, metav1.GetOptions{})
+	if err != nil {
 		return domain.Binding{}, apiresponses.ErrInstanceDoesNotExist
 	}
 
