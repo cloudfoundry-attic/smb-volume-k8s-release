@@ -172,19 +172,18 @@ func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, de
 }
 
 func (s smbServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
-	retrievedServiceInstance, found := s.Store.Get(instanceID)
-	if !found {
+	pv, err := s.PersistentVolume.Get(instanceID, metav1.GetOptions{})
+	if err != nil {
 		return domain.GetInstanceDetailsSpec{}, apiresponses.NewFailureResponse(errors.New("unable to find service instance"), 404, "")
 	}
 
 	parametersInstanceDetailsMap := map[string]interface{}{}
-	for key, val := range retrievedServiceInstance.Parameters {
-		parametersInstanceDetailsMap[key] = val
-	}
+	parametersInstanceDetailsMap["share"] = pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes["share"]
+	parametersInstanceDetailsMap["username"] = pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes["username"]
 
 	return domain.GetInstanceDetailsSpec{
-		ServiceID:  retrievedServiceInstance.ServiceID,
-		PlanID:     retrievedServiceInstance.PlanID,
+		ServiceID:  ServiceID,
+		PlanID:     PlanID,
 		Parameters: parametersInstanceDetailsMap,
 	}, nil
 }

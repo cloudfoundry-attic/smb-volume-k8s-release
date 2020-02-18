@@ -342,7 +342,7 @@ var _ = Describe("Handlers", func() {
 		Describe("#GetInstance endpoint", func() {
 			var (
 				err                                                   error
-				instanceID, val1, val2, key1, key2, serviceID, planID string
+				instanceID, val1, val2, val3, key1, key2, key3, serviceID, planID string
 			)
 
 			BeforeEach(func() {
@@ -353,37 +353,48 @@ var _ = Describe("Handlers", func() {
 			})
 
 			BeforeEach(func() {
-				key1 = randomString(source)
-				key2 = randomString(source)
+				key1 = "share"
+				key2 = "username"
+				key3 = "password"
 				val1 = randomString(source)
 				val2 = randomString(source)
-				serviceID = randomString(source)
-				planID = randomString(source)
+				val3 = randomString(source)
+				serviceID = "123"
+				planID = "plan-id"
 
-				params := map[string]interface{}{
-					key1: val1,
-					key2: val2,
-				}
-				fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{
-					ServiceID:  serviceID,
-					PlanID:     planID,
-					Parameters: params,
-				}, true)
+				fakePersitentVolumeClient.GetReturns(&v1.PersistentVolume{
+					Spec: v1.PersistentVolumeSpec{
+						PersistentVolumeSource: v1.PersistentVolumeSource{
+							CSI: &v1.CSIPersistentVolumeSource{
+								VolumeAttributes: map[string]string{key1: val1, key2: val2, key3: val3},
+							},
+						},
+					},
+				}, nil)
 			})
 
-			It("should retrieve a service instance from the store", func() {
-				Expect(fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetCallCount()).To(Equal(1))
-				Expect(fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetArgsForCall(0)).To(Equal(instanceID))
+			It("should retrieve a service instance that was earlier provisioned", func(){
+				Expect(fakePersitentVolumeClient.GetCallCount()).To(Equal(1))
+
+				instanceIDArg, getOpts := fakePersitentVolumeClient.GetArgsForCall(0)
+				Expect(instanceIDArg).To(Equal(instanceID))
+				Expect(getOpts).To(Equal(metav1.GetOptions{}))
+
 				Expect(recorder.Code).To(Equal(200))
+
+			})
+
+			It("shows share and username but not password", func(){
 				Expect(recorder.Body).To(MatchJSON(
 					fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "%s": "%s", "%s": "%s" } }`, serviceID, planID, key1, val1, key2, val2)),
 				)
 			})
 
-			Context("when no service instance exists in the store", func() {
+			Context("when no PV exists", func() {
 				BeforeEach(func() {
-					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
+					fakePersitentVolumeClient.GetReturns(nil, errors.New("pv not found"))
 				})
+
 				It("Should return an FailureError with a 404 status code", func() {
 					Expect(recorder.Code).To(Equal(404))
 					Expect(recorder.Body).To(MatchJSON(`{"description": "unable to find service instance"}`))
