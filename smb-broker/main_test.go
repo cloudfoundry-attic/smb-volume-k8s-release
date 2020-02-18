@@ -208,6 +208,79 @@ var _ = Describe("Main", func() {
 			}).Should(ContainSubstring("200"))
 		})
 	})
+
+	Describe("#GetInstance", func() {
+		var resp *http.Response
+
+		Context("when a service instance has been provisioned", func() {
+
+			AfterEach(func() {
+				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
+				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
+			})
+
+			BeforeEach(func() {
+				By("provisioning a service", func() {
+					Eventually(func() string {
+						request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share_value", "username": "username_value", "password": "password_value"} }`))
+						Expect(err).NotTo(HaveOccurred())
+
+						resp, _ = http.DefaultClient.Do(request)
+						if resp == nil {
+							return ""
+						}
+						return resp.Status
+					}).Should(Equal("201 Created"))
+				})
+			})
+
+			It("returns 200", func() {
+				Eventually(func() string {
+					request, err := http.NewRequest("GET", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), nil)
+					Expect(err).NotTo(HaveOccurred())
+
+					request.Header = map[string][]string{
+						"X-Broker-API-Version": {"2.14"},
+					}
+					resp, _ = http.DefaultClient.Do(request)
+					if resp == nil {
+						return ""
+					}
+					return resp.Status
+				}).Should(Equal("200 OK"))
+
+				bytes, err := ioutil.ReadAll(resp.Body)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(bytes)).To(MatchJSON(`{"service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share_value", "username": "username_value" } }`))
+			})
+
+		})
+
+		Context("when attempting to retreive a service instance that hasn't been provisioned", func() {
+			It("returns 404", func() {
+				Eventually(func() string {
+					request, err := http.NewRequest("GET", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), nil)
+					Expect(err).NotTo(HaveOccurred())
+					request.Header = map[string][]string{
+						"X-Broker-API-Version": {"2.14"},
+					}
+					resp, err = http.DefaultClient.Do(request)
+					Expect(err).NotTo(HaveOccurred())
+
+					if resp == nil {
+						return ""
+					}
+					return resp.Status
+				}, 5*time.Second).Should(Equal("404 Not Found"))
+
+				bytes, err := ioutil.ReadAll(resp.Body)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(string(bytes)).To(MatchJSON(`{"description": "unable to find service instance"}`))
+			})
+
+		})
+	})
+
 })
 
 func randomString(sourceSeededByGinkgo rand.Source) string {
