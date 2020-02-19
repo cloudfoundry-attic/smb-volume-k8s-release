@@ -15,11 +15,11 @@ import (
 
 var _ = Describe("Integration", func() {
 	var expectedFileContents = "hi"
+	username := "user"
+	password := "pass"
 
 	BeforeEach(func() {
 		var podIP string
-		username := "user"
-		password := "pass"
 		share := "share"
 
 		By("deploying a smb server", func() {
@@ -95,9 +95,16 @@ var _ = Describe("Integration", func() {
 		local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", mountCommand)
 	})
 
-	It("the file contents written by a pod with a pvc (created by the broker) should be written to the smb share", func() {
-		Eventually(func() string {
-			return local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", "cat /instance1/foo || true")
-		}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring(expectedFileContents))
+	It("mounts the share to the pod", func() {
+		By("the file contents written by a pod with a pvc (created by the broker) should be written to the smb share", func(){
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", "cat /instance1/foo || true")
+			}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring(expectedFileContents))
+		})
+
+		By("not logging secrets", func(){
+			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).To(Not(ContainSubstring(password)))
+			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).To(Not(ContainSubstring(username)))
+		})
 	})
 })
