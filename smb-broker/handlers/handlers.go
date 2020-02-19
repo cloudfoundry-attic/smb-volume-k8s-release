@@ -3,7 +3,6 @@ package handlers
 import (
 	"bytes"
 	"code.cloudfoundry.org/lager"
-	"code.cloudfoundry.org/smb-broker/store"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -26,16 +25,12 @@ const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface) (http.Handler, error) {
-	if serviceInstanceStore == nil {
-		return nil, errors.New("missing a Service Instance Store")
-	}
+func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface) (http.Handler, error) {
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
 	brokerapi.AttachRoutes(router, smbServiceBroker{
-		Store:                 serviceInstanceStore,
 		PersistentVolume:      pv,
 		PersistentVolumeClaim: pvc,
 	}, logger)
@@ -43,7 +38,6 @@ func BrokerHandler(serviceInstanceStore store.ServiceInstanceStore, pv corev1.Pe
 }
 
 type smbServiceBroker struct {
-	Store                 store.ServiceInstanceStore
 	PersistentVolume      corev1.PersistentVolumeInterface
 	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
 }
@@ -85,18 +79,9 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		}
 	}
 
-	err := s.Store.Add(instanceID, store.ServiceInstance{
-		ServiceID:  details.ServiceID,
-		PlanID:     details.PlanID,
-		Parameters: serviceInstanceParameters,
-	})
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
-	}
-
 	storageClass := ""
 
-	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
+	_, err := s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
 		},
@@ -165,8 +150,6 @@ func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, de
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}
-
-	s.Store.Remove(instanceID)
 
 	return domain.DeprovisionServiceSpec{}, nil
 }

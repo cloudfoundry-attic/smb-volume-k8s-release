@@ -3,8 +3,6 @@ package handlers_test
 import (
 	. "code.cloudfoundry.org/smb-broker/handlers"
 	smbbrokerfakes "code.cloudfoundry.org/smb-broker/smb-brokerfakes"
-	"code.cloudfoundry.org/smb-broker/store"
-	"code.cloudfoundry.org/smb-broker/store/storefakes"
 	"errors"
 	"fmt"
 	. "github.com/onsi/ginkgo"
@@ -28,32 +26,17 @@ var _ = Describe("Handlers", func() {
 	var err error
 	var recorder *httptest.ResponseRecorder
 	var request *http.Request
-	var fakeServiceInstanceStore store.ServiceInstanceStore
 	var fakePersitentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
 	var fakePersitentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
-		fakeServiceInstanceStore = &storefakes.FakeServiceInstanceStore{}
 		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
 		fakePersitentVolumeClaimClient = &smbbrokerfakes.FakePersistentVolumeClaimInterface{}
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(fakeServiceInstanceStore, fakePersitentVolumeClient, fakePersitentVolumeClaimClient)
-	})
-
-	Describe("Validation", func() {
-		Context("When missing a store", func() {
-			BeforeEach(func() {
-				fakeServiceInstanceStore = nil
-			})
-
-			It("should return a meaningful error message", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err).To(MatchError("missing a Service Instance Store"))
-			})
-		})
+		brokerHandler, err = BrokerHandler(fakePersitentVolumeClient, fakePersitentVolumeClaimClient)
 	})
 
 	Describe("Endpoints", func() {
@@ -86,17 +69,9 @@ var _ = Describe("Handlers", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 
-			It("should allow provisioning and store the new service instance", func() {
+			It("should allow provisioning", func() {
 				Expect(recorder.Code).To(Equal(201))
 				Expect(recorder.Body).To(MatchJSON(`{}`))
-
-				Expect(fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).AddCallCount()).To(Equal(1))
-				key, serviceInstance := fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).AddArgsForCall(0)
-				Expect(key).To(Equal(serviceInstanceKey))
-				Expect(serviceInstance.ServiceID).To(Equal("123"))
-				Expect(serviceInstance.PlanID).To(Equal("plan-id"))
-				Expect(serviceInstance.Parameters).To(HaveKeyWithValue("parameter1", "1"))
-				Expect(serviceInstance.Parameters).To(HaveKeyWithValue("parameter2", "foo"))
 			})
 
 			It("should create a persistent volume", func() {
@@ -139,16 +114,6 @@ var _ = Describe("Handlers", func() {
 						},
 					},
 				))
-			})
-
-			Context("when unable to store a service instance", func() {
-				BeforeEach(func() {
-					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).AddReturns(errors.New("unable to store"))
-				})
-
-				It("should return a meaningful error", func() {
-					Expect(recorder.Code).To(Equal(500))
-				})
 			})
 
 			Context("when unable to create a persistent volume", func() {
@@ -287,15 +252,6 @@ var _ = Describe("Handlers", func() {
 				var err error
 				request, err = http.NewRequest(http.MethodDelete, "/v2/service_instances/"+serviceInstanceKey+"?service_id=123&plan_id=plan-id", nil)
 				Expect(err).NotTo(HaveOccurred())
-			})
-
-			It("should remove the service from the store", func() {
-				Expect(recorder.Code).To(Equal(200))
-				Expect(recorder.Body).To(MatchJSON(`{}`))
-
-				Expect(fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).RemoveCallCount()).To(Equal(1))
-				key := fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).RemoveArgsForCall(0)
-				Expect(key).To(Equal(serviceInstanceKey))
 			})
 
 			It("should delete a persistent volume", func() {
