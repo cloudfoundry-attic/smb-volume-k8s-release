@@ -240,8 +240,8 @@ func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string
 }
 
 func (s smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
-	_, found := s.Store.Get(instanceID)
-	if !found {
+	_, err := s.PersistentVolume.Get(instanceID, metav1.GetOptions{})
+	if err != nil {
 		return domain.UnbindSpec{}, apiresponses.ErrInstanceDoesNotExist
 	}
 

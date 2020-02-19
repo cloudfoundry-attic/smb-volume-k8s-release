@@ -487,21 +487,25 @@ var _ = Describe("Handlers", func() {
 			var instanceID, bindingID string
 
 			BeforeEach(func() {
-				fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, true)
-
+				fakePersitentVolumeClient.GetReturns(&v1.PersistentVolume{}, nil)
 				instanceID = randomString(source)
 				bindingID = randomString(source)
 				request, err = http.NewRequest(http.MethodDelete, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan-id", instanceID, bindingID), nil)
 			})
 
 			It("returns 200", func() {
+				Expect(fakePersitentVolumeClient.GetCallCount()).To(Equal(1))
+				instanceIDArg, getOpts := fakePersitentVolumeClient.GetArgsForCall(0)
+				Expect(instanceIDArg).To(Equal(instanceID))
+				Expect(getOpts).To(Equal(metav1.GetOptions{}))
+
 				Expect(err).NotTo(HaveOccurred())
 				Expect(recorder.Code).To(Equal(200))
 			})
 
 			Context("given the service instance doesnt exist", func() {
 				BeforeEach(func() {
-					fakeServiceInstanceStore.(*storefakes.FakeServiceInstanceStore).GetReturns(store.ServiceInstance{}, false)
+					fakePersitentVolumeClient.GetReturns(&v1.PersistentVolume{}, errors.New("pv does not exist"))
 				})
 
 				It("should return an error", func() {
