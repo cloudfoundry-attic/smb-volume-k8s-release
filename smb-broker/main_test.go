@@ -264,14 +264,13 @@ var _ = Describe("Main", func() {
 					request.Header = map[string][]string{
 						"X-Broker-API-Version": {"2.14"},
 					}
-					resp, err = http.DefaultClient.Do(request)
-					Expect(err).NotTo(HaveOccurred())
+					resp, _ = http.DefaultClient.Do(request)
 
 					if resp == nil {
 						return ""
 					}
 					return resp.Status
-				}, 5*time.Second).Should(Equal("404 Not Found"))
+				}).Should(Equal("404 Not Found"))
 
 				bytes, err := ioutil.ReadAll(resp.Body)
 				Expect(err).NotTo(HaveOccurred())
