@@ -56,6 +56,10 @@ nodes:
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
+  - containerPort: 139
+    hostPort: 139
+  - containerPort: 445
+    hostPort: 445
   - containerPort: 443
     hostPort: 443`)),
 		cluster.CreateWithNodeImage(defaults.Image), // There's a v1.13 image = kindest/node:v1.13.12
@@ -97,7 +101,21 @@ func DeleteK8sCluster(nodeName string, kubeConfigPath string) {
 		cluster.ProviderWithLogger(cmd.NewLogger()),
 	)
 
-	_ = provider.Delete(nodeName, kubeConfigPath)
+	finished := make(chan interface{}, 1)
+	go func() {
+		provider.Delete(nodeName, kubeConfigPath)
+		close(finished)
+	}()
+	timeout := time.After(10 * time.Minute)
+
+	select {
+	case <-finished:
+		return
+	case <-timeout:
+		fmt.Fprint(GinkgoWriter, "Unable to stop the kind cluster. Skipping...")
+		return
+	}
+
 }
 
 func Kubectl(cmd ...string) string {
