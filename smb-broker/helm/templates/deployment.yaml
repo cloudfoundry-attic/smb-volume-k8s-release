@@ -90,3 +90,18 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+
+---
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Sources
+sources:
+  - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    path: ../smb-broker/
+
+#! Specifies where to push smb-broker image
+---
+apiVersion: kbld.k14s.io/v1alpha1
+kind: ImageDestinations
+destinations:
+  - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    newImage: docker.io/cfpersi/smb-broker-dev
