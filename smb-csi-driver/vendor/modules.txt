@@ -3,6 +3,8 @@ code.cloudfoundry.org/goshims/execshim
 code.cloudfoundry.org/goshims/execshim/exec_fake
 code.cloudfoundry.org/goshims/osshim
 code.cloudfoundry.org/goshims/osshim/os_fake
+# code.cloudfoundry.org/lager v2.0.0+incompatible
+code.cloudfoundry.org/lager
 # code.cloudfoundry.org/local-k8s-cluster v0.0.0 => ../local-k8s-cluster
 code.cloudfoundry.org/local-k8s-cluster
 # github.com/BurntSushi/toml v0.3.1

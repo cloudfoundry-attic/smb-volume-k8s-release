@@ -5,6 +5,7 @@ import (
 	"code.cloudfoundry.org/goshims/osshim"
 	"code.cloudfoundry.org/smb-csi-driver/identityserver"
 	"code.cloudfoundry.org/smb-csi-driver/nodeserver"
+	"code.cloudfoundry.org/lager"
 	"flag"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
@@ -17,12 +18,20 @@ import (
 	"strings"
 )
 
+type unaryInterceptor struct {
+	logger lager.Logger
+}
+
 func main() {
 	var endpoint = flag.String("endpoint", "", "")
 	var nodeId = flag.String("nodeid", "", "")
 	flag.Parse()
 
-	println(*nodeId)
+	logger := lager.NewLogger("smb-csi-driver")
+	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
+	interceptor := unaryInterceptor{logger: logger}
+
+	logger.Info(fmt.Sprintf("node-id: %s", *nodeId))
 
 	proto, addr, err := ParseEndpoint(*endpoint)
 	if err != nil {
@@ -36,19 +45,19 @@ func main() {
 		}
 	}
 
-	println(">>>>>")
-	println(proto)
-	println(addr)
-	println("<<<<<")
+	logger.Info(">>>>>")
+	logger.Info(proto)
+	logger.Info(addr)
+	logger.Info("<<<<<")
 
 	lis, err := net.Listen(proto, addr)
 
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		logger.Fatal("failed to listen: %v", err)
 	}
 
 	opts := []grpc.ServerOption{
-		grpc.UnaryInterceptor(logGRPC),
+		grpc.UnaryInterceptor(interceptor.logGRPC),
 	}
 
 	grpcServer := grpc.NewServer(opts...)
@@ -57,7 +66,7 @@ func main() {
 
 	err = grpcServer.Serve(lis)
 	if err != nil {
-		panic(err)
+		logger.Fatal("failed to serve", err, lager.Data{"listener": lis})
 	}
 }
 
@@ -71,14 +80,13 @@ func ParseEndpoint(ep string) (string, string, error) {
 	return "", "", fmt.Errorf("Invalid endpoint: %v", ep)
 }
 
-func logGRPC(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	fmt.Println(fmt.Printf("GRPC method: %s", info.FullMethod))
-	fmt.Println(fmt.Printf("GRPC request: %v", protosanitizer.StripSecrets(req)))
+func (l unaryInterceptor) logGRPC(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	l.logger.Info("GRPC request", lager.Data{"method": info.FullMethod, "req": protosanitizer.StripSecrets(req).String()})
 	resp, err := handler(ctx, req)
 	if err != nil {
-		fmt.Println(fmt.Printf("GRPC error: %v", err))
+		l.logger.Error("GRPC error", err)
 	} else {
-		fmt.Println(fmt.Printf("GRPC resp: %v", protosanitizer.StripSecrets(resp)))
+		l.logger.Info("GRPC response", lager.Data{"response": protosanitizer.StripSecrets(resp).String()})
 	}
 	return resp, err
 }

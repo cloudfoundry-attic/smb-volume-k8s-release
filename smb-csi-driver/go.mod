@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	code.cloudfoundry.org/goshims v0.1.0
+	code.cloudfoundry.org/lager v2.0.0+incompatible
 	code.cloudfoundry.org/local-k8s-cluster v0.0.0
 	github.com/container-storage-interface/spec v1.2.0
 	github.com/kubernetes-csi/csi-lib-utils v0.7.0
