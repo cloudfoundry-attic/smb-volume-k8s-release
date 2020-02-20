@@ -18,9 +18,9 @@ import (
 	"strings"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-broker/smb-brokerfakes/fake_persistent_volume_interface.go k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-broker/smb-brokerfakes/fake_persistent_volume_claim_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeClaimInterface
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-broker/smb-brokerfakes/fake_secret_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.SecretInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-brokerfakes/fake_persistent_volume_interface.go k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-brokerfakes/fake_persistent_volume_claim_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeClaimInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-brokerfakes/fake_secret_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.SecretInterface
 
 var _ = Describe("Handlers", func() {
 	var brokerHandler http.Handler
