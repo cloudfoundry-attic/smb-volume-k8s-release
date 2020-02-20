@@ -118,15 +118,32 @@ func DeleteK8sCluster(nodeName string, kubeConfigPath string) {
 
 }
 
+func KubectlStdOut(cmd ...string) string {
+	stdout, _ := runTestCommand("kubectl", cmd...)
+	return stdout
+}
+
+func HelmStdout(cmd ...string) string {
+	stdout, _ := runTestCommand("helm", cmd...)
+	return stdout
+}
+
 func Kubectl(cmd ...string) string {
-	return runTestCommand("kubectl", cmd...)
+	stdout, stderr := runTestCommand("kubectl", cmd...)
+	return stdout + stderr
 }
 
 func Helm(cmd ...string) string {
-	return runTestCommand("helm", cmd...)
+	stdout, stderr := runTestCommand("helm", cmd...)
+	return stdout + stderr
 }
 
-func runTestCommand(name string, cmds ...string) string {
+func KbldStdout(args ...string) string {
+	stdout, _ := runTestCommand("kbld", args...)
+	return stdout
+}
+
+func runTestCommand(name string, cmds ...string) (string, string) {
 	command := exec.Command(name, cmds...)
 
 	fmt.Println(fmt.Sprintf("Running %v", command.Args))
@@ -134,5 +151,5 @@ func runTestCommand(name string, cmds ...string) string {
 	session, err := gexec.Start(command, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
 	Eventually(session, time.Minute).Should(gexec.Exit(0), string(session.Out.Contents()))
-	return string(session.Out.Contents()) + string(session.Err.Contents())
+	return string(session.Out.Contents()), string(session.Err.Contents())
 }
