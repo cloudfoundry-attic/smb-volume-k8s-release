@@ -30,8 +30,7 @@ var _ = BeforeSuite(func() {
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
 
-	// helm template smb-broker ./helm | kbld -f - | kubectl apply -f -
-	templateHelmOutput := local_k8s_cluster.HelmStdout("template", "smb-broker", "./helm", "--set", "ingress.enabled=true", "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
+	templateHelmOutput := local_k8s_cluster.HelmStdout("template", "smb-broker", "./helm", "--set", "image_repo_url=localhost:5000", "--set", "ingress.enabled=true", "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "image.repository=cfpersi/smb-broker", "--set", "image.tag=local-test")
 	f, err := ioutil.TempFile(os.TempDir(), "helm")
 	Expect(err).NotTo(HaveOccurred())
 	_, err = f.WriteString(templateHelmOutput)

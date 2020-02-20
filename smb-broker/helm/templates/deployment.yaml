@@ -104,4 +104,4 @@ apiVersion: kbld.k14s.io/v1alpha1
 kind: ImageDestinations
 destinations:
   - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    newImage: docker.io/cfpersi/smb-broker-dev
+    newImage: "{{ .Values.image_repo_url }}/{{ .Values.image.repository }}"

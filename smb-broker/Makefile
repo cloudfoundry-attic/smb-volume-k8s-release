@@ -21,14 +21,6 @@ image-local-registry:
 	[ $(running) != "true" ] && docker run \
 	    -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
-	docker build --no-cache -t cfpersi/smb-broker .
-	docker tag cfpersi/smb-broker localhost:5000/cfpersi/smb-broker:local-test
-	docker push localhost:5000/cfpersi/smb-broker:local-test
-
-image-dev:
-	docker build -t cfpersi/smb-broker .
-	docker tag cfpersi/smb-broker cfpersi/smb-broker:dev
-	docker push cfpersi/smb-broker:dev
 
 helm:
 	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
