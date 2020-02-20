@@ -18,8 +18,9 @@ import (
 	"strings"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeClaimInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-broker/smb-brokerfakes/fake_persistent_volume_interface.go k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-broker/smb-brokerfakes/fake_persistent_volume_claim_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeClaimInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-broker/smb-brokerfakes/fake_secret_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.SecretInterface
 
 var _ = Describe("Handlers", func() {
 	var brokerHandler http.Handler
@@ -28,15 +29,17 @@ var _ = Describe("Handlers", func() {
 	var request *http.Request
 	var fakePersitentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
 	var fakePersitentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
+	var fakePersitentSecretClient *smbbrokerfakes.FakeSecretInterface
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
 		fakePersitentVolumeClaimClient = &smbbrokerfakes.FakePersistentVolumeClaimInterface{}
+		fakePersitentSecretClient = &smbbrokerfakes.FakeSecretInterface{}
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(fakePersitentVolumeClient, fakePersitentVolumeClaimClient)
+		brokerHandler, err = BrokerHandler(fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakePersitentSecretClient)
 	})
 
 	Describe("Endpoints", func() {
@@ -89,6 +92,10 @@ var _ = Describe("Handlers", func() {
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
 									VolumeAttributes: map[string]string{},
+									NodePublishSecretRef: &v1.SecretReference{
+										Name: "dummy",
+										Namespace: "eirini",
+									},
 								},
 							},
 						},
@@ -208,6 +215,10 @@ var _ = Describe("Handlers", func() {
 										VolumeAttributes: map[string]string{
 											"username": "foo",
 											"password": "bar",
+										},
+										NodePublishSecretRef: &v1.SecretReference{
+											Name: "dummy",
+											Namespace: "eirini",
 										},
 									},
 								},
