@@ -3,6 +3,7 @@ package nodeserver_test
 import (
 	"code.cloudfoundry.org/goshims/execshim/exec_fake"
 	"code.cloudfoundry.org/goshims/osshim/os_fake"
+	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/smb-csi-driver/nodeserver"
 	"context"
 	"errors"
@@ -14,6 +15,7 @@ import (
 var _ = Describe("NodeServer", func() {
 
 	var (
+		logger 		*lagertest.TestLogger
 		nodeServer csi.NodeServer
 		ctx        context.Context
 
@@ -23,13 +25,14 @@ var _ = Describe("NodeServer", func() {
 	)
 
 	BeforeEach(func() {
+		logger = lagertest.NewTestLogger("node-server-test")
 		fakeOs = &os_fake.FakeOs{}
 		fakeExec = &exec_fake.FakeExec{}
 		fakeCmd = &exec_fake.FakeCmd{}
 		fakeExec.CommandReturns(fakeCmd)
 		ctx = context.Background()
 
-		nodeServer = NewNodeServer(fakeExec, fakeOs)
+		nodeServer = NewNodeServer(logger, fakeExec, fakeOs)
 	})
 
 	Describe("#NodePublishVolume", func() {

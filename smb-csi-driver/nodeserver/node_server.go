@@ -3,6 +3,7 @@ package nodeserver
 import (
 	"code.cloudfoundry.org/goshims/execshim"
 	"code.cloudfoundry.org/goshims/osshim"
+	"code.cloudfoundry.org/lager"
 	"context"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
@@ -16,13 +17,14 @@ var errorFmt = "Error: a required property [%s] was not provided"
 var defaultMountOptions = "uid=2000,gid=2000"
 
 type smbNodeServer struct {
+	logger lager.Logger
 	execshim execshim.Exec
 	osshim osshim.Os
 }
 
-func NewNodeServer(execshim execshim.Exec, osshim osshim.Os) csi.NodeServer {
+func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os) csi.NodeServer {
 	return &smbNodeServer{
-		execshim, osshim,
+		logger, execshim, osshim,
 	}
 }
 
@@ -60,13 +62,13 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	fmt.Println(fmt.Sprintf("started mount to %s", share))
+	n.logger.Info("started mount", lager.Data{"share": share})
 
 	err = cmdshim.Wait()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	fmt.Println(fmt.Sprintf("finished mount to %s", share))
+	n.logger.Info("finished mount", lager.Data{"share": share})
 
 	return &csi.NodePublishVolumeResponse{}, nil
 }
@@ -76,7 +78,7 @@ func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubli
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
 	}
 
-	log.Printf("about to remove dir")
+	n.logger.Info("about to remove dir")
 
 	cmdshim := n.execshim.Command("umount", r.TargetPath)
 	err := cmdshim.Start()
@@ -84,20 +86,20 @@ func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubli
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	log.Print("started umount")
+	n.logger.Info("started umount")
 
 	err = cmdshim.Wait()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	log.Printf("finished umount")
+	n.logger.Info("finished umount")
 
 	err = n.osshim.Remove(r.TargetPath)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	log.Printf("removed dir")
+	n.logger.Info("removed dir")
 
 	return &csi.NodeUnpublishVolumeResponse{}, nil
 }
