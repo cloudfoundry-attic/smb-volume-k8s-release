@@ -4,7 +4,6 @@ go 1.12
 
 require (
 	code.cloudfoundry.org/lager v2.0.0+incompatible
-	code.cloudfoundry.org/local-k8s-cluster v0.0.0
 	github.com/drewolson/testflight v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
@@ -17,5 +16,3 @@ require (
 	k8s.io/apimachinery v0.17.0
 	k8s.io/client-go v0.17.0
 )
-
-replace code.cloudfoundry.org/local-k8s-cluster => ../local-k8s-cluster
