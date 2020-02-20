@@ -85,6 +85,10 @@ nodes:
 
 	Kubectl("patch", "deployments", "-n", "ingress-nginx", "nginx-ingress-controller", "-p", `{"spec":{"template":{"spec":{"containers":[{"name":"nginx-ingress-controller","ports":[{"containerPort":80,"hostPort":80},{"containerPort":443,"hostPort":443}]}],"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}`)
 
+	runLocalDockerRegistry(err, nodeName)
+}
+
+func runLocalDockerRegistry(err error, nodeName string) {
 	registryBashTempFile, err := ioutil.TempFile("/tmp", "test")
 	Expect(err).NotTo(HaveOccurred())
 	Expect(os.Chmod(registryBashTempFile.Name(), os.ModePerm)).To(Succeed())
@@ -132,6 +136,23 @@ func Kubectl(cmd ...string) string {
 	stdout, stderr := runTestCommand("kubectl", cmd...)
 	return stdout + stderr
 }
+
+func KubectlApplyString(cmd ...string) func(contents string) string {
+	return func(contents string) string {
+		tempYamlFile, err := ioutil.TempFile(os.TempDir(), "temp_kapply_yaml")
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = tempYamlFile.WriteString(contents)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(tempYamlFile.Close()).NotTo(HaveOccurred())
+
+		cmd = append(cmd, tempYamlFile.Name())
+		stdout, stderr := runTestCommand("kubectl", cmd...)
+
+		return stdout + stderr
+	}
+}
+
 
 func Helm(cmd ...string) string {
 	stdout, stderr := runTestCommand("helm", cmd...)
