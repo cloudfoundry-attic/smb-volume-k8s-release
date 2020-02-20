@@ -15,11 +15,11 @@ import (
 
 var _ = Describe("Integration", func() {
 	var expectedFileContents = "hi"
-	username := "user"
 	password := "pass"
 
 	BeforeEach(func() {
 		var podIP string
+		username := "user"
 		share := "share"
 
 		By("deploying a smb server", func() {
@@ -102,9 +102,8 @@ var _ = Describe("Integration", func() {
 			}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring(expectedFileContents))
 		})
 
-		By("not logging secrets", func(){
-			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).To(Not(ContainSubstring(password)))
-			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).To(Not(ContainSubstring(username)))
+		By("logs, and sanitizes secrets", func(){
+			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).To(ContainSubstring("***stripped***"))
 		})
 	})
 })

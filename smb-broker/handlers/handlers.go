@@ -25,7 +25,7 @@ const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface) (http.Handler, error) {
+func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface) (http.Handler, error) {
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
@@ -33,6 +33,7 @@ func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVol
 	brokerapi.AttachRoutes(router, smbServiceBroker{
 		PersistentVolume:      pv,
 		PersistentVolumeClaim: pvc,
+		Secret: secret,
 	}, logger)
 	return router, nil
 }
@@ -40,6 +41,7 @@ func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVol
 type smbServiceBroker struct {
 	PersistentVolume      corev1.PersistentVolumeInterface
 	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
+	Secret				  corev1.SecretInterface
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -121,6 +123,20 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		va["share"] = share.(string)
 	}
 
+	dummySecretName := "dummy"
+	_, err = s.Secret.Create(&v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: dummySecretName,
+			Namespace: "eirini",
+		},
+		StringData: map[string]string{
+			"secretkey": "secretval",
+		},
+	})
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
@@ -133,6 +149,10 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 					Driver:           "org.cloudfoundry.smb",
 					VolumeHandle:     "volume-handle",
 					VolumeAttributes: va,
+					NodePublishSecretRef: &v1.SecretReference{
+						Name: dummySecretName,
+						Namespace: "eirini",
+					},
 				},
 			},
 		},

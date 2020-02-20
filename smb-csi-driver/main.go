@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc"
+	"golang.org/x/net/context"
+	"github.com/kubernetes-csi/csi-lib-utils/protosanitizer"
 	"log"
 	"net"
 	"os"
@@ -45,7 +47,11 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(logGRPC),
+	}
+
+	grpcServer := grpc.NewServer(opts...)
 	csi.RegisterIdentityServer(grpcServer, identityserver.NewSmbIdentityServer())
 	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(&execshim.ExecShim{}, &osshim.OsShim{}))
 
@@ -63,4 +69,16 @@ func ParseEndpoint(ep string) (string, string, error) {
 		}
 	}
 	return "", "", fmt.Errorf("Invalid endpoint: %v", ep)
+}
+
+func logGRPC(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	fmt.Println(fmt.Printf("GRPC method: %s", info.FullMethod))
+	fmt.Println(fmt.Printf("GRPC request: %v", protosanitizer.StripSecrets(req)))
+	resp, err := handler(ctx, req)
+	if err != nil {
+		fmt.Println(fmt.Printf("GRPC error: %v", err))
+	} else {
+		fmt.Println(fmt.Printf("GRPC resp: %v", protosanitizer.StripSecrets(resp)))
+	}
+	return resp, err
 }

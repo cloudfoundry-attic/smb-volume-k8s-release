@@ -15,7 +15,7 @@ metadata:
   name: create-pv
 rules:
   - apiGroups: ["v1", ""]
-    resources: ["persistentvolumes", "persistentvolumeclaims"]
+    resources: ["persistentvolumes", "persistentvolumeclaims", "secrets"]
     verbs: ["get", "list", "create", "delete"]
 
 ---
