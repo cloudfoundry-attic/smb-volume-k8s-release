@@ -105,5 +105,10 @@ var _ = Describe("Integration", func() {
 		By("logs, and sanitizes secrets", func(){
 			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).To(ContainSubstring("***stripped***"))
 		})
+
+		By("never logs the password", func(){
+			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=csi-nodeplugin-smbplugin", "-c", "smb")).NotTo(ContainSubstring(password))
+			Expect(local_k8s_cluster.Kubectl("logs", "-l", "app=smb-broker")).NotTo(ContainSubstring(password))
+		})
 	})
 })
