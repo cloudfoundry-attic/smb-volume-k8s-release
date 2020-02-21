@@ -25,7 +25,7 @@ const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface) (http.Handler, error) {
+func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface) (http.Handler, error) {
 	router := mux.NewRouter()
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
@@ -34,6 +34,7 @@ func BrokerHandler(pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVol
 		PersistentVolume:      pv,
 		PersistentVolumeClaim: pvc,
 		Secret: secret,
+		Namespace: namespace,
 	}, logger)
 	return router, nil
 }
@@ -42,6 +43,7 @@ type smbServiceBroker struct {
 	PersistentVolume      corev1.PersistentVolumeInterface
 	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
 	Secret				  corev1.SecretInterface
+	Namespace		  string
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -100,42 +102,54 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	va := map[string]string{}
+	username, err := getAttribute(serviceInstanceParameters, "username")
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+	password, err := getAttribute(serviceInstanceParameters, "password")
 
-	hasProvidedUsername := s.containsKey(serviceInstanceParameters, "username")
-	hasProvidedPassword := s.containsKey(serviceInstanceParameters, "password")
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
 
-	if hasProvidedUsername != hasProvidedPassword {
+	if (username != "" && password == "") || (username == "" && password != "") {
 		return domain.ProvisionedServiceSpec{}, invalidParametersResponse("both username and password must be provided")
 	}
 
-	err = addToVolumeAttributes(serviceInstanceParameters, va, "username")
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
-	}
-
-	err = addToVolumeAttributes(serviceInstanceParameters, va, "password")
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
-	}
-
+	va := map[string]string{}
 	if share, found := serviceInstanceParameters["share"]; found {
 		va["share"] = share.(string)
 	}
 
-	dummySecretName := "dummy"
-	_, err = s.Secret.Create(&v1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: dummySecretName,
-			Namespace: "eirini",
-		},
-		StringData: map[string]string{
-			"secretkey": "secretval",
-		},
-	})
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
+	if username, found := serviceInstanceParameters["username"]; found {
+		va["username"] = username.(string)
 	}
+
+	if password, found := serviceInstanceParameters["password"]; found {
+		va["password"] = password.(string)
+	}
+
+	var secretRef *v1.SecretReference
+	if username != "" {
+		_, err = s.Secret.Create(&v1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: instanceID,
+			},
+			StringData: map[string]string{
+				"username": username,
+				"password": password,
+			},
+		})
+		if err != nil {
+			return domain.ProvisionedServiceSpec{}, err
+		}
+
+		secretRef = &v1.SecretReference{
+			Name:      instanceID,
+			Namespace: s.Namespace,
+		}
+	}
+
 
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
@@ -149,10 +163,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 					Driver:           "org.cloudfoundry.smb",
 					VolumeHandle:     "volume-handle",
 					VolumeAttributes: va,
-					NodePublishSecretRef: &v1.SecretReference{
-						Name: dummySecretName,
-						Namespace: "eirini",
-					},
+					NodePublishSecretRef: secretRef,
 				},
 			},
 		},
@@ -268,13 +279,13 @@ func (s smbServiceBroker) containsKey(serviceInstanceParameters map[string]inter
 	return found
 }
 
-func addToVolumeAttributes(source map[string]interface{}, va map[string]string, key string) error {
+func getAttribute(source map[string]interface{}, key string) (string, error) {
 	if valueFromSource, found := source[key]; found {
-		if value, ok := valueFromSource.(string); ok {
-			va[key] = value
+		if val, ok := valueFromSource.(string); !ok {
+			return "", invalidParametersResponse(fmt.Sprintf("%s must be a string value", key))
 		} else {
-			return invalidParametersResponse(fmt.Sprintf("%s must be a string value", key))
+			return val, nil
 		}
 	}
-	return nil
+	return "", nil
 }

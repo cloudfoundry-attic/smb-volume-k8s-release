@@ -23,7 +23,7 @@ func main() {
 	var errChan = make(chan error)
 	go func() {
 		namespace := os.Getenv("TARGET_NAMESPACE")
-		handler, _ := handlers.BrokerHandler(clientset.CoreV1().PersistentVolumes(), clientset.CoreV1().PersistentVolumeClaims(namespace), clientset.CoreV1().Secrets(namespace))
+		handler, _ := handlers.BrokerHandler(namespace, clientset.CoreV1().PersistentVolumes(), clientset.CoreV1().PersistentVolumeClaims(namespace), clientset.CoreV1().Secrets(namespace))
 		err := http.ListenAndServe("0.0.0.0:8080", handler)
 		errChan <- err
 	}()

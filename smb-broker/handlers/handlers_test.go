@@ -29,17 +29,18 @@ var _ = Describe("Handlers", func() {
 	var request *http.Request
 	var fakePersitentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
 	var fakePersitentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
-	var fakePersitentSecretClient *smbbrokerfakes.FakeSecretInterface
+	var fakePersistentSecretClient *smbbrokerfakes.FakeSecretInterface
+	var namespace = "eirini"
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
 		fakePersitentVolumeClaimClient = &smbbrokerfakes.FakePersistentVolumeClaimInterface{}
-		fakePersitentSecretClient = &smbbrokerfakes.FakeSecretInterface{}
+		fakePersistentSecretClient = &smbbrokerfakes.FakeSecretInterface{}
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakePersitentSecretClient)
+		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakePersistentSecretClient)
 	})
 
 	Describe("Endpoints", func() {
@@ -92,10 +93,6 @@ var _ = Describe("Handlers", func() {
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
 									VolumeAttributes: map[string]string{},
-									NodePublishSecretRef: &v1.SecretReference{
-										Name: "dummy",
-										Namespace: "eirini",
-									},
 								},
 							},
 						},
@@ -191,14 +188,26 @@ var _ = Describe("Handlers", func() {
 			})
 
 			Context("when a username and password are supplied", func() {
-
 				BeforeEach(func() {
 					var err error
 					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-				It("should store the username and password in the PVs volume attributes", func() {
+
+				It("should store the username and password in a secret", func() {
+					Expect(fakePersistentSecretClient.CreateCallCount()).To(Equal(1))
+					Expect(fakePersistentSecretClient.CreateArgsForCall(0)).To(Equal(
+						&v1.Secret{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: serviceInstanceKey,
+							},
+							StringData: map[string]string{"username": "foo", "password": "bar"},
+						},
+					))
+				})
+
+				It("should store a reference to the secret in the PV", func(){
 					Expect(fakePersitentVolumeClient.CreateCallCount()).To(Equal(1))
 					Expect(fakePersitentVolumeClient.CreateArgsForCall(0)).To(Equal(
 						&v1.PersistentVolume{
@@ -210,14 +219,14 @@ var _ = Describe("Handlers", func() {
 								Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 								PersistentVolumeSource: v1.PersistentVolumeSource{
 									CSI: &v1.CSIPersistentVolumeSource{
-										Driver:       "org.cloudfoundry.smb",
-										VolumeHandle: "volume-handle",
+										Driver:           "org.cloudfoundry.smb",
+										VolumeHandle:     "volume-handle",
 										VolumeAttributes: map[string]string{
 											"username": "foo",
 											"password": "bar",
 										},
 										NodePublishSecretRef: &v1.SecretReference{
-											Name: "dummy",
+											Name: serviceInstanceKey,
 											Namespace: "eirini",
 										},
 									},
@@ -225,6 +234,7 @@ var _ = Describe("Handlers", func() {
 							},
 						},
 					))
+
 				})
 			})
 
@@ -251,6 +261,24 @@ var _ = Describe("Handlers", func() {
 				It("should respond with an error", func() {
 					Expect(recorder.Code).To(Equal(400))
 					Expect(recorder.Body).To(MatchJSON(`{ "description": "password must be a string value"}`))
+				})
+			})
+
+			Context("when creating a secret fails", func() {
+
+				BeforeEach(func() {
+					fakePersistentSecretClient.CreateReturns(nil, errors.New("secret-failed"))
+
+					var err error
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should return an error", func() {
+					Expect(recorder.Code).To(Equal(500))
+					bytes, err := ioutil.ReadAll(recorder.Body)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(bytes)).To(Equal("{\"description\":\"secret-failed\"}\n"))
 				})
 			})
 		})
