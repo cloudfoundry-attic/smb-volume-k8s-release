@@ -93,6 +93,10 @@ var _ = Describe("Handlers", func() {
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
 									VolumeAttributes: map[string]string{},
+									NodePublishSecretRef: &v1.SecretReference{
+										Name: serviceInstanceKey,
+										Namespace: "eirini",
+									},
 								},
 							},
 						},

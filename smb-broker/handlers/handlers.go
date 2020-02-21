@@ -33,8 +33,8 @@ func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc co
 	brokerapi.AttachRoutes(router, smbServiceBroker{
 		PersistentVolume:      pv,
 		PersistentVolumeClaim: pvc,
-		Secret: secret,
-		Namespace: namespace,
+		Secret:                secret,
+		Namespace:             namespace,
 	}, logger)
 	return router, nil
 }
@@ -42,8 +42,8 @@ func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc co
 type smbServiceBroker struct {
 	PersistentVolume      corev1.PersistentVolumeInterface
 	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
-	Secret				  corev1.SecretInterface
-	Namespace		  string
+	Secret                corev1.SecretInterface
+	Namespace             string
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -121,27 +121,18 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		va["share"] = share.(string)
 	}
 
-	var secretRef *v1.SecretReference
-	if username != "" {
-		_, err = s.Secret.Create(&v1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: instanceID,
-			},
-			StringData: map[string]string{
-				"username": username,
-				"password": password,
-			},
-		})
-		if err != nil {
-			return domain.ProvisionedServiceSpec{}, err
-		}
-
-		secretRef = &v1.SecretReference{
-			Name:      instanceID,
-			Namespace: s.Namespace,
-		}
+	_, err = s.Secret.Create(&v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: instanceID,
+		},
+		StringData: map[string]string{
+			"username": username,
+			"password": password,
+		},
+	})
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
 	}
-
 
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
@@ -152,10 +143,13 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
 				CSI: &v1.CSIPersistentVolumeSource{
-					Driver:           "org.cloudfoundry.smb",
-					VolumeHandle:     "volume-handle",
-					VolumeAttributes: va,
-					NodePublishSecretRef: secretRef,
+					Driver:               "org.cloudfoundry.smb",
+					VolumeHandle:         "volume-handle",
+					VolumeAttributes:     va,
+					NodePublishSecretRef: &v1.SecretReference{
+						Name:      instanceID,
+						Namespace: s.Namespace,
+					},
 				},
 			},
 		},
