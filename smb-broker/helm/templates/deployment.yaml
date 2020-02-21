@@ -40,7 +40,7 @@ metadata:
 rules:
   - apiGroups: ["v1", ""]
     resources: ["secrets"]
-    verbs: ["create"]
+    verbs: ["get", "create", "delete"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

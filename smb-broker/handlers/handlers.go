@@ -121,14 +121,6 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		va["share"] = share.(string)
 	}
 
-	if username, found := serviceInstanceParameters["username"]; found {
-		va["username"] = username.(string)
-	}
-
-	if password, found := serviceInstanceParameters["password"]; found {
-		va["password"] = password.(string)
-	}
-
 	var secretRef *v1.SecretReference
 	if username != "" {
 		_, err = s.Secret.Create(&v1.Secret{
@@ -191,9 +183,15 @@ func (s smbServiceBroker) GetInstance(ctx context.Context, instanceID string) (d
 		return domain.GetInstanceDetailsSpec{}, apiresponses.NewFailureResponse(errors.New("unable to find service instance"), 404, "")
 	}
 
+	secret, err := s.Secret.Get(instanceID, metav1.GetOptions{})
+	if err != nil {
+		return domain.GetInstanceDetailsSpec{}, apiresponses.NewFailureResponse(errors.New("unable to establish username"), 404, "")
+	}
+	username := secret.Data["username"]
+
 	parametersInstanceDetailsMap := map[string]interface{}{}
 	parametersInstanceDetailsMap["share"] = pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes["share"]
-	parametersInstanceDetailsMap["username"] = pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes["username"]
+	parametersInstanceDetailsMap["username"] = string(username)
 
 	return domain.GetInstanceDetailsSpec{
 		ServiceID:  ServiceID,

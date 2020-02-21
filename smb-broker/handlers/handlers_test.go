@@ -221,10 +221,7 @@ var _ = Describe("Handlers", func() {
 									CSI: &v1.CSIPersistentVolumeSource{
 										Driver:           "org.cloudfoundry.smb",
 										VolumeHandle:     "volume-handle",
-										VolumeAttributes: map[string]string{
-											"username": "foo",
-											"password": "bar",
-										},
+										VolumeAttributes: map[string]string{},
 										NodePublishSecretRef: &v1.SecretReference{
 											Name: serviceInstanceKey,
 											Namespace: "eirini",
@@ -336,8 +333,8 @@ var _ = Describe("Handlers", func() {
 
 		Describe("#GetInstance endpoint", func() {
 			var (
-				err                                                               error
-				instanceID, val1, val2, val3, key1, key2, key3, serviceID, planID string
+				err                                                                 error
+				instanceID, share, username, password, serviceID, planID string
 			)
 
 			BeforeEach(func() {
@@ -348,12 +345,9 @@ var _ = Describe("Handlers", func() {
 			})
 
 			BeforeEach(func() {
-				key1 = "share"
-				key2 = "username"
-				key3 = "password"
-				val1 = randomString(source)
-				val2 = randomString(source)
-				val3 = randomString(source)
+				share = randomString(source)
+				username = randomString(source)
+				password = randomString(source)
 				serviceID = "123"
 				planID = "plan-id"
 
@@ -361,9 +355,21 @@ var _ = Describe("Handlers", func() {
 					Spec: v1.PersistentVolumeSpec{
 						PersistentVolumeSource: v1.PersistentVolumeSource{
 							CSI: &v1.CSIPersistentVolumeSource{
-								VolumeAttributes: map[string]string{key1: val1, key2: val2, key3: val3},
+								VolumeAttributes: map[string]string{"share": share},
+								NodePublishSecretRef: &v1.SecretReference{
+									Name: instanceID,
+								},
 							},
 						},
+					},
+				}, nil)
+			})
+
+			BeforeEach(func() {
+				fakePersistentSecretClient.GetReturns(&v1.Secret{
+					Data: map[string][]byte{
+						"username": []byte(username),
+						"password": []byte(password),
 					},
 				}, nil)
 			})
@@ -379,9 +385,14 @@ var _ = Describe("Handlers", func() {
 
 			})
 
+			It("should retrieve the username from the secret named after the instance ID", func(){
+				Expect(fakePersistentSecretClient.GetCallCount()).To(Equal(1))
+				secretName, _ := fakePersistentSecretClient.GetArgsForCall(0)
+				Expect(secretName).To(Equal(instanceID))
+			})
 			It("shows share and username but not password", func() {
 				Expect(recorder.Body).To(MatchJSON(
-					fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "%s": "%s", "%s": "%s" } }`, serviceID, planID, key1, val1, key2, val2)),
+					fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "%s", "username": "%s" } }`, serviceID, planID, share, username)),
 				)
 			})
 
@@ -396,6 +407,18 @@ var _ = Describe("Handlers", func() {
 				})
 
 			})
+			Context("when no Secret exists", func() {
+				BeforeEach(func() {
+					fakePersistentSecretClient.GetReturns(nil, errors.New("secret not found"))
+				})
+
+				It("Should return an FailureError with a 404 status code", func() {
+					Expect(recorder.Code).To(Equal(404))
+					Expect(recorder.Body).To(MatchJSON(`{"description": "unable to establish username"}`))
+				})
+
+			})
+
 		})
 
 		Describe("#Bind endpoint", func() {
