@@ -50,8 +50,8 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 		println(err.Error())
 	}
 	share := r.GetVolumeContext()["share"]
-	username := r.GetVolumeContext()["username"]
-	password := r.GetVolumeContext()["password"]
+	username := r.GetSecrets()["username"]
+	password := r.GetSecrets()["password"]
 
 	log.Printf("local target path: %s", r.TargetPath)
 

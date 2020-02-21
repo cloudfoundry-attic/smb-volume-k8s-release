@@ -48,6 +48,8 @@ var _ = Describe("NodeServer", func() {
 				TargetPath:       "/tmp/target_path",
 				VolumeContext: map[string]string{
 					"share":    "//server/export",
+				},
+				Secrets: map[string]string{
 					"username": "user1",
 					"password": "pass1",
 				},
