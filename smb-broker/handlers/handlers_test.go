@@ -308,6 +308,13 @@ var _ = Describe("Handlers", func() {
 				Expect(options).To(Equal(&metav1.DeleteOptions{}))
 			})
 
+			It("should delete the secret", func() {
+				Expect(fakeSecretClient.DeleteCallCount()).To(Equal(1))
+				name, options := fakeSecretClient.DeleteArgsForCall(0)
+				Expect(name).To(Equal(serviceInstanceKey))
+				Expect(options).To(Equal(&metav1.DeleteOptions{}))
+			})
+
 			Context("when unable to delete a persistent volume", func() {
 				BeforeEach(func() {
 					fakePersitentVolumeClient.DeleteReturns(errors.New("K8s ERROR"))
@@ -324,6 +331,19 @@ var _ = Describe("Handlers", func() {
 			Context("when unable to delete a persistent volume claim", func() {
 				BeforeEach(func() {
 					fakePersitentVolumeClaimClient.DeleteReturns(errors.New("K8s ERROR"))
+				})
+
+				It("should return a meaningful error", func() {
+					Expect(recorder.Code).To(Equal(500))
+					bytes, err := ioutil.ReadAll(recorder.Body)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
+				})
+			})
+
+			Context("when unable to delete the secret", func() {
+				BeforeEach(func() {
+					fakeSecretClient.DeleteReturns(errors.New("K8s ERROR"))
 				})
 
 				It("should return a meaningful error", func() {

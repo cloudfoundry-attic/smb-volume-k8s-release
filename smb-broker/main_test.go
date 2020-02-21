@@ -91,6 +91,7 @@ var _ = Describe("Main", func() {
 
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", instanceID), nil)
@@ -114,6 +115,10 @@ var _ = Describe("Main", func() {
 			Eventually(func() string {
 				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")
 			}).Should(ContainSubstring("No resources found"))
+
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("-n", namespace, "get", "secrets")
+			}).Should(Not(ContainSubstring(instanceID)))
 		})
 	})
 

@@ -158,7 +158,12 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 }
 
 func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
-	err := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
+	err := s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
+	if err != nil {
+		return domain.DeprovisionServiceSpec{}, err
+	}
+
+	err = s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}
