@@ -29,18 +29,18 @@ var _ = Describe("Handlers", func() {
 	var request *http.Request
 	var fakePersitentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
 	var fakePersitentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
-	var fakePersistentSecretClient *smbbrokerfakes.FakeSecretInterface
+	var fakeSecretClient *smbbrokerfakes.FakeSecretInterface
 	var namespace = "eirini"
 
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
 		fakePersitentVolumeClaimClient = &smbbrokerfakes.FakePersistentVolumeClaimInterface{}
-		fakePersistentSecretClient = &smbbrokerfakes.FakeSecretInterface{}
+		fakeSecretClient = &smbbrokerfakes.FakeSecretInterface{}
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakePersistentSecretClient)
+		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakeSecretClient)
 	})
 
 	Describe("Endpoints", func() {
@@ -196,8 +196,8 @@ var _ = Describe("Handlers", func() {
 
 
 				It("should store the username and password in a secret", func() {
-					Expect(fakePersistentSecretClient.CreateCallCount()).To(Equal(1))
-					Expect(fakePersistentSecretClient.CreateArgsForCall(0)).To(Equal(
+					Expect(fakeSecretClient.CreateCallCount()).To(Equal(1))
+					Expect(fakeSecretClient.CreateArgsForCall(0)).To(Equal(
 						&v1.Secret{
 							ObjectMeta: metav1.ObjectMeta{
 								Name: serviceInstanceKey,
@@ -264,7 +264,7 @@ var _ = Describe("Handlers", func() {
 			Context("when creating a secret fails", func() {
 
 				BeforeEach(func() {
-					fakePersistentSecretClient.CreateReturns(nil, errors.New("secret-failed"))
+					fakeSecretClient.CreateReturns(nil, errors.New("secret-failed"))
 
 					var err error
 					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
@@ -366,7 +366,7 @@ var _ = Describe("Handlers", func() {
 			})
 
 			BeforeEach(func() {
-				fakePersistentSecretClient.GetReturns(&v1.Secret{
+				fakeSecretClient.GetReturns(&v1.Secret{
 					Data: map[string][]byte{
 						"username": []byte(username),
 						"password": []byte(password),
@@ -386,8 +386,8 @@ var _ = Describe("Handlers", func() {
 			})
 
 			It("should retrieve the username from the secret named after the instance ID", func(){
-				Expect(fakePersistentSecretClient.GetCallCount()).To(Equal(1))
-				secretName, _ := fakePersistentSecretClient.GetArgsForCall(0)
+				Expect(fakeSecretClient.GetCallCount()).To(Equal(1))
+				secretName, _ := fakeSecretClient.GetArgsForCall(0)
 				Expect(secretName).To(Equal(instanceID))
 			})
 			It("shows share and username but not password", func() {
@@ -409,7 +409,7 @@ var _ = Describe("Handlers", func() {
 			})
 			Context("when no Secret exists", func() {
 				BeforeEach(func() {
-					fakePersistentSecretClient.GetReturns(nil, errors.New("secret not found"))
+					fakeSecretClient.GetReturns(nil, errors.New("secret not found"))
 				})
 
 				It("Should return an FailureError with a 404 status code", func() {
