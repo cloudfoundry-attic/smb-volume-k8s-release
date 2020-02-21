@@ -11,6 +11,8 @@ import (
 	"k8s.io/kubernetes/test/e2e/storage/testpatterns"
 	"k8s.io/kubernetes/test/e2e/storage/testsuites"
 	"k8s.io/kubernetes/test/e2e/storage/utils"
+	local_k8s_cluster "code.cloudfoundry.org/local-k8s-cluster"
+
 )
 
 var CSITestSuites = []func() testsuites.TestSuite{
@@ -33,6 +35,7 @@ type smbVolume struct {
 	serverPod *v1.Pod
 	username  string
 	password  string
+	namespace string
 	framework *framework.Framework
 	config    volume.TestConfig
 }
@@ -46,6 +49,16 @@ func (n noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, 
 
 	share := fmt.Sprintf("//%s/example1", vol.serverIP)
 
+	local_k8s_cluster.Kubectl(
+		"create",
+		"secret",
+		"generic",
+		"secretref",
+		fmt.Sprintf("--from-literal=username=%s", vol.username),
+		fmt.Sprintf("--from-literal=password=%s", vol.password),
+		"-n", vol.namespace,
+		)
+
 	return &v1.PersistentVolumeSource{
 		CSI: &v1.CSIPersistentVolumeSource{
 			Driver:       "org.cloudfoundry.smb",
@@ -55,6 +68,10 @@ func (n noopTestDriver) GetPersistentVolumeSource(readOnly bool, fsType string, 
 				"password": vol.password,
 				"share":    share,
 				"readOnly": "true",
+			},
+			NodePublishSecretRef: &v1.SecretReference{
+				Name: "secretref",
+				Namespace: vol.namespace,
 			},
 		},
 	}, nil
@@ -107,6 +124,7 @@ func (n noopTestDriver) CreateVolume(config *testsuites.PerTestConfig, volType t
 		serverPod: serverPod,
 		username: "example1",
 		password: "badpass",
+		namespace: ns.Name,
 		framework: f,
 		config:    serverConfig,
 	}
