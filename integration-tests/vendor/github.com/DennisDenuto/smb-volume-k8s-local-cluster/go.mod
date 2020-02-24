@@ -1,4 +1,4 @@
-module code.cloudfoundry.org/local-k8s-cluster
+module github.com/DennisDenuto/smb-volume-k8s-local-cluster
 
 go 1.13
 

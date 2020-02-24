@@ -1,7 +1,7 @@
 package integration_tests_test
 
 import (
-	local_k8s_cluster "code.cloudfoundry.org/local-k8s-cluster"
+	local_k8s_cluster "github.com/DennisDenuto/smb-volume-k8s-local-cluster"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
