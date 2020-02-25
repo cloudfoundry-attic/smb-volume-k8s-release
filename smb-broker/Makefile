@@ -20,6 +20,12 @@ image-local-registry:
 	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
 
+push-local-image-source:
+	docker login localhost:5000 && \
+	docker build --no-cache -t cfpersi/smb-broker-source /Users/pivotal/workspace/smb-volume-k8s-release/smb-broker/ && \
+	docker tag cfpersi/smb-broker-source localhost:5000/cfpersi/smb-broker-source:latest && \
+	docker push localhost:5000/cfpersi/smb-broker-source:latest
+
 helm:
 	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
 	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true ./helm
@@ -41,4 +47,4 @@ helm_scf:
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
-.PHONY: test fly image-local-registry helm
+.PHONY: test fly image-local-registry push-local-image-source helm
