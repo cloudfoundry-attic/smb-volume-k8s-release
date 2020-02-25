@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc"
 	"golang.org/x/net/context"
 	"github.com/kubernetes-csi/csi-lib-utils/protosanitizer"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"log"
 	"net"
 	"os"
@@ -50,6 +52,16 @@ func main() {
 	logger.Info(addr)
 	logger.Info("<<<<<")
 
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
 	lis, err := net.Listen(proto, addr)
 
 	if err != nil {
@@ -62,7 +74,7 @@ func main() {
 
 	grpcServer := grpc.NewServer(opts...)
 	csi.RegisterIdentityServer(grpcServer, identityserver.NewSmbIdentityServer())
-	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(logger, &execshim.ExecShim{}, &osshim.OsShim{}))
+	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(logger, &execshim.ExecShim{}, &osshim.OsShim{}, clientset.CoreV1().ConfigMaps("default")))
 
 	err = grpcServer.Serve(lis)
 	if err != nil {

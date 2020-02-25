@@ -5,9 +5,14 @@ import (
 	"code.cloudfoundry.org/goshims/osshim"
 	"code.cloudfoundry.org/lager"
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
+	"k8s.io/client-go/kubernetes/typed/core/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"google.golang.org/grpc/status"
 	"os"
 )
@@ -19,11 +24,12 @@ type smbNodeServer struct {
 	logger lager.Logger
 	execshim execshim.Exec
 	osshim osshim.Os
+	configMapInterface v1.ConfigMapInterface
 }
 
-func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os) csi.NodeServer {
+func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os, configMapInterface v1.ConfigMapInterface) csi.NodeServer {
 	return &smbNodeServer{
-		logger, execshim, osshim,
+		logger, execshim, osshim, configMapInterface,
 	}
 }
 
@@ -40,11 +46,35 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 }
 
 func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
+
+	requestJson, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	hash := sha256.New()
+	_, err = hash.Write(requestJson)
+	if err != nil {
+		panic(err)
+	}
+	shasumOfRequest := fmt.Sprintf("%x", hash.Sum(nil))
+
+	_, err = n.configMapInterface.Create(&corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "org.cloudfoundry.smb-csi-driver",
+		},
+		Data: map[string]string{
+			shasumOfRequest: string(requestJson),
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	if r.VolumeCapability == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
 
-	err := os.MkdirAll(r.TargetPath, os.ModePerm)
+	err = os.MkdirAll(r.TargetPath, os.ModePerm)
 	if err != nil {
 		n.logger.Error("create-targetpath-fail", err)
 	}

@@ -5,12 +5,16 @@ import (
 	"code.cloudfoundry.org/goshims/osshim/os_fake"
 	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/smb-csi-driver/nodeserver"
+	"code.cloudfoundry.org/smb-csi-driver/smb-csi-driverfakes"
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_configmap_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.ConfigMapInterface
@@ -25,6 +29,7 @@ var _ = Describe("NodeServer", func() {
 		fakeOs   *os_fake.FakeOs
 		fakeExec *exec_fake.FakeExec
 		fakeCmd  *exec_fake.FakeCmd
+		fakeConfigMap *smbcsidriverfakes.FakeConfigMapInterface
 	)
 
 	BeforeEach(func() {
@@ -33,9 +38,10 @@ var _ = Describe("NodeServer", func() {
 		fakeExec = &exec_fake.FakeExec{}
 		fakeCmd = &exec_fake.FakeCmd{}
 		fakeExec.CommandReturns(fakeCmd)
+		fakeConfigMap = &smbcsidriverfakes.FakeConfigMapInterface{}
 		ctx = context.Background()
 
-		nodeServer = NewNodeServer(logger, fakeExec, fakeOs)
+		nodeServer = NewNodeServer(logger, fakeExec, fakeOs, fakeConfigMap)
 	})
 
 	Describe("#NodePublishVolume", func() {
@@ -95,6 +101,23 @@ var _ = Describe("NodeServer", func() {
 		})
 
 		Context("given a server, a share, a username and password", func() {
+
+			It("should record its activity in a configmap", func() {
+				Expect(fakeConfigMap.CreateCallCount()).To(Equal(1))
+				configMap := fakeConfigMap.CreateArgsForCall(0)
+
+				requestJson, err := json.Marshal(request)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(configMap).To(Equal(&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "org.cloudfoundry.smb-csi-driver",
+					},
+					Data: map[string]string{
+						"275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d": string(requestJson),
+					},
+				}))
+			})
 
 			It("should perform a mount", func() {
 				Expect(err).NotTo(HaveOccurred())
