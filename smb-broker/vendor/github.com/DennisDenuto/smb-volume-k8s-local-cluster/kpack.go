@@ -15,16 +15,12 @@ func CreateKpackImageResource() error {
 	}
 
 	buffer := gbytes.NewBuffer()
-	//err = parse.Execute(buffer, struct {
-	//	RegistryPrefix string
-	//	Username       string
-	//	Password       string
-	//}{"registry:5000", "silly", "silly"})
 	err = parse.Execute(buffer, struct {
 		RegistryPrefix string
 		Username       string
 		Password       string
-	}{"https://index.docker.io/v1/", "", ""})
+	}{"172.17.0.2:5000", "silly", "silly"})
+
 	if err != nil {
 		return err
 	}
@@ -41,7 +37,7 @@ func CreateKpackImageResource() error {
 	buffer = gbytes.NewBuffer()
 	err = parse.Execute(buffer, struct {
 		DockerImageName string
-	}{"cfpersi/smb-broker"})
+	}{"172.17.0.2:5000/cfpersi/smb-broker"})
 	if err != nil {
 		return err
 	}
@@ -499,6 +495,6 @@ spec:
   source:
     git:
       url: https://github.com/cloudfoundry/smb-volume-k8s-release
-      revision: master
+      revision: wip-170108403
     subPath: "smb-broker"
 `

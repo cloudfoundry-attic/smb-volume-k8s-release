@@ -4,7 +4,6 @@ import (
 	local_k8s_cluster "github.com/DennisDenuto/smb-volume-k8s-local-cluster"
 	"io"
 	"io/ioutil"
-	"os"
 	"testing"
 	"time"
 
@@ -29,21 +28,24 @@ var _ = BeforeSuite(func() {
 	kubeConfigPath = "/tmp/kubeconfig"
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
+	err := local_k8s_cluster.CreateKpackImageResource()
+	Expect(err).NotTo(HaveOccurred())
 
-	templateHelmOutput := local_k8s_cluster.HelmStdout("template", "smb-broker", "./helm", "--set", "image_repo_url=localhost:5000", "--set", "ingress.enabled=true", "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "image.repository=cfpersi/smb-broker", "--set", "image.tag=local-test")
-	f, err := ioutil.TempFile(os.TempDir(), "helm")
-	Expect(err).NotTo(HaveOccurred())
-	_, err = f.WriteString(templateHelmOutput)
-	Expect(err).NotTo(HaveOccurred())
-	Expect(f.Close()).To(Succeed())
-
-	kbldOutput := local_k8s_cluster.KbldStdout("-f", f.Name())
-	f2, err := ioutil.TempFile(os.TempDir(), "kbld")
-	Expect(err).NotTo(HaveOccurred())
-	_, err = f2.WriteString(kbldOutput)
-	Expect(err).NotTo(HaveOccurred())
-	Expect(f2.Close()).To(Succeed())
-	local_k8s_cluster.Kubectl("apply", "-f", f2.Name())
+	println(local_k8s_cluster.HelmStdout("install",
+		"smb-broker",
+		"./helm",
+		"--set",
+		"ingress.enabled=true",
+		"--set",
+		"targetNamespace="+namespace,
+		"--set",
+		"ingress.hosts[0].host=localhost",
+		"--set",
+		"ingress.hosts[0].paths={/v2}",
+		"--set",
+		"image.repository=registry:5000/cfpersi/smb-broker",
+		"--set",
+		"image.tag=latest"))
 
 	local_k8s_cluster.Kubectl("create", "namespace", namespace)
 })

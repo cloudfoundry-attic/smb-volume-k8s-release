@@ -2,7 +2,7 @@
 code.cloudfoundry.org/lager
 # github.com/BurntSushi/toml v0.3.1
 github.com/BurntSushi/toml
-# github.com/DennisDenuto/smb-volume-k8s-local-cluster v0.0.0-20200224175525-25d42c5b3b27
+# github.com/DennisDenuto/smb-volume-k8s-local-cluster v0.0.0-20200224201122-ce0f287015cb
 github.com/DennisDenuto/smb-volume-k8s-local-cluster
 # github.com/alessio/shellescape v0.0.0-20190409004728-b115ca0f9053
 github.com/alessio/shellescape

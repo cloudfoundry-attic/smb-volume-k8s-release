@@ -8,9 +8,7 @@ install:
 
 test:
 	@$(MAKE) -f $(THIS_FILE) image-local-registry
-	ulimit -n 10000
-	GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo
-	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
+	ulimit -n 10000 && ulimit -a && GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo && GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
 	go fmt ./...
@@ -19,7 +17,7 @@ running	:=	"$(shell docker inspect -f '{{.State.Running}}' "kind-registry" 2>/de
 image-local-registry: SHELL:=/bin/bash
 image-local-registry:
 	[ $(running) != "true" ] && docker run \
-	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" -e "REGISTRY_AUTH_SILLY_REALM=http://registry:5000/v2/"   -e "REGISTRY_AUTH=silly" -e "REGISTRY_AUTH_SILLY_SERVICE=registry:5000" --name "kind-registry" \
+	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
 
 helm:
