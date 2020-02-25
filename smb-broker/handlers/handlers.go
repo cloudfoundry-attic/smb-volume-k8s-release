@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi"
+	"github.com/pivotal-cf/brokerapi/auth"
 	"github.com/pivotal-cf/brokerapi/domain"
 	"github.com/pivotal-cf/brokerapi/domain/apiresponses"
 	"github.com/pkg/errors"
@@ -27,6 +28,8 @@ const PlanID = "plan-id"
 
 func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface) (http.Handler, error) {
 	router := mux.NewRouter()
+	router.Use(auth.NewWrapper("foo", "bar").Wrap)
+
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
@@ -143,9 +146,9 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
 			PersistentVolumeSource: v1.PersistentVolumeSource{
 				CSI: &v1.CSIPersistentVolumeSource{
-					Driver:               "org.cloudfoundry.smb",
-					VolumeHandle:         "volume-handle",
-					VolumeAttributes:     va,
+					Driver:           "org.cloudfoundry.smb",
+					VolumeHandle:     "volume-handle",
+					VolumeAttributes: va,
 					NodePublishSecretRef: &v1.SecretReference{
 						Name:      instanceID,
 						Namespace: s.Namespace,

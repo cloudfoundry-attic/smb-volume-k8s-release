@@ -27,7 +27,7 @@ var _ = Describe("Main", func() {
 			var resp *http.Response
 
 			Eventually(func() string {
-				resp, _ = http.DefaultClient.Get("http://localhost/v2/catalog")
+				resp, _ = http.DefaultClient.Get("http://foo:bar@localhost/v2/catalog")
 				if resp == nil {
 					return ""
 				}
@@ -51,7 +51,7 @@ var _ = Describe("Main", func() {
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -74,7 +74,7 @@ var _ = Describe("Main", func() {
 	Describe("#Deprovision", func() {
 		BeforeEach(func() {
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ := http.DefaultClient.Do(request)
@@ -94,7 +94,7 @@ var _ = Describe("Main", func() {
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
 
 			Eventually(func() string {
-				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", instanceID), nil)
+				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", instanceID), nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -135,7 +135,7 @@ var _ = Describe("Main", func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -148,7 +148,7 @@ var _ = Describe("Main", func() {
 
 		It("returns 200", func() {
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
 					strings.NewReader(`{"service_id": "123", "plan_id": "plan_id", "bind_resource": {"app_guid": "123"}}`))
 
 				Expect(err).NotTo(HaveOccurred())
@@ -178,7 +178,7 @@ var _ = Describe("Main", func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -189,7 +189,7 @@ var _ = Describe("Main", func() {
 			}).Should(Equal("201 Created"))
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
 					strings.NewReader(`{"service_id": "123", "plan_id": "plan_id", "bind_resource": {"app_guid": "123"}}`))
 
 				Expect(err).NotTo(HaveOccurred())
@@ -203,7 +203,7 @@ var _ = Describe("Main", func() {
 
 		It("returns 200", func() {
 			Eventually(func() string {
-				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan_id", instanceID, bindingID), nil)
+				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan_id", instanceID, bindingID), nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -228,7 +228,7 @@ var _ = Describe("Main", func() {
 			BeforeEach(func() {
 				By("provisioning a service", func() {
 					Eventually(func() string {
-						request, err := http.NewRequest("PUT", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share_value", "username": "username_value", "password": "password_value"} }`))
+						request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share_value", "username": "username_value", "password": "password_value"} }`))
 						Expect(err).NotTo(HaveOccurred())
 
 						resp, _ = http.DefaultClient.Do(request)
@@ -242,7 +242,7 @@ var _ = Describe("Main", func() {
 
 			It("returns 200", func() {
 				Eventually(func() string {
-					request, err := http.NewRequest("GET", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), nil)
+					request, err := http.NewRequest("GET", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), nil)
 					Expect(err).NotTo(HaveOccurred())
 
 					request.Header = map[string][]string{
@@ -265,7 +265,7 @@ var _ = Describe("Main", func() {
 		Context("when attempting to retreive a service instance that hasn't been provisioned", func() {
 			It("returns 404", func() {
 				Eventually(func() string {
-					request, err := http.NewRequest("GET", fmt.Sprintf("http://localhost/v2/service_instances/%s", instanceID), nil)
+					request, err := http.NewRequest("GET", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), nil)
 					Expect(err).NotTo(HaveOccurred())
 					request.Header = map[string][]string{
 						"X-Broker-API-Version": {"2.14"},

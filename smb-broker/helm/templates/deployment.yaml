@@ -124,10 +124,16 @@ spec:
             httpGet:
               path: /v2/catalog
               port: http
+              httpHeaders:
+              - name: Authorization
+                value: Basic Zm9vOmJhcg==
           readinessProbe:
             httpGet:
               path: /v2/catalog
               port: http
+              httpHeaders:
+              - name: Authorization
+                value: Basic Zm9vOmJhcg==
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

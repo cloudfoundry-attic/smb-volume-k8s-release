@@ -46,6 +46,7 @@ var _ = Describe("Handlers", func() {
 	Describe("Endpoints", func() {
 		var source = rand.NewSource(GinkgoRandomSeed())
 		JustBeforeEach(func() {
+			request.SetBasicAuth("foo", "bar")
 			brokerHandler.ServeHTTP(recorder, request)
 		})
 
@@ -94,7 +95,7 @@ var _ = Describe("Handlers", func() {
 									VolumeHandle:     "volume-handle",
 									VolumeAttributes: map[string]string{},
 									NodePublishSecretRef: &v1.SecretReference{
-										Name: serviceInstanceKey,
+										Name:      serviceInstanceKey,
 										Namespace: "eirini",
 									},
 								},
@@ -198,7 +199,6 @@ var _ = Describe("Handlers", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-
 				It("should store the username and password in a secret", func() {
 					Expect(fakeSecretClient.CreateCallCount()).To(Equal(1))
 					Expect(fakeSecretClient.CreateArgsForCall(0)).To(Equal(
@@ -211,7 +211,7 @@ var _ = Describe("Handlers", func() {
 					))
 				})
 
-				It("should store a reference to the secret in the PV", func(){
+				It("should store a reference to the secret in the PV", func() {
 					Expect(fakePersitentVolumeClient.CreateCallCount()).To(Equal(1))
 					Expect(fakePersitentVolumeClient.CreateArgsForCall(0)).To(Equal(
 						&v1.PersistentVolume{
@@ -227,7 +227,7 @@ var _ = Describe("Handlers", func() {
 										VolumeHandle:     "volume-handle",
 										VolumeAttributes: map[string]string{},
 										NodePublishSecretRef: &v1.SecretReference{
-											Name: serviceInstanceKey,
+											Name:      serviceInstanceKey,
 											Namespace: "eirini",
 										},
 									},
@@ -409,7 +409,7 @@ var _ = Describe("Handlers", func() {
 
 			})
 
-			It("should retrieve the username from the secret named after the instance ID", func(){
+			It("should retrieve the username from the secret named after the instance ID", func() {
 				Expect(fakeSecretClient.GetCallCount()).To(Equal(1))
 				secretName, _ := fakeSecretClient.GetArgsForCall(0)
 				Expect(secretName).To(Equal(instanceID))
