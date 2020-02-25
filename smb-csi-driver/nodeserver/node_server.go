@@ -9,7 +9,6 @@ import (
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
 	"os"
 )
 
@@ -47,25 +46,20 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 
 	err := os.MkdirAll(r.TargetPath, os.ModePerm)
 	if err != nil {
-		println(err.Error())
+		n.logger.Error("create-targetpath-fail", err)
 	}
+
 	share := r.GetVolumeContext()["share"]
 	username := r.GetSecrets()["username"]
 	password := r.GetSecrets()["password"]
 
-	log.Printf("local target path: %s", r.TargetPath)
-
 	mountOptions := fmt.Sprintf("%s,username=%s,password=%s", defaultMountOptions, username, password)
 
-	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
-	err = cmdshim.Start()
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
 	n.logger.Info("started mount", lager.Data{"share": share})
-
-	err = cmdshim.Wait()
+	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
+	combinedOutput, err := cmdshim.CombinedOutput()
 	if err != nil {
+		n.logger.Error("mount-failed", err, lager.Data{"combinedOutput": string(combinedOutput)})
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	n.logger.Info("finished mount", lager.Data{"share": share})

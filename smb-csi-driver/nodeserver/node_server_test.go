@@ -10,6 +10,7 @@ import (
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gbytes"
 )
 
 var _ = Describe("NodeServer", func() {
@@ -99,32 +100,23 @@ var _ = Describe("NodeServer", func() {
 				command, args := fakeExec.CommandArgsForCall(0)
 				Expect(command).To(Equal("mount"))
 				Expect(args).To(ContainElements("-t", "cifs", "-o", "uid=2000,gid=2000,username=user1,password=pass1", "//server/export", request.TargetPath))
-				Expect(fakeCmd.StartCallCount()).To(Equal(1))
-				Expect(fakeCmd.WaitCallCount()).To(Equal(1))
 			})
 		})
 
 		Context("when the command fails to start", func() {
 
 			BeforeEach(func() {
-				fakeCmd.StartReturns(errors.New("start-failed"))
+				fakeCmd.CombinedOutputReturns([]byte("some-stdout"), errors.New("cmd-failed"))
 			})
 
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = start-failed"))
-			})
-		})
-
-		Context("when the command fails to wait", func() {
-
-			BeforeEach(func() {
-				fakeCmd.WaitReturns(errors.New("wait-failed"))
+				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = cmd-failed"))
 			})
 
-			It("should return an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = wait-failed"))
+			It("should write the error, stdout and stderr to the logs", func() {
+				Eventually(logger.Buffer()).Should(Say("some-stdout"))
+				Eventually(logger.Buffer()).Should(Say("cmd-failed"))
 			})
 		})
 	})
