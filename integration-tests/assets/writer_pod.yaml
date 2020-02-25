@@ -4,7 +4,7 @@ metadata:
   labels:
     run: dev
   name: dev
-  namespace: eirini
+  namespace: cf-workloads
 spec:
   containers:
     - command:

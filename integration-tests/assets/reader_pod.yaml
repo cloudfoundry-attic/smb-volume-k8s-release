@@ -4,7 +4,7 @@ metadata:
   labels:
     run: integration-test-reader
   name: integration-test-reader
-  namespace: eirini
+  namespace: cf-workloads
 spec:
   containers:
     - command:

@@ -88,17 +88,17 @@ var _ = Describe("Integration", func() {
 		Expect(local_k8s_cluster.Kubectl("apply", "-f", "./assets/reader_pod.yaml")).To(ContainSubstring("created"))
 
 		Eventually(func() string {
-			return local_k8s_cluster.Kubectl("get", "events", "-n", "eirini")
+			return local_k8s_cluster.Kubectl("get", "events", "-n", "cf-workloads")
 		}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring("Started container integration-test-reader"))
 
 		mountCommand := fmt.Sprintf("mkdir /instance1 && mount -t cifs -o username=%s,password=%s //%s/%s /instance1", username, password, podIP, share)
-		local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", mountCommand)
+		local_k8s_cluster.Kubectl("exec", "-n", "cf-workloads", "-i", "integration-test-reader", "--", "bash", "-c", mountCommand)
 	})
 
 	It("mounts the share to the pod", func() {
 		By("the file contents written by a pod with a pvc (created by the broker) should be written to the smb share", func(){
 			Eventually(func() string {
-				return local_k8s_cluster.Kubectl("exec", "-n", "eirini", "-i", "integration-test-reader", "--", "bash", "-c", "cat /instance1/foo || true")
+				return local_k8s_cluster.Kubectl("exec", "-n", "cf-workloads", "-i", "integration-test-reader", "--", "bash", "-c", "cat /instance1/foo || true")
 			}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring(expectedFileContents))
 		})
 
