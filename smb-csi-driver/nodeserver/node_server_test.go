@@ -13,6 +13,8 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_configmap_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.ConfigMapInterface
+
 var _ = Describe("NodeServer", func() {
 
 	var (
