@@ -31,7 +31,7 @@ image-dev:
 	docker push cfpersi/smb-broker:dev
 
 helm:
-	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
+	helm version | grep 'v3.' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
 	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true ./helm
 
 helm-dev:
