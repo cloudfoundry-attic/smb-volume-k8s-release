@@ -28,8 +28,7 @@ func CreateKpackImageResource() error {
 	println(KubectlApplyString("apply", "-f")(string(buffer.Contents())))
 	println(KubectlApplyString("apply", "-f")(serviceAccountRegistrySecretYaml))
 
-
-	parse, err = template.New("image_yaml").Parse(smbbrokerGithubImageConfiguration)
+	parse, err = template.New("image_yaml").Parse(smbbrokerImageConfiguration)
 	if err != nil {
 		return err
 	}
@@ -37,7 +36,8 @@ func CreateKpackImageResource() error {
 	buffer = gbytes.NewBuffer()
 	err = parse.Execute(buffer, struct {
 		DockerImageName string
-	}{"172.17.0.2:5000/cfpersi/smb-broker"})
+		DockerImageSourceName string
+	}{"172.17.0.2:5000/cfpersi/smb-broker", "172.17.0.2:5000/cfpersi/smb-broker-source"})
 	if err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ metadata:
 secrets:
  - name: smb-broker-github-credentials`
 
-var smbbrokerGithubImageConfiguration = `apiVersion: build.pivotal.io/v1alpha1
+var smbbrokerImageConfiguration = `apiVersion: build.pivotal.io/v1alpha1
 kind: Image
 metadata:
   name: smb-broker-kpack-image
@@ -493,8 +493,7 @@ spec:
     name: default
     kind: ClusterBuilder
   source:
-    git:
-      url: https://github.com/cloudfoundry/smb-volume-k8s-release
-      revision: wip-170108403
+    registry:
+      image: {{.DockerImageSourceName}}
     subPath: "smb-broker"
 `
