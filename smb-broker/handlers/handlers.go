@@ -26,9 +26,9 @@ const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface) (http.Handler, error) {
+func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface, username string, password string) (http.Handler, error) {
 	router := mux.NewRouter()
-	router.Use(auth.NewWrapper("foo", "bar").Wrap)
+	router.Use(auth.NewWrapper(username, password).Wrap)
 
 	logger := lager.NewLogger("smb-broker")
 	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))

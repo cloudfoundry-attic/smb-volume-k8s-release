@@ -12,6 +12,8 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+smbBrokerUsername: ""
+smbBrokerPassword: ""
 targetNamespace: "cf-workloads"
 
 service:

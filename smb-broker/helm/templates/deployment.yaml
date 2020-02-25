@@ -116,6 +116,10 @@ spec:
           env:
             - name: TARGET_NAMESPACE
               value: {{ .Values.targetNamespace }}
+            - name: BROKER_USERNAME
+              value: {{ .Values.smbBrokerUsername }}
+            - name: BROKER_PASSWORD
+              value: {{ .Values.smbBrokerPassword }}
           ports:
             - name: http
               containerPort: 8080
@@ -126,14 +130,14 @@ spec:
               port: http
               httpHeaders:
               - name: Authorization
-                value: Basic Zm9vOmJhcg==
+                value: Basic {{printf "%s:%s" .Values.smbBrokerUsername .Values.smbBrokerPassword | b64enc}}
           readinessProbe:
             httpGet:
               path: /v2/catalog
               port: http
               httpHeaders:
               - name: Authorization
-                value: Basic Zm9vOmJhcg==
+                value: Basic {{printf "%s:%s" .Values.smbBrokerUsername .Values.smbBrokerPassword | b64enc}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

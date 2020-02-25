@@ -40,7 +40,7 @@ var _ = Describe("Handlers", func() {
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakeSecretClient)
+		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakeSecretClient, "foo", "bar")
 	})
 
 	Describe("Endpoints", func() {
