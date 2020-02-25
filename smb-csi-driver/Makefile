@@ -46,6 +46,7 @@ fly-e2e:
 	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/e2e-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release
 
 kustomize:
+	@$(MAKE) -f $(THIS_FILE) kustomize-delete || true
 	kubectl apply --kustomize ./overlays/deploy
 
 kustomize-delete:
