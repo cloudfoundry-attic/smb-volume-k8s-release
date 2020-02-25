@@ -357,7 +357,7 @@ var _ = Describe("Handlers", func() {
 
 		Describe("#GetInstance endpoint", func() {
 			var (
-				err                                                                 error
+				err                                                      error
 				instanceID, share, username, password, serviceID, planID string
 			)
 
@@ -457,7 +457,7 @@ var _ = Describe("Handlers", func() {
 					strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"} }`))
 			})
 
-			It("fetches the PV from k8s", func(){
+			It("fetches the PV from k8s", func() {
 				Expect(fakePersitentVolumeClient.GetCallCount()).To(Equal(1))
 				instanceIDArg, optionsArg := fakePersitentVolumeClient.GetArgsForCall(0)
 				Expect(instanceIDArg).To(Equal(instanceID))

@@ -30,7 +30,7 @@ var _ = BeforeSuite(func() {
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
 
 	local_k8s_cluster.Kubectl("create", "namespace", namespace)
-	local_k8s_cluster.Helm("install", "smb-broker", "./helm", "--set", "targetNamespace=" + namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
+	local_k8s_cluster.Helm("install", "smb-broker", "./helm", "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
 })
 
 var _ = AfterSuite(func() {
