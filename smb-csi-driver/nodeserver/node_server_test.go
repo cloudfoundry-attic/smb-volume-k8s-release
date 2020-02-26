@@ -7,7 +7,6 @@ import (
 	. "code.cloudfoundry.org/smb-csi-driver/nodeserver"
 	smbcsidriverfakes "code.cloudfoundry.org/smb-csi-driver/smb-csi-driverfakes"
 	"context"
-	"encoding/json"
 	"errors"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	. "github.com/onsi/ginkgo"
@@ -15,11 +14,10 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 )
 
-
 var _ = Describe("NodeServer", func() {
 
 	var (
-		logger 		*lagertest.TestLogger
+		logger     *lagertest.TestLogger
 		nodeServer csi.NodeServer
 		ctx        context.Context
 
@@ -44,8 +42,9 @@ var _ = Describe("NodeServer", func() {
 	Describe("#NodePublishVolume", func() {
 
 		var (
-			request *csi.NodePublishVolumeRequest
-			err     error
+			request                   *csi.NodePublishVolumeRequest
+			err                       error
+			nodePublishVolumeResponse *csi.NodePublishVolumeResponse
 		)
 
 		BeforeEach(func() {
@@ -53,7 +52,7 @@ var _ = Describe("NodeServer", func() {
 				VolumeCapability: &csi.VolumeCapability{},
 				TargetPath:       "/tmp/target_path",
 				VolumeContext: map[string]string{
-					"share":    "//server/export",
+					"share": "//server/export",
 				},
 				Secrets: map[string]string{
 					"username": "user1",
@@ -63,7 +62,7 @@ var _ = Describe("NodeServer", func() {
 		})
 
 		JustBeforeEach(func() {
-			_, err = nodeServer.NodePublishVolume(ctx, request)
+			nodePublishVolumeResponse, err = nodeServer.NodePublishVolume(ctx, request)
 		})
 
 		Context("when VolumeCapability is not supplied", func() {
@@ -103,17 +102,31 @@ var _ = Describe("NodeServer", func() {
 				Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
 				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
 
-				requestJson, err := json.Marshal(request)
-				Expect(err).NotTo(HaveOccurred())
-
-				Expect(k).To(Equal("275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d"))
-				Expect(v).To(Equal(string(requestJson)))
+				Expect(k).To(Equal("/tmp/target_path"))
+				Expect(v).To(BeNil())
 			})
 
-			It("should cleanup the audit trail", func() {
-				Expect(fakeCSIDriverStore.DeleteCallCount()).To(Equal(1))
-				name := fakeCSIDriverStore.DeleteArgsForCall(0)
-				Expect(name).To(Equal("275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d"))
+			Context("when a second identical request is made", func() {
+				BeforeEach(func() {
+					fakeCSIDriverStore.GetReturns(nil, true)
+				})
+
+				It("return the response of the previous request", func() {
+					Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(0))
+					Expect(nodePublishVolumeResponse).To(Equal(&csi.NodePublishVolumeResponse{}))
+				})
+			})
+
+			Context("when a second identical request is made after an error", func() {
+				BeforeEach(func() {
+					fakeCSIDriverStore.GetReturns(errors.New("I <3 you."), true)
+				})
+
+				It("return the response of the previous request", func() {
+					Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(0))
+					Expect(nodePublishVolumeResponse).To(BeNil())
+					Expect(err).To(HaveOccurred())
+				})
 			})
 
 			It("should perform a mount", func() {

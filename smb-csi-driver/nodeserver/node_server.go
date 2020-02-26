@@ -5,8 +5,6 @@ import (
 	"code.cloudfoundry.org/goshims/osshim"
 	"code.cloudfoundry.org/lager"
 	"context"
-	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
@@ -19,19 +17,25 @@ var defaultMountOptions = "uid=2000,gid=2000"
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_csi_driver_store.go . CSIDriverStore
 type CSIDriverStore interface {
-	Create(string, string)
+	Create(string, error)
 	Delete(string)
+	Get(string) (error, bool)
 }
 
 func NewStore() CSIDriverStore {
-	return CheckParallelCSIDriverRequests{store: map[string]string{}}
+	return CheckParallelCSIDriverRequests{store: map[string]error{}}
 }
 
 type CheckParallelCSIDriverRequests struct {
-	store map[string]string
+	store map[string]error
 }
 
-func (c CheckParallelCSIDriverRequests) Create(k string, v string) {
+func (c CheckParallelCSIDriverRequests) Get(k string) (error, bool) {
+	val, ok := c.store[k]
+	return val, ok
+}
+
+func (c CheckParallelCSIDriverRequests) Create(k string, v error) {
 	c.store[k] = v
 }
 
@@ -65,15 +69,18 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 }
 
 func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
-	requestJson, shasumOfRequest, err := generateUniqueRequestID(r)
-	if err != nil {
-		panic(err)
+	var err error
+
+	res, found := n.csiDriverStore.Get(r.TargetPath)
+	if found {
+		if res == nil {
+			return &csi.NodePublishVolumeResponse{}, nil
+		}
+		return nil, res
 	}
 
-	n.csiDriverStore.Create(shasumOfRequest, requestJson)
-
 	defer func() {
-		n.csiDriverStore.Delete(shasumOfRequest)
+		n.csiDriverStore.Create(r.TargetPath, err)
 	}()
 
 	if r.VolumeCapability == nil {
@@ -151,18 +158,4 @@ func (s smbNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*c
 	return &csi.NodeGetInfoResponse{
 		NodeId: nodeId,
 	}, nil
-}
-
-func generateUniqueRequestID(r *csi.NodePublishVolumeRequest) (string, string, error) {
-	requestJson, err := json.Marshal(r)
-	if err != nil {
-		return "", "", err
-	}
-	hash := sha256.New()
-	_, err = hash.Write(requestJson)
-	if err != nil {
-		return "", "", err
-	}
-	shasumOfRequest := fmt.Sprintf("%x", hash.Sum(nil))
-	return string(requestJson), shasumOfRequest, err
 }
