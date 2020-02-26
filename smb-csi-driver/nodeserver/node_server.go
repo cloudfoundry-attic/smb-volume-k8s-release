@@ -63,9 +63,9 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	}
 
 	defer func() {
-		err = n.configMapInterface.Delete(CONFIGMAP_NAME, nil)
+		err = n.configMapInterface.Delete(CONFIGMAP_NAME, &metav1.DeleteOptions{})
 		if err != nil {
-			panic(err)
+			panic(err.Error())
 		}
 	}()
 
