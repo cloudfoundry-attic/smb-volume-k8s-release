@@ -1,4 +1,3 @@
-FROM ubuntu
-RUN mkdir /smb-broker
+FROM scratch
 ADD . /smb-broker
 WORKDIR /smb-broker
