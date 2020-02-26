@@ -22,7 +22,7 @@ image-local-registry:
 	    registry:2 || true
 
 push-local-image-source:
-	docker build --no-cache -f ./test/Dockerfile -t cfpersi/smb-broker-source /Users/pivotal/workspace/smb-volume-k8s-release/smb-broker/ && \
+	docker build --no-cache -f ./test/Dockerfile -t cfpersi/smb-broker-source . && \
 	docker tag cfpersi/smb-broker-source localhost:5000/cfpersi/smb-broker-source:latest && \
 	docker push localhost:5000/cfpersi/smb-broker-source:latest
 
