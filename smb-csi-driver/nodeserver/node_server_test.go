@@ -5,7 +5,7 @@ import (
 	"code.cloudfoundry.org/goshims/osshim/os_fake"
 	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/smb-csi-driver/nodeserver"
-	"code.cloudfoundry.org/smb-csi-driver/smb-csi-driverfakes"
+	smbcsidriverfakes "code.cloudfoundry.org/smb-csi-driver/smb-csi-driverfakes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,11 +13,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_configmap_interface.go  k8s.io/client-go/kubernetes/typed/core/v1.ConfigMapInterface
 
 var _ = Describe("NodeServer", func() {
 
@@ -26,10 +23,10 @@ var _ = Describe("NodeServer", func() {
 		nodeServer csi.NodeServer
 		ctx        context.Context
 
-		fakeOs   *os_fake.FakeOs
-		fakeExec *exec_fake.FakeExec
-		fakeCmd  *exec_fake.FakeCmd
-		fakeConfigMap *smbcsidriverfakes.FakeConfigMapInterface
+		fakeOs             *os_fake.FakeOs
+		fakeExec           *exec_fake.FakeExec
+		fakeCmd            *exec_fake.FakeCmd
+		fakeCSIDriverStore *smbcsidriverfakes.FakeCSIDriverStore
 	)
 
 	BeforeEach(func() {
@@ -38,10 +35,10 @@ var _ = Describe("NodeServer", func() {
 		fakeExec = &exec_fake.FakeExec{}
 		fakeCmd = &exec_fake.FakeCmd{}
 		fakeExec.CommandReturns(fakeCmd)
-		fakeConfigMap = &smbcsidriverfakes.FakeConfigMapInterface{}
+		fakeCSIDriverStore = &smbcsidriverfakes.FakeCSIDriverStore{}
 		ctx = context.Background()
 
-		nodeServer = NewNodeServer(logger, fakeExec, fakeOs, fakeConfigMap)
+		nodeServer = NewNodeServer(logger, fakeExec, fakeOs, fakeCSIDriverStore)
 	})
 
 	Describe("#NodePublishVolume", func() {
@@ -103,26 +100,20 @@ var _ = Describe("NodeServer", func() {
 		Context("given a server, a share, a username and password", func() {
 
 			It("should audit the operation in a configmap", func() {
-				Expect(fakeConfigMap.CreateCallCount()).To(Equal(1))
-				configMap := fakeConfigMap.CreateArgsForCall(0)
+				Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
+				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
 
 				requestJson, err := json.Marshal(request)
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(configMap).To(Equal(&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "org.cloudfoundry.smb-csi-driver",
-					},
-					Data: map[string]string{
-						"275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d": string(requestJson),
-					},
-				}))
+				Expect(k).To(Equal("275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d"))
+				Expect(v).To(Equal(string(requestJson)))
 			})
 
 			It("should cleanup the audit trail", func() {
-				Expect(fakeConfigMap.DeleteCallCount()).To(Equal(1))
-				name, _ := fakeConfigMap.DeleteArgsForCall(0)
-				Expect(name).To(Equal("org.cloudfoundry.smb-csi-driver"))
+				Expect(fakeCSIDriverStore.DeleteCallCount()).To(Equal(1))
+				name := fakeCSIDriverStore.DeleteArgsForCall(0)
+				Expect(name).To(Equal("275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d"))
 			})
 
 			It("should perform a mount", func() {

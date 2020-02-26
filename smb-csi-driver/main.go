@@ -3,17 +3,15 @@ package main
 import (
 	"code.cloudfoundry.org/goshims/execshim"
 	"code.cloudfoundry.org/goshims/osshim"
+	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/smb-csi-driver/identityserver"
 	"code.cloudfoundry.org/smb-csi-driver/nodeserver"
-	"code.cloudfoundry.org/lager"
 	"flag"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
-	"google.golang.org/grpc"
-	"golang.org/x/net/context"
 	"github.com/kubernetes-csi/csi-lib-utils/protosanitizer"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
@@ -52,16 +50,6 @@ func main() {
 	logger.Info(addr)
 	logger.Info("<<<<<")
 
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		panic(err.Error())
-	}
-
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-
 	lis, err := net.Listen(proto, addr)
 
 	if err != nil {
@@ -74,7 +62,7 @@ func main() {
 
 	grpcServer := grpc.NewServer(opts...)
 	csi.RegisterIdentityServer(grpcServer, identityserver.NewSmbIdentityServer())
-	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(logger, &execshim.ExecShim{}, &osshim.OsShim{}, clientset.CoreV1().ConfigMaps("default")))
+	csi.RegisterNodeServer(grpcServer, nodeserver.NewNodeServer(logger, &execshim.ExecShim{}, &osshim.OsShim{}, nodeserver.CheckParallelCSIDriverRequests{}))
 
 	err = grpcServer.Serve(lis)
 	if err != nil {

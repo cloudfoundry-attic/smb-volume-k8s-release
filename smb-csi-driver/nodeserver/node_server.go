@@ -10,26 +10,37 @@ import (
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
-	"k8s.io/client-go/kubernetes/typed/core/v1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"google.golang.org/grpc/status"
 	"os"
 )
 
-const CONFIGMAP_NAME = "org.cloudfoundry.smb-csi-driver"
-
 var errorFmt = "Error: a required property [%s] was not provided"
 var defaultMountOptions = "uid=2000,gid=2000"
 
-type smbNodeServer struct {
-	logger lager.Logger
-	execshim execshim.Exec
-	osshim osshim.Os
-	configMapInterface v1.ConfigMapInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_csi_driver_store.go . CSIDriverStore
+type CSIDriverStore interface {
+	Create(string, string)
+	Delete(string)
 }
 
-func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os, configMapInterface v1.ConfigMapInterface) csi.NodeServer {
+type CheckParallelCSIDriverRequests struct {
+
+}
+
+func (c CheckParallelCSIDriverRequests) Create(string, string) {
+}
+
+func (c CheckParallelCSIDriverRequests) Delete(string) {
+}
+
+type smbNodeServer struct {
+	logger             lager.Logger
+	execshim           execshim.Exec
+	osshim             osshim.Os
+	configMapInterface CSIDriverStore
+}
+
+func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os, configMapInterface CSIDriverStore) csi.NodeServer {
 	return &smbNodeServer{
 		logger, execshim, osshim, configMapInterface,
 	}
@@ -49,24 +60,14 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 
 func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
 	requestJson, shasumOfRequest, err := generateUniqueRequestID(r)
-
-	_, err = n.configMapInterface.Create(&corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: CONFIGMAP_NAME,
-		},
-		Data: map[string]string{
-			shasumOfRequest: requestJson,
-		},
-	})
 	if err != nil {
 		panic(err)
 	}
 
+	n.configMapInterface.Create(shasumOfRequest, requestJson)
+
 	defer func() {
-		err = n.configMapInterface.Delete(CONFIGMAP_NAME, &metav1.DeleteOptions{})
-		if err != nil {
-			panic(err.Error())
-		}
+		n.configMapInterface.Delete(shasumOfRequest)
 	}()
 
 	if r.VolumeCapability == nil {
