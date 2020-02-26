@@ -23,14 +23,20 @@ type CSIDriverStore interface {
 	Delete(string)
 }
 
+func NewStore() CSIDriverStore {
+	return CheckParallelCSIDriverRequests{store: map[string]string{}}
+}
+
 type CheckParallelCSIDriverRequests struct {
-
+	store map[string]string
 }
 
-func (c CheckParallelCSIDriverRequests) Create(string, string) {
+func (c CheckParallelCSIDriverRequests) Create(k string, v string) {
+	c.store[k] = v
 }
 
-func (c CheckParallelCSIDriverRequests) Delete(string) {
+func (c CheckParallelCSIDriverRequests) Delete(k string) {
+	delete(c.store, k)
 }
 
 type smbNodeServer struct {
