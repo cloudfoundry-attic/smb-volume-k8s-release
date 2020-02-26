@@ -17,6 +17,8 @@ import (
 	"os"
 )
 
+const CONFIGMAP_NAME = "org.cloudfoundry.smb-csi-driver"
+
 var errorFmt = "Error: a required property [%s] was not provided"
 var defaultMountOptions = "uid=2000,gid=2000"
 
@@ -46,29 +48,26 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 }
 
 func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
-
-	requestJson, err := json.Marshal(r)
-	if err != nil {
-		panic(err)
-	}
-	hash := sha256.New()
-	_, err = hash.Write(requestJson)
-	if err != nil {
-		panic(err)
-	}
-	shasumOfRequest := fmt.Sprintf("%x", hash.Sum(nil))
+	requestJson, shasumOfRequest, err := generateUniqueRequestID(r)
 
 	_, err = n.configMapInterface.Create(&corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "org.cloudfoundry.smb-csi-driver",
+			Name: CONFIGMAP_NAME,
 		},
 		Data: map[string]string{
-			shasumOfRequest: string(requestJson),
+			shasumOfRequest: requestJson,
 		},
 	})
 	if err != nil {
 		panic(err)
 	}
+
+	defer func() {
+		err = n.configMapInterface.Delete(CONFIGMAP_NAME, nil)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	if r.VolumeCapability == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
@@ -145,4 +144,18 @@ func (s smbNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*c
 	return &csi.NodeGetInfoResponse{
 		NodeId: nodeId,
 	}, nil
+}
+
+func generateUniqueRequestID(r *csi.NodePublishVolumeRequest) (string, string, error) {
+	requestJson, err := json.Marshal(r)
+	if err != nil {
+		return "", "", err
+	}
+	hash := sha256.New()
+	_, err = hash.Write(requestJson)
+	if err != nil {
+		return "", "", err
+	}
+	shasumOfRequest := fmt.Sprintf("%x", hash.Sum(nil))
+	return string(requestJson), shasumOfRequest, err
 }

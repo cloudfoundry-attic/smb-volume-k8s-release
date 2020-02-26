@@ -102,7 +102,7 @@ var _ = Describe("NodeServer", func() {
 
 		Context("given a server, a share, a username and password", func() {
 
-			It("should record its activity in a configmap", func() {
+			It("should audit the operation in a configmap", func() {
 				Expect(fakeConfigMap.CreateCallCount()).To(Equal(1))
 				configMap := fakeConfigMap.CreateArgsForCall(0)
 
@@ -117,6 +117,12 @@ var _ = Describe("NodeServer", func() {
 						"275d1385951b5cc740397796ff508671700cef22a6cad60ebe4931493ec9ee5d": string(requestJson),
 					},
 				}))
+			})
+
+			It("should cleanup the audit trail", func() {
+				Expect(fakeConfigMap.DeleteCallCount()).To(Equal(1))
+				name, _ := fakeConfigMap.DeleteArgsForCall(0)
+				Expect(name).To(Equal("org.cloudfoundry.smb-csi-driver"))
 			})
 
 			It("should perform a mount", func() {
