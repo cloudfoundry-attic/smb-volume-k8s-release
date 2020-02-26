@@ -73,6 +73,12 @@ var _ = Describe("NodeServer", func() {
 			It("should return a error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
+
+				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
+				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+				Expect(k).To(Equal(request.TargetPath))
+				Expect(v).To(HaveOccurred())
+				Expect(v).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
 			})
 		})
 
@@ -152,6 +158,15 @@ var _ = Describe("NodeServer", func() {
 			It("should write the error, stdout and stderr to the logs", func() {
 				Eventually(logger.Buffer()).Should(Say("some-stdout"))
 				Eventually(logger.Buffer()).Should(Say("cmd-failed"))
+			})
+
+			It("should store the error in case we get called again", func(){
+				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
+				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+				Expect(k).To(Equal(request.TargetPath))
+				Expect(v).To(HaveOccurred())
+				Expect(v).To(MatchError("rpc error: code = Internal desc = cmd-failed"))
+
 			})
 		})
 	})

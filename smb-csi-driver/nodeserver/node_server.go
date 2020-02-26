@@ -68,9 +68,7 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 	panic("implement me")
 }
 
-func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
-	var err error
-
+func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (_ *csi.NodePublishVolumeResponse, err error) {
 	res, found := n.csiDriverStore.Get(r.TargetPath)
 	if found {
 		if res == nil {
