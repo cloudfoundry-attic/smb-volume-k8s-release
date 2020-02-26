@@ -1,8 +1,10 @@
 package local_k8s_cluster
 
 import (
+	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"text/template"
+	"time"
 )
 
 func CreateKpackImageResource() error {
@@ -37,11 +39,16 @@ func CreateKpackImageResource() error {
 	err = parse.Execute(buffer, struct {
 		DockerImageName string
 		DockerImageSourceName string
-	}{"172.17.0.2:5000/cfpersi/smb-broker", "172.17.0.2:5000/cfpersi/smb-broker-source"})
+	}{"172.17.0.2:5000/cfpersi/smb-broker:local-test", "172.17.0.2:5000/cfpersi/smb-broker-source"})
 	if err != nil {
 		return err
 	}
 	println(KubectlApplyString("apply", "-f")(string(buffer.Contents())))
+
+	Eventually(func()string {
+		output := Kubectl("get", "image", "smb-broker-kpack-image")
+		return output
+	}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring("True"))
 
 	return nil
 }

@@ -19,6 +19,8 @@ func TestSmbBroker(t *testing.T) {
 var kubeConfigPath string
 var nodeName string
 var namespace string
+var smbBrokerUsername string
+var smbBrokerPassword string
 
 var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(10 * time.Minute)
@@ -26,28 +28,15 @@ var _ = BeforeSuite(func() {
 	namespace = "smb-test-namespace"
 	nodeName = "default-smb-broker-test-node"
 	kubeConfigPath = "/tmp/kubeconfig"
+	smbBrokerUsername = "smb-broker-username"
+	smbBrokerPassword = "smb-broker-password"
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
 	err := local_k8s_cluster.CreateKpackImageResource()
 	Expect(err).NotTo(HaveOccurred())
 
-	println(local_k8s_cluster.HelmStdout("install",
-		"smb-broker",
-		"./helm",
-		"--set",
-		"ingress.enabled=true",
-		"--set",
-		"targetNamespace="+namespace,
-		"--set",
-		"ingress.hosts[0].host=localhost",
-		"--set",
-		"ingress.hosts[0].paths={/v2}",
-		"--set",
-		"image.repository=registry:5000/cfpersi/smb-broker",
-		"--set",
-		"image.tag=latest"))
-
 	local_k8s_cluster.Kubectl("create", "namespace", namespace)
+	local_k8s_cluster.Helm("install", "smb-broker", "./helm", "--set", "smbBrokerUsername="+smbBrokerUsername, "--set", "smbBrokerPassword="+smbBrokerPassword, "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
 })
 
 var _ = AfterSuite(func() {
