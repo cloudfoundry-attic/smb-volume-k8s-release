@@ -22,16 +22,10 @@ start-docker:
 kill-docker:
 	pkill dockerd
 
-test: test-unit test-sanity
-
-test-unit:
+test:
 	go get github.com/onsi/ginkgo/ginkgo
 	cd identityserver && ~/go/bin/ginkgo -race .
 	cd nodeserver && ~/go/bin/ginkgo -race .
-
-test-sanity: image-local-registry
-	go get github.com/onsi/ginkgo/ginkgo
-	~/go/bin/ginkgo -flakeAttempts 3 -race -focus "(Identity|Node) Service"
 
 e2e: SHELL:=/bin/bash
 e2e:
