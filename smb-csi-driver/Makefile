@@ -7,7 +7,7 @@ running	:=	"$(shell docker inspect -f '{{.State.Running}}' "kind-registry" 2>/de
 image-local-registry: SHELL:=/bin/bash
 image-local-registry:
 	[ $(running) != "true" ] && docker run \
-	    -d --restart=always -p "5000:5000" --name "kind-registry" \
+	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
 	docker build --no-cache -t cfpersi/smb-plugin .
 	docker tag cfpersi/smb-plugin localhost:5000/cfpersi/smb-plugin:local-test

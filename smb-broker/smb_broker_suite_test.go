@@ -1,7 +1,7 @@
 package main_test
 
 import (
-	local_k8s_cluster "code.cloudfoundry.org/local-k8s-cluster"
+	local_k8s_cluster "github.com/DennisDenuto/smb-volume-k8s-local-cluster"
 	"io"
 	"io/ioutil"
 	"testing"
@@ -32,6 +32,8 @@ var _ = BeforeSuite(func() {
 	smbBrokerPassword = "smb-broker-password"
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
+	err := local_k8s_cluster.CreateKpackImageResource()
+	Expect(err).NotTo(HaveOccurred())
 
 	local_k8s_cluster.Kubectl("create", "namespace", namespace)
 	local_k8s_cluster.Helm("install", "smb-broker", "./helm", "--set", "smbBrokerUsername="+smbBrokerUsername, "--set", "smbBrokerPassword="+smbBrokerPassword, "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")

@@ -8,9 +8,8 @@ install:
 
 test:
 	@$(MAKE) -f $(THIS_FILE) image-local-registry
-	ulimit -n 10000
-	GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo
-	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
+	@$(MAKE) -f $(THIS_FILE) push-local-image-source
+	ulimit -n 10000 && ulimit -a && GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo && GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
 	go fmt ./...
@@ -19,16 +18,14 @@ running	:=	"$(shell docker inspect -f '{{.State.Running}}' "kind-registry" 2>/de
 image-local-registry: SHELL:=/bin/bash
 image-local-registry:
 	[ $(running) != "true" ] && docker run \
-	    -d --restart=always -p "5000:5000" --name "kind-registry" \
+	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
-	docker build --no-cache -t cfpersi/smb-broker .
-	docker tag cfpersi/smb-broker localhost:5000/cfpersi/smb-broker:local-test
-	docker push localhost:5000/cfpersi/smb-broker:local-test
 
-image-dev:
-	docker build -t cfpersi/smb-broker .
-	docker tag cfpersi/smb-broker cfpersi/smb-broker:dev
-	docker push cfpersi/smb-broker:dev
+push-local-image-source:
+	docker login localhost:5000 && \
+	docker build --no-cache -f ./test/Dockerfile -t cfpersi/smb-broker-source /Users/pivotal/workspace/smb-volume-k8s-release/smb-broker/ && \
+	docker tag cfpersi/smb-broker-source localhost:5000/cfpersi/smb-broker-source:latest && \
+	docker push localhost:5000/cfpersi/smb-broker-source:latest
 
 helm:
 	helm version | grep 'v3.' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
@@ -51,4 +48,4 @@ helm_scf:
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
-.PHONY: test fly image-local-registry helm
+.PHONY: test fly image-local-registry push-local-image-source helm

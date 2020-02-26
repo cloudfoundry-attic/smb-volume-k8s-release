@@ -5,11 +5,10 @@ go 1.13
 require (
 	code.cloudfoundry.org/goshims v0.1.0
 	code.cloudfoundry.org/lager v2.0.0+incompatible
-	code.cloudfoundry.org/local-k8s-cluster v0.0.0
+	github.com/DennisDenuto/smb-volume-k8s-local-cluster v0.0.0-20200224175525-25d42c5b3b27
 	github.com/container-storage-interface/spec v1.2.0
 	github.com/kubernetes-csi/csi-lib-utils v0.7.0
 	github.com/kubernetes-csi/csi-test/v3 v3.0.0
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2 // indirect
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.9.0
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
@@ -21,7 +20,6 @@ require (
 )
 
 replace (
-	code.cloudfoundry.org/local-k8s-cluster => ../local-k8s-cluster
 	google.golang.org/grpc => google.golang.org/grpc v1.26.0
 	k8s.io/api => k8s.io/api v0.0.0-20200202064633-3d77e12e1dcd
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.0.0-20200131034431-1ed3fae1c0f1

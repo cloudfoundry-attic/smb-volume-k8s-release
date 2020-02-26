@@ -1,7 +1,7 @@
 package main_test
 
 import (
-	"code.cloudfoundry.org/local-k8s-cluster"
+	"github.com/DennisDenuto/smb-volume-k8s-local-cluster"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -49,8 +49,8 @@ var _ = Describe("Main", func() {
 		It("provision a new service", func() {
 			var resp *http.Response
 
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumes")).To(ContainSubstring("No resources found"))
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")).To(ContainSubstring("No resources found"))
+			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumes")).NotTo(ContainSubstring(instanceID))
+			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")).NotTo(ContainSubstring(instanceID))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
@@ -112,11 +112,11 @@ var _ = Describe("Main", func() {
 
 			Eventually(func() string {
 				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumes")
-			}).Should(ContainSubstring("No resources found"))
+			}).ShouldNot(ContainSubstring(instanceID))
 
 			Eventually(func() string {
 				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")
-			}).Should(ContainSubstring("No resources found"))
+			}).ShouldNot(ContainSubstring(instanceID))
 
 			Eventually(func() string {
 				return local_k8s_cluster.Kubectl("-n", namespace, "get", "secrets")

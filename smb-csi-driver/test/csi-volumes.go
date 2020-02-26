@@ -11,7 +11,7 @@ import (
 	"k8s.io/kubernetes/test/e2e/storage/testpatterns"
 	"k8s.io/kubernetes/test/e2e/storage/testsuites"
 	"k8s.io/kubernetes/test/e2e/storage/utils"
-	local_k8s_cluster "code.cloudfoundry.org/local-k8s-cluster"
+	local_k8s_cluster "github.com/DennisDenuto/smb-volume-k8s-local-cluster"
 
 )
 

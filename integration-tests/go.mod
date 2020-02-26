@@ -3,9 +3,7 @@ module code.cloudfoundry.org/smb-k8s-integration-tests
 go 1.12
 
 require (
-	code.cloudfoundry.org/local-k8s-cluster v0.0.0
+	github.com/DennisDenuto/smb-volume-k8s-local-cluster v0.0.0-20200224175525-25d42c5b3b27
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.9.0
 )
-
-replace code.cloudfoundry.org/local-k8s-cluster => ../local-k8s-cluster
