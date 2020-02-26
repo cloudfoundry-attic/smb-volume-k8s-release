@@ -34,15 +34,15 @@ func (c CheckParallelCSIDriverRequests) Delete(string) {
 }
 
 type smbNodeServer struct {
-	logger             lager.Logger
-	execshim           execshim.Exec
-	osshim             osshim.Os
-	configMapInterface CSIDriverStore
+	logger         lager.Logger
+	execshim       execshim.Exec
+	osshim         osshim.Os
+	csiDriverStore CSIDriverStore
 }
 
-func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os, configMapInterface CSIDriverStore) csi.NodeServer {
+func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os, csiDriverStore CSIDriverStore) csi.NodeServer {
 	return &smbNodeServer{
-		logger, execshim, osshim, configMapInterface,
+		logger, execshim, osshim, csiDriverStore,
 	}
 }
 
@@ -64,10 +64,10 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 		panic(err)
 	}
 
-	n.configMapInterface.Create(shasumOfRequest, requestJson)
+	n.csiDriverStore.Create(shasumOfRequest, requestJson)
 
 	defer func() {
-		n.configMapInterface.Delete(shasumOfRequest)
+		n.csiDriverStore.Delete(shasumOfRequest)
 	}()
 
 	if r.VolumeCapability == nil {
