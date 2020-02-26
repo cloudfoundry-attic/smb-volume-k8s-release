@@ -1,9 +1,12 @@
 package main_test
 
 import (
+	"fmt"
 	local_k8s_cluster "github.com/DennisDenuto/smb-volume-k8s-local-cluster"
+	"github.com/onsi/gomega/gexec"
 	"io"
 	"io/ioutil"
+	"os/exec"
 	"testing"
 	"time"
 

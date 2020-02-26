@@ -1,8 +1,10 @@
 package local_k8s_cluster
 
 import (
+	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"text/template"
+	"time"
 )
 
 func CreateKpackImageResource() error {
@@ -15,16 +17,12 @@ func CreateKpackImageResource() error {
 	}
 
 	buffer := gbytes.NewBuffer()
-	//err = parse.Execute(buffer, struct {
-	//	RegistryPrefix string
-	//	Username       string
-	//	Password       string
-	//}{"registry:5000", "silly", "silly"})
 	err = parse.Execute(buffer, struct {
 		RegistryPrefix string
 		Username       string
 		Password       string
-	}{"https://index.docker.io/v1/", "", ""})
+	}{"172.17.0.2:5000", "silly", "silly"})
+
 	if err != nil {
 		return err
 	}
@@ -32,8 +30,7 @@ func CreateKpackImageResource() error {
 	println(KubectlApplyString("apply", "-f")(string(buffer.Contents())))
 	println(KubectlApplyString("apply", "-f")(serviceAccountRegistrySecretYaml))
 
-
-	parse, err = template.New("image_yaml").Parse(smbbrokerGithubImageConfiguration)
+	parse, err = template.New("image_yaml").Parse(smbbrokerImageConfiguration)
 	if err != nil {
 		return err
 	}
@@ -41,11 +38,17 @@ func CreateKpackImageResource() error {
 	buffer = gbytes.NewBuffer()
 	err = parse.Execute(buffer, struct {
 		DockerImageName string
-	}{"cfpersi/smb-broker"})
+		DockerImageSourceName string
+	}{"172.17.0.2:5000/cfpersi/smb-broker:local-test", "172.17.0.2:5000/cfpersi/smb-broker-source"})
 	if err != nil {
 		return err
 	}
 	println(KubectlApplyString("apply", "-f")(string(buffer.Contents())))
+
+	Eventually(func()string {
+		output := Kubectl("get", "image", "smb-broker-kpack-image")
+		return output
+	}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring("True"))
 
 	return nil
 }
@@ -485,7 +488,7 @@ metadata:
 secrets:
  - name: smb-broker-github-credentials`
 
-var smbbrokerGithubImageConfiguration = `apiVersion: build.pivotal.io/v1alpha1
+var smbbrokerImageConfiguration = `apiVersion: build.pivotal.io/v1alpha1
 kind: Image
 metadata:
   name: smb-broker-kpack-image
@@ -497,8 +500,7 @@ spec:
     name: default
     kind: ClusterBuilder
   source:
-    git:
-      url: https://github.com/cloudfoundry/smb-volume-k8s-release
-      revision: master
+    registry:
+      image: {{.DockerImageSourceName}}
     subPath: "smb-broker"
 `
