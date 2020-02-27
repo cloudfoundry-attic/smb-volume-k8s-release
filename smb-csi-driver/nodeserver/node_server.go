@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"os"
+	"sync"
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
@@ -23,23 +24,23 @@ type CSIDriverStore interface {
 }
 
 func NewStore() CSIDriverStore {
-	return CheckParallelCSIDriverRequests{store: map[string]error{}}
+	return &CheckParallelCSIDriverRequests{store: map[string]error{}}
 }
 
 type CheckParallelCSIDriverRequests struct {
 	store map[string]error
 }
 
-func (c CheckParallelCSIDriverRequests) Get(k string) (error, bool) {
+func (c *CheckParallelCSIDriverRequests) Get(k string) (error, bool) {
 	val, ok := c.store[k]
 	return val, ok
 }
 
-func (c CheckParallelCSIDriverRequests) Create(k string, v error) {
+func (c *CheckParallelCSIDriverRequests) Create(k string, v error) {
 	c.store[k] = v
 }
 
-func (c CheckParallelCSIDriverRequests) Delete(k string) {
+func (c *CheckParallelCSIDriverRequests) Delete(k string) {
 	delete(c.store, k)
 }
 
@@ -48,11 +49,12 @@ type smbNodeServer struct {
 	execshim       execshim.Exec
 	osshim         osshim.Os
 	csiDriverStore CSIDriverStore
+	lock           *sync.Mutex
 }
 
 func NewNodeServer(logger lager.Logger, execshim execshim.Exec, osshim osshim.Os, csiDriverStore CSIDriverStore) csi.NodeServer {
 	return &smbNodeServer{
-		logger, execshim, osshim, csiDriverStore,
+		logger, execshim, osshim, csiDriverStore, &sync.Mutex{},
 	}
 }
 
@@ -69,6 +71,11 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 }
 
 func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (_ *csi.NodePublishVolumeResponse, err error) {
+	n.lock.Lock()
+	defer func() {
+		n.lock.Unlock()
+	}()
+
 	res, found := n.csiDriverStore.Get(r.TargetPath)
 	if found {
 		if res == nil {

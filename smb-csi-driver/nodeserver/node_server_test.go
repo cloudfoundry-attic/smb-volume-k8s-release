@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
+	"sync"
 )
 
 var _ = Describe("NodeServer", func() {
@@ -37,6 +38,50 @@ var _ = Describe("NodeServer", func() {
 		ctx = context.Background()
 
 		nodeServer = NewNodeServer(logger, fakeExec, fakeOs, fakeCSIDriverStore)
+	})
+
+	Describe("parallel identical #NodePublish requests", func() {
+		var (
+			request                   *csi.NodePublishVolumeRequest
+		)
+
+		BeforeEach(func() {
+			request = &csi.NodePublishVolumeRequest{
+				VolumeCapability: &csi.VolumeCapability{},
+				TargetPath:       "/tmp/target_path",
+				VolumeContext: map[string]string{
+					"share": "//server/export",
+				},
+				Secrets: map[string]string{
+					"username": "user1",
+					"password": "pass1",
+				},
+			}
+			fakeCSIDriverStore.GetReturns(nil, true)
+			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false)
+
+
+		})
+
+		It("should handle concurrent requests correctly", func(){
+			var wg sync.WaitGroup
+
+			wg.Add(10)
+			for i:=0; i<10;i++ {
+				go func() {
+					defer GinkgoRecover()
+					defer wg.Done()
+					_, err := nodeServer.NodePublishVolume(ctx, request)
+					Expect(err).NotTo(HaveOccurred())
+				}()
+			}
+			wg.Wait()
+
+			Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
+			k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+			Expect(k).To(Equal(request.TargetPath))
+			Expect(v).NotTo(HaveOccurred())
+		})
 	})
 
 	Describe("#NodePublishVolume", func() {
