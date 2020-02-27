@@ -149,7 +149,7 @@ var _ = Describe("NodeServer", func() {
 
 		Context("given a server, a share, a username and password", func() {
 
-			It("should audit the operation in a configmap", func() {
+			It("should audit the operation in a map", func() {
 				Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
 				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
 
@@ -242,6 +242,13 @@ var _ = Describe("NodeServer", func() {
 			Expect(fakeCmd.WaitCallCount()).To(Equal(1))
 		})
 
+		It("should remove the publish volume record from the map", func() {
+			Expect(fakeCSIDriverStore.DeleteCallCount()).To(Equal(1))
+			k := fakeCSIDriverStore.DeleteArgsForCall(0)
+
+			Expect(k).To(Equal("/tmp/target_path"))
+		})
+
 		Context("when target path is not provided", func() {
 			BeforeEach(func() {
 				request = &csi.NodeUnpublishVolumeRequest{
@@ -265,6 +272,10 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = start-failed"))
 			})
+
+			It("should not remove the publish volume record from the map", func() {
+				Expect(fakeCSIDriverStore.DeleteCallCount()).To(Equal(0))
+			})
 		})
 
 		Context("when the command fails to wait", func() {
@@ -277,6 +288,10 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = wait-failed"))
 			})
+
+			It("should not remove the publish volume record from the map", func() {
+				Expect(fakeCSIDriverStore.DeleteCallCount()).To(Equal(0))
+			})
 		})
 
 		Context("when removing the unmounted target path fails", func() {
@@ -287,6 +302,10 @@ var _ = Describe("NodeServer", func() {
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("rpc error: code = Internal desc = remove-failed"))
+			})
+
+			It("should not remove the publish volume record from the map", func() {
+				Expect(fakeCSIDriverStore.DeleteCallCount()).To(Equal(0))
 			})
 		})
 	})

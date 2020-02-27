@@ -115,7 +115,13 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	return &csi.NodePublishVolumeResponse{}, nil
 }
 
-func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
+func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (_ *csi.NodeUnpublishVolumeResponse, err error) {
+	defer func() {
+		if err == nil {
+			n.csiDriverStore.Delete(r.TargetPath)
+		}
+	}()
+
 	if r.TargetPath == "" {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "TargetPath"))
 	}
@@ -123,7 +129,7 @@ func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubli
 	n.logger.Info("about to remove dir")
 
 	cmdshim := n.execshim.Command("umount", r.TargetPath)
-	err := cmdshim.Start()
+	err = cmdshim.Start()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
