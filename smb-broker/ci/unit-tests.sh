@@ -29,9 +29,9 @@ if [ "$rc" -ne "0" ]; then
   exit 1
 fi
 
-#function kill_docker() {
-#    pkill dockerd
-#}
-#trap kill_docker EXIT
+function kill_docker() {
+    pkill dockerd
+}
+trap kill_docker EXIT
 
 make --directory=smb-volume-k8s-release/smb-broker test
