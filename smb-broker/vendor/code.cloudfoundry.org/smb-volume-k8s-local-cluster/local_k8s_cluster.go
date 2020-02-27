@@ -137,7 +137,7 @@ func Kubectl(cmd ...string) string {
 	return stdout + stderr
 }
 
-func KubectlApplyString(cmd ...string) func(contents string) string {
+func KubectlWithStringAsStdIn(cmd ...string) func(contents string) string {
 	return func(contents string) string {
 		tempYamlFile, err := ioutil.TempFile(os.TempDir(), "temp_kapply_yaml")
 		Expect(err).NotTo(HaveOccurred())
