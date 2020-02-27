@@ -116,6 +116,11 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 }
 
 func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpublishVolumeRequest) (_ *csi.NodeUnpublishVolumeResponse, err error) {
+	n.lock.Lock()
+	defer func() {
+		n.lock.Unlock()
+	}()
+
 	defer func() {
 		if err == nil {
 			n.csiDriverStore.Delete(r.TargetPath)
