@@ -159,6 +159,11 @@ func Helm(cmd ...string) string {
 	return stdout + stderr
 }
 
+func Docker(cmd ...string) string {
+	stdout, stderr := runTestCommand("docker", cmd...)
+	return stdout + stderr
+}
+
 func KbldStdout(args ...string) string {
 	stdout, _ := runTestCommand("kbld", args...)
 	return stdout

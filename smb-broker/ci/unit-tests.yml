@@ -10,5 +10,11 @@ image_resource:
 inputs:
   - name: smb-volume-k8s-release
 
+outputs:
+  - name: built-images
+
 run:
   path: smb-volume-k8s-release/smb-broker/ci/unit-tests.sh
+
+params:
+  SMB_BROKER_IMAGE_DESTINATION: "../../built-images/smb-broker.tgz"
