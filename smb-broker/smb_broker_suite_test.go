@@ -1,7 +1,7 @@
 package main_test
 
 import (
-	local_k8s_cluster "github.com/DennisDenuto/smb-volume-k8s-local-cluster"
+	local_k8s_cluster "code.cloudfoundry.org/smb-volume-k8s-local-cluster"
 	"io"
 	"io/ioutil"
 	"testing"
