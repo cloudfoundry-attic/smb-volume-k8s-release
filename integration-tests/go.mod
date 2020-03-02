@@ -1,6 +1,6 @@
 module code.cloudfoundry.org/smb-k8s-integration-tests
 
-go 1.12
+go 1.13
 
 require (
 	code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4

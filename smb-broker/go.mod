@@ -1,6 +1,6 @@
 module code.cloudfoundry.org/smb-broker
 
-go 1.12
+go 1.13
 
 require (
 	code.cloudfoundry.org/lager v2.0.0+incompatible
