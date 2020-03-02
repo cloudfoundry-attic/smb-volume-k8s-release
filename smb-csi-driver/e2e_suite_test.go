@@ -36,7 +36,9 @@ var _ = BeforeSuite(func() {
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
 
 	local_k8s_cluster.Kubectl("apply", "--kustomize", "./base")
-	Eventually("/tmp/csi.sock").Should(BeAnExistingFile())
+	Eventually(func()string{
+		return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
+	}, 10 * time.Minute, 1 * time.Second).Should(ContainSubstring("Running"))
 })
 
 var _ = AfterSuite(func() {

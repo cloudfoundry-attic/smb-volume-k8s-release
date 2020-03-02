@@ -28,7 +28,9 @@ var _ = BeforeSuite(func() {
 
 	By("deploying smb csi driver into the k8s cluster", func() {
 		local_k8s_cluster.Kubectl("apply", "--kustomize", "../smb-csi-driver/base")
-		Eventually("/tmp/csi.sock").Should(BeAnExistingFile())
+		Eventually(func()string{
+			return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
+		}, 10 * time.Minute, 1 * time.Second).Should(ContainSubstring("Running"))
 	})
 })
 
