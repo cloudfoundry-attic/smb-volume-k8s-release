@@ -26,6 +26,8 @@ kill-docker:
 	pkill dockerd
 
 test:
+	@$(MAKE) -f $(THIS_FILE) vet
+	@$(MAKE) -f $(THIS_FILE) build
 	go get github.com/onsi/ginkgo/ginkgo
 	cd identityserver && ~/go/bin/ginkgo -race .
 	cd nodeserver && ~/go/bin/ginkgo -race .
