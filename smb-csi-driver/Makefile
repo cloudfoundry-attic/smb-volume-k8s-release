@@ -1,5 +1,8 @@
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
+vet:
+	go vet .
+
 build:
 	go build .
 
