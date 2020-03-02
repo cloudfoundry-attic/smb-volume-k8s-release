@@ -48,11 +48,6 @@ nodes:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
         authorization-mode: "AlwaysAllow"
-  extraMounts:                                                
-    - hostPath: /tmp/                                         
-      containerPath: /var/lib/kubelet/plugins/csi-smbplugin   
-    - hostPath: /tmp/                                         
-      containerPath: /var/lib/kubelet/plugins_registry   
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
