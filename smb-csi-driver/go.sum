@@ -5,8 +5,6 @@ code.cloudfoundry.org/goshims v0.1.0 h1:S7M3A77D0sQAWBib/uiyoIYI58AN5G3n1NzY0jBG
 code.cloudfoundry.org/goshims v0.1.0/go.mod h1:UDcfW3t7keMiMXY1g+QJI+Un7tTGEwBV5nujxODWyK8=
 code.cloudfoundry.org/lager v2.0.0+incompatible h1:WZwDKDB2PLd/oL+USK4b4aEjUymIej9My2nUQ9oWEwQ=
 code.cloudfoundry.org/lager v2.0.0+incompatible/go.mod h1:O2sS7gKP3HM2iemG+EnwvyNQK7pTSC6Foi4QiMp9sSk=
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200227222308-4598d249eff1 h1:+Qq1EbKmRemdsAWLV+pabgGmCQjRP1TBNowLO3Ei0oo=
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200227222308-4598d249eff1/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4 h1:ibCaJAlgQGjS8UNdpD6na5E8I1+//Z0S31oB8c7FSn8=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 github.com/Azure/azure-sdk-for-go v35.0.0+incompatible/go.mod h1:9XXNKU+eRnpl9moKnB4QOLf1HestfXbmab5FXxiDBjc=
