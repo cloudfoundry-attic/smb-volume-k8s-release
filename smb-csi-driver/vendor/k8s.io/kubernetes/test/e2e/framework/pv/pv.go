@@ -19,6 +19,9 @@ package framework
 import (
 	"fmt"
 	"time"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 
 	"github.com/onsi/ginkgo"
 	v1 "k8s.io/api/core/v1"
@@ -292,7 +295,17 @@ func DeletePVCandValidatePVGroup(c clientset.Interface, ns string, pvols PVMap, 
 
 // create the PV resource. Fails test on error.
 func createPV(c clientset.Interface, pv *v1.PersistentVolume) (*v1.PersistentVolume, error) {
-	pv, err := c.CoreV1().PersistentVolumes().Create(pv)
+	pvJson, err := json.Marshal(pv)
+	if err != nil {
+		panic(err)
+	}
+
+	err = ioutil.WriteFile("/tmp/lol", []byte(fmt.Sprintf("pv json: %s", pvJson)), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	pv, err = c.CoreV1().PersistentVolumes().Create(pv)
 	if err != nil {
 		return nil, fmt.Errorf("PV Create API error: %v", err)
 	}

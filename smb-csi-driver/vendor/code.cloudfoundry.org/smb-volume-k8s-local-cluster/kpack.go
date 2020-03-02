@@ -7,14 +7,13 @@ import (
 	"time"
 )
 
-func CreateKpackImageResource() error {
-	println(KubectlApplyString("apply", "-f")(v006Yaml))
-	println(KubectlApplyString("apply", "-f")(javaNodeGoBuildPack))
+func CreateKpackImageResource() {
+	KubectlWithStringAsStdIn("apply", "-f")(v006Yaml)
+	KubectlWithStringAsStdIn("apply", "-f")(javaNodeGoBuildPack)
 
 	parse, err := template.New("push_creds").Parse(pushCredentialsSecretYamlTemplate)
-	if err != nil {
-		return err
-	}
+	Expect(err).NotTo(HaveOccurred())
+
 
 	buffer := gbytes.NewBuffer()
 	err = parse.Execute(buffer, struct {
@@ -22,35 +21,28 @@ func CreateKpackImageResource() error {
 		Username       string
 		Password       string
 	}{"172.17.0.2:5000", "silly", "silly"})
+	Expect(err).NotTo(HaveOccurred())
 
-	if err != nil {
-		return err
-	}
-
-	println(KubectlApplyString("apply", "-f")(string(buffer.Contents())))
-	println(KubectlApplyString("apply", "-f")(serviceAccountRegistrySecretYaml))
+	KubectlWithStringAsStdIn("apply", "-f")(string(buffer.Contents()))
+	KubectlWithStringAsStdIn("apply", "-f")(serviceAccountRegistrySecretYaml)
 
 	parse, err = template.New("image_yaml").Parse(smbbrokerImageConfiguration)
-	if err != nil {
-		return err
-	}
+	Expect(err).NotTo(HaveOccurred())
 
 	buffer = gbytes.NewBuffer()
 	err = parse.Execute(buffer, struct {
 		DockerImageName string
 		DockerImageSourceName string
 	}{"172.17.0.2:5000/cfpersi/smb-broker:local-test", "172.17.0.2:5000/cfpersi/smb-broker-source"})
-	if err != nil {
-		return err
-	}
-	println(KubectlApplyString("apply", "-f")(string(buffer.Contents())))
+	Expect(err).NotTo(HaveOccurred())
+
+	KubectlWithStringAsStdIn("apply", "-f")(string(buffer.Contents()))
 
 	Eventually(func()string {
 		output := Kubectl("get", "image", "smb-broker-kpack-image")
 		return output
 	}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring("True"))
 
-	return nil
 }
 
 var v006Yaml = `apiVersion: v1

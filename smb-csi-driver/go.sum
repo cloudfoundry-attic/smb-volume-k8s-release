@@ -7,6 +7,8 @@ code.cloudfoundry.org/lager v2.0.0+incompatible h1:WZwDKDB2PLd/oL+USK4b4aEjUymIe
 code.cloudfoundry.org/lager v2.0.0+incompatible/go.mod h1:O2sS7gKP3HM2iemG+EnwvyNQK7pTSC6Foi4QiMp9sSk=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200227222308-4598d249eff1 h1:+Qq1EbKmRemdsAWLV+pabgGmCQjRP1TBNowLO3Ei0oo=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200227222308-4598d249eff1/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4 h1:ibCaJAlgQGjS8UNdpD6na5E8I1+//Z0S31oB8c7FSn8=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 github.com/Azure/azure-sdk-for-go v35.0.0+incompatible/go.mod h1:9XXNKU+eRnpl9moKnB4QOLf1HestfXbmab5FXxiDBjc=
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/Azure/go-autorest/autorest v0.9.0/go.mod h1:xyHB1BMZT0cuDHU7I0+g046+BFDTQ8rEZB0s4Yfa6bI=

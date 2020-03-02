@@ -48,11 +48,6 @@ nodes:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
         authorization-mode: "AlwaysAllow"
-  extraMounts:                                                
-    - hostPath: /tmp/                                         
-      containerPath: /var/lib/kubelet/plugins/csi-smbplugin   
-    - hostPath: /tmp/                                         
-      containerPath: /var/lib/kubelet/plugins_registry   
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
@@ -137,7 +132,7 @@ func Kubectl(cmd ...string) string {
 	return stdout + stderr
 }
 
-func KubectlApplyString(cmd ...string) func(contents string) string {
+func KubectlWithStringAsStdIn(cmd ...string) func(contents string) string {
 	return func(contents string) string {
 		tempYamlFile, err := ioutil.TempFile(os.TempDir(), "temp_kapply_yaml")
 		Expect(err).NotTo(HaveOccurred())
@@ -156,6 +151,11 @@ func KubectlApplyString(cmd ...string) func(contents string) string {
 
 func Helm(cmd ...string) string {
 	stdout, stderr := runTestCommand("helm", cmd...)
+	return stdout + stderr
+}
+
+func Docker(cmd ...string) string {
+	stdout, stderr := runTestCommand("docker", cmd...)
 	return stdout + stderr
 }
 
