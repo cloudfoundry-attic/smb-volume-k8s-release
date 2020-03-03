@@ -122,9 +122,7 @@ func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubli
 	}()
 
 	defer func() {
-		if err == nil {
-			n.csiDriverStore.Delete(r.TargetPath)
-		}
+		n.csiDriverStore.Delete(r.TargetPath)
 	}()
 
 	if r.TargetPath == "" {
