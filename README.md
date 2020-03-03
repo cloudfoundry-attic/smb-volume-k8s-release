@@ -37,8 +37,7 @@ make kustomize
 ```
 cd smb-broker
 make helm
-broker_ip=`kubectl get svc -n default smb-broker -o jsonpath='{.spec.clusterIP}'`
-cf create-service-broker smbbroker admin admin http://${broker_ip}
+cf create-service-broker smbbroker foo foo http://smb-broker.default
 cf enable-service-access smb
 ```
 
