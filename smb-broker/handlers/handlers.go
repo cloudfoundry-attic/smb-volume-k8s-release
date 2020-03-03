@@ -54,7 +54,7 @@ func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 		Description:          "SMB for K8s",
 		Bindable:             true,
 		InstancesRetrievable: true,
-		BindingsRetrievable:  true,
+		BindingsRetrievable:  false,
 		Tags:                 []string{"pivotal", "smb", "volume-services"},
 		PlanUpdatable:        false,
 		Plans: []domain.ServicePlan{
