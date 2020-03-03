@@ -17,7 +17,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"net/http"
-	"os"
 )
 
 const MountConfigKey = "name"
@@ -26,18 +25,16 @@ const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
 
-func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface, username string, password string) (http.Handler, error) {
+func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface, username string, password string, logger lager.Logger) (http.Handler, error) {
 	router := mux.NewRouter()
 	router.Use(auth.NewWrapper(username, password).Wrap)
-
-	logger := lager.NewLogger("smb-broker")
-	logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
 
 	brokerapi.AttachRoutes(router, smbServiceBroker{
 		PersistentVolume:      pv,
 		PersistentVolumeClaim: pvc,
 		Secret:                secret,
 		Namespace:             namespace,
+		Logger: logger,
 	}, logger)
 	return router, nil
 }
@@ -47,6 +44,7 @@ type smbServiceBroker struct {
 	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
 	Secret                corev1.SecretInterface
 	Namespace             string
+	Logger lager.Logger
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -78,14 +76,8 @@ func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (_ domain.ProvisionedServiceSpec, err error) {
 	defer func() {
 		if err != nil {
-			e := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
-			e = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
-			e = s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
-			if e != nil {
-				println(e)
-			}
+			s.cleanup(instanceID)
 		}
-
 	}()
 
 	var serviceInstanceParameters map[string]interface{}
@@ -172,6 +164,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 
 	return domain.ProvisionedServiceSpec{}, err
 }
+
 
 func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
 	err := s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
@@ -301,4 +294,19 @@ func getAttribute(source map[string]interface{}, key string) (string, error) {
 		}
 	}
 	return "", nil
+}
+
+func (s smbServiceBroker) cleanup(instanceID string) {
+	e := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
+	if e != nil {
+		s.Logger.Error("handlers.cleanup-failed", e)
+	}
+	e = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
+	if e != nil {
+		s.Logger.Error("handlers.cleanup-failed", e)
+	}
+	e = s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
+	if e != nil {
+		s.Logger.Error("handlers.cleanup-failed", e)
+	}
 }

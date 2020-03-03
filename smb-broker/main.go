@@ -23,7 +23,10 @@ func main() {
 	var errChan = make(chan error)
 	go func() {
 		namespace := os.Getenv("TARGET_NAMESPACE")
-		handler, _ := handlers.BrokerHandler(namespace, clientset.CoreV1().PersistentVolumes(), clientset.CoreV1().PersistentVolumeClaims(namespace), clientset.CoreV1().Secrets(namespace), os.Getenv("BROKER_USERNAME"), os.Getenv("BROKER_PASSWORD"))
+		logger := lager.NewLogger("smb-broker")
+		logger.RegisterSink(lager.NewWriterSink(os.Stdout, lager.DEBUG))
+
+		handler, _ := handlers.BrokerHandler(namespace, clientset.CoreV1().PersistentVolumes(), clientset.CoreV1().PersistentVolumeClaims(namespace), clientset.CoreV1().Secrets(namespace), os.Getenv("BROKER_USERNAME"), os.Getenv("BROKER_PASSWORD"), logger)
 		err := http.ListenAndServe("0.0.0.0:8080", handler)
 		errChan <- err
 	}()

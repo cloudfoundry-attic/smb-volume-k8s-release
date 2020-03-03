@@ -1,8 +1,11 @@
 package handlers_test
 
 import (
+	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/smb-broker/handlers"
 	smbbrokerfakes "code.cloudfoundry.org/smb-broker/smb-brokerfakes"
+	"github.com/onsi/gomega/gbytes"
+
 	"errors"
 	"fmt"
 	. "github.com/onsi/ginkgo"
@@ -31,16 +34,17 @@ var _ = Describe("Handlers", func() {
 	var fakePersitentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
 	var fakeSecretClient *smbbrokerfakes.FakeSecretInterface
 	var namespace = "eirini"
-
+	var testLogger *lagertest.TestLogger
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
 		fakePersitentVolumeClient = &smbbrokerfakes.FakePersistentVolumeInterface{}
 		fakePersitentVolumeClaimClient = &smbbrokerfakes.FakePersistentVolumeClaimInterface{}
 		fakeSecretClient = &smbbrokerfakes.FakeSecretInterface{}
+		testLogger = lagertest.NewTestLogger("handler_test")
 	})
 
 	JustBeforeEach(func() {
-		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakeSecretClient, "foo", "bar")
+		brokerHandler, err = BrokerHandler(namespace, fakePersitentVolumeClient, fakePersitentVolumeClaimClient, fakeSecretClient, "foo", "bar", testLogger)
 	})
 
 	Describe("Endpoints", func() {
@@ -125,7 +129,7 @@ var _ = Describe("Handlers", func() {
 				))
 			})
 
-			It("should not delete any of the resources it created", func(){
+			It("should not delete any of the resources it created", func() {
 				Expect(fakePersitentVolumeClient.DeleteCallCount()).To(Equal(0))
 				Expect(fakePersitentVolumeClaimClient.DeleteCallCount()).To(Equal(0))
 				Expect(fakeSecretClient.DeleteCallCount()).To(Equal(0))
@@ -143,7 +147,7 @@ var _ = Describe("Handlers", func() {
 					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
 				})
 
-				It("should not leave behind orphaned resources", func(){
+				It("should not leave behind orphaned resources", func() {
 					Expect(fakePersitentVolumeClient.DeleteCallCount()).To(Equal(1))
 					instanceId, opts := fakePersitentVolumeClient.DeleteArgsForCall(0)
 					Expect(instanceId).To(Equal(serviceInstanceKey))
@@ -158,6 +162,40 @@ var _ = Describe("Handlers", func() {
 					instanceId, opts = fakeSecretClient.DeleteArgsForCall(0)
 					Expect(instanceId).To(Equal(serviceInstanceKey))
 					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
+				})
+
+				Context("when unable to cleanup any k8s resources", func() {
+					Context("failure cleaning up PV", func(){
+						BeforeEach(func() {
+							fakePersitentVolumeClient.DeleteReturns(errors.New("K8s ERROR"))
+						})
+
+						It("should log something meaningful", func() {
+							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanup-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
+						})
+					})
+
+					Context("failure cleaning up PVC", func(){
+						BeforeEach(func() {
+							fakePersitentVolumeClaimClient.DeleteReturns(errors.New("K8s ERROR"))
+						})
+
+						It("should log something meaningful", func() {
+							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanup-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
+						})
+					})
+
+					Context("failure cleaning up secret", func(){
+						BeforeEach(func() {
+							fakeSecretClient.DeleteReturns(errors.New("K8s ERROR"))
+						})
+
+						It("should log something meaningful", func() {
+							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanup-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
+						})
+					})
+
+
 				})
 			})
 

@@ -1,5 +1,7 @@
 # code.cloudfoundry.org/lager v2.0.0+incompatible
 code.cloudfoundry.org/lager
+code.cloudfoundry.org/lager/lagerctx
+code.cloudfoundry.org/lager/lagertest
 # code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4
 code.cloudfoundry.org/smb-volume-k8s-local-cluster
 # github.com/BurntSushi/toml v0.3.1
