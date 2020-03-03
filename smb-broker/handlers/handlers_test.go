@@ -125,6 +125,12 @@ var _ = Describe("Handlers", func() {
 				))
 			})
 
+			It("should not delete any of the resources it created", func(){
+				Expect(fakePersitentVolumeClient.DeleteCallCount()).To(Equal(0))
+				Expect(fakePersitentVolumeClaimClient.DeleteCallCount()).To(Equal(0))
+				Expect(fakeSecretClient.DeleteCallCount()).To(Equal(0))
+			})
+
 			Context("when unable to create a persistent volume", func() {
 				BeforeEach(func() {
 					fakePersitentVolumeClient.CreateReturns(nil, errors.New("K8s ERROR"))
@@ -135,6 +141,23 @@ var _ = Describe("Handlers", func() {
 					bytes, err := ioutil.ReadAll(recorder.Body)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(string(bytes)).To(Equal("{\"description\":\"K8s ERROR\"}\n"))
+				})
+
+				It("should not leave behind orphaned resources", func(){
+					Expect(fakePersitentVolumeClient.DeleteCallCount()).To(Equal(1))
+					instanceId, opts := fakePersitentVolumeClient.DeleteArgsForCall(0)
+					Expect(instanceId).To(Equal(serviceInstanceKey))
+					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
+
+					Expect(fakePersitentVolumeClaimClient.DeleteCallCount()).To(Equal(1))
+					instanceId, opts = fakePersitentVolumeClaimClient.DeleteArgsForCall(0)
+					Expect(instanceId).To(Equal(serviceInstanceKey))
+					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
+
+					Expect(fakeSecretClient.DeleteCallCount()).To(Equal(1))
+					instanceId, opts = fakeSecretClient.DeleteArgsForCall(0)
+					Expect(instanceId).To(Equal(serviceInstanceKey))
+					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
 				})
 			})
 

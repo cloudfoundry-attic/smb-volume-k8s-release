@@ -75,7 +75,19 @@ func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 	}}, nil
 }
 
-func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (domain.ProvisionedServiceSpec, error) {
+func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (_ domain.ProvisionedServiceSpec, err error) {
+	defer func() {
+		if err != nil {
+			e := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
+			e = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
+			e = s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
+			if e != nil {
+				println(e)
+			}
+		}
+
+	}()
+
 	var serviceInstanceParameters map[string]interface{}
 
 	if details.RawParameters != nil {
@@ -88,7 +100,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 
 	storageClass := ""
 
-	_, err := s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
+	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
 		},
@@ -157,6 +169,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			},
 		},
 	})
+
 	return domain.ProvisionedServiceSpec{}, err
 }
 
