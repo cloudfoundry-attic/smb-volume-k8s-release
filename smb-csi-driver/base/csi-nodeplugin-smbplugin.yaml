@@ -11,7 +11,7 @@ spec:
       labels:
         app: csi-nodeplugin-smbplugin
     spec:
-      serviceAccount: csi-nodeplugin
+      serviceAccountName: csi-nodeplugin
       hostNetwork: true
       containers:
         - name: csi-attacher
