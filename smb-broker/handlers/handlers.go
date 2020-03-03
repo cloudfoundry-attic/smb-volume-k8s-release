@@ -76,7 +76,7 @@ func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (_ domain.ProvisionedServiceSpec, err error) {
 	defer func() {
 		if err != nil {
-			s.cleanup(instanceID)
+			s.cleanupResourcesCreatedByProvision(instanceID)
 		}
 	}()
 
@@ -296,17 +296,17 @@ func getAttribute(source map[string]interface{}, key string) (string, error) {
 	return "", nil
 }
 
-func (s smbServiceBroker) cleanup(instanceID string) {
+func (s smbServiceBroker) cleanupResourcesCreatedByProvision(instanceID string) {
 	e := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
 	if e != nil {
-		s.Logger.Error("handlers.cleanup-failed", e)
+		s.Logger.Error("handlers.cleanupResourcesCreatedByProvision-failed", e)
 	}
 	e = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
 	if e != nil {
-		s.Logger.Error("handlers.cleanup-failed", e)
+		s.Logger.Error("handlers.cleanupResourcesCreatedByProvision-failed", e)
 	}
 	e = s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
 	if e != nil {
-		s.Logger.Error("handlers.cleanup-failed", e)
+		s.Logger.Error("handlers.cleanupResourcesCreatedByProvision-failed", e)
 	}
 }

@@ -164,14 +164,14 @@ var _ = Describe("Handlers", func() {
 					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
 				})
 
-				Context("when unable to cleanup any k8s resources", func() {
+				Context("when unable to cleanupResourcesCreatedByProvision any k8s resources", func() {
 					Context("failure cleaning up PV", func(){
 						BeforeEach(func() {
 							fakePersitentVolumeClient.DeleteReturns(errors.New("K8s ERROR"))
 						})
 
 						It("should log something meaningful", func() {
-							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanup-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
+							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanupResourcesCreatedByProvision-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
 						})
 					})
 
@@ -181,7 +181,7 @@ var _ = Describe("Handlers", func() {
 						})
 
 						It("should log something meaningful", func() {
-							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanup-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
+							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanupResourcesCreatedByProvision-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
 						})
 					})
 
@@ -191,7 +191,7 @@ var _ = Describe("Handlers", func() {
 						})
 
 						It("should log something meaningful", func() {
-							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanup-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
+							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanupResourcesCreatedByProvision-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
 						})
 					})
 
