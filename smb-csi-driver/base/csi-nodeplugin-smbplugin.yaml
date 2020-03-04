@@ -1,3 +1,14 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: CSIDriver
+metadata:
+  name: org.cloudfoundry.smb
+spec:
+  attachRequired: false
+  podInfoOnMount: false
+  volumeLifecycleModes:
+  - Persistent
+
+---
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
@@ -14,18 +25,6 @@ spec:
       serviceAccountName: csi-nodeplugin
       hostNetwork: true
       containers:
-        - name: csi-attacher
-          image: quay.io/k8scsi/csi-attacher:v1.0.1
-          args:
-            - "--v=5"
-            - "--csi-address=$(ADDRESS)"
-          env:
-            - name: ADDRESS
-              value: /csi/csi.sock
-          imagePullPolicy: "IfNotPresent"
-          volumeMounts:
-            - name: plugin-dir
-              mountPath: /csi
         - name: node-driver-registrar
           image: quay.io/k8scsi/csi-node-driver-registrar:v1.0.2
           lifecycle:
