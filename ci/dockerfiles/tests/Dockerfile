@@ -47,4 +47,10 @@ RUN /tmp/install-docker.sh
 COPY start-docker.sh /usr/local/bin/start-docker
 RUN chmod +x /usr/local/bin/start-docker
 
+RUN apt-get update && apt-get install -y wget && apt-get install -y jq
+RUN wget https://github.com/buildpacks/pack/releases/download/v0.9.0/pack-v0.9.0-linux.tgz
+RUN tar xvf pack-v0.9.0-linux.tgz
+RUN mv ./pack /usr/local/bin
+RUN rm pack-v0.9.0-linux.tgz
+
 VOLUME /var/lib/docker
