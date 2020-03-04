@@ -13,3 +13,6 @@ inputs:
 run:
   path: make
   args: [ "--keep-going", "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "e2e", "kill-docker" ]
+
+params:
+  K8S_IMAGE: kindest/node:v1.17.0

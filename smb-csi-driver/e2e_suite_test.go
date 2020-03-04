@@ -4,6 +4,7 @@ import (
 	local_k8s_cluster "code.cloudfoundry.org/smb-volume-k8s-local-cluster"
 	"github.com/onsi/gomega/gexec"
 	"k8s.io/kubernetes/test/e2e/framework"
+	"os"
 	"testing"
 	"time"
 
@@ -33,7 +34,7 @@ var _ = BeforeSuite(func() {
 	nodeName = "default-smb-csi-driver-test-node"
 	kubeConfigPath = "/tmp/csi-kubeconfig"
 
-	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
+	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath, os.Getenv("K8S_IMAGE"))
 
 	local_k8s_cluster.Kubectl("apply", "--kustomize", "./base")
 	Eventually(func()string{
