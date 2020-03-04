@@ -17,7 +17,7 @@ func TestIntegrationTests(t *testing.T) {
 var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(10 * time.Minute)
 
-	local_k8s_cluster.CreateK8sCluster("test", "/tmp/kubeconfig")
+	local_k8s_cluster.CreateK8sCluster("test", "/tmp/kubeconfig", "")
 	local_k8s_cluster.CreateKpackImageResource()
 
 	By("deploying the smb broker into the k8s cluster", func() {

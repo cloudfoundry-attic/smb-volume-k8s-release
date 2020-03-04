@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"time"
 
-	"sigs.k8s.io/kind/pkg/apis/config/defaults"
 	"sigs.k8s.io/kind/pkg/cluster"
 	"sigs.k8s.io/kind/pkg/cmd"
 
@@ -17,7 +16,7 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-func CreateK8sCluster(nodeName string, kubeConfigPath string) {
+func CreateK8sCluster(nodeName string, kubeConfigPath string, k8sImage string) {
 	Expect(os.Setenv("KUBECONFIG", kubeConfigPath)).To(Succeed())
 
 	provider := cluster.NewProvider(
@@ -57,7 +56,7 @@ nodes:
     hostPort: 445
   - containerPort: 443
     hostPort: 443`)),
-		cluster.CreateWithNodeImage(defaults.Image), // There's a v1.13 image = kindest/node:v1.13.12
+		cluster.CreateWithNodeImage(k8sImage),
 		cluster.CreateWithRetain(true),
 		cluster.CreateWithWaitForReady(10*time.Minute),
 		cluster.CreateWithKubeconfigPath(kubeConfigPath),
