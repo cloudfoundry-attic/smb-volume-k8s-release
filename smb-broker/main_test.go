@@ -91,7 +91,7 @@ var _ = Describe("Main", func() {
 		It("deprovision a new service", func() {
 			var resp *http.Response
 
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
+			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)).To(Or(ContainSubstring("Available"), ContainSubstring("Bound")))
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
 
