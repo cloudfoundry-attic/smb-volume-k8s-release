@@ -18,3 +18,4 @@ run:
 
 params:
   SMB_BROKER_IMAGE_DESTINATION: "../../built-images/smb-broker.tgz"
+  K8S_IMAGE: kindest/node:v1.17.0

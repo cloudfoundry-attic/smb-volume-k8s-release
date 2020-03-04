@@ -31,7 +31,7 @@ var _ = BeforeSuite(func() {
 	smbBrokerUsername = "smb-broker-username"
 	smbBrokerPassword = "smb-broker-password"
 
-	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath)
+	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath, os.Getenv("K8S_IMAGE"))
 	local_k8s_cluster.CreateKpackImageResource()
 
 	local_k8s_cluster.Kubectl("create", "namespace", namespace)

@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	code.cloudfoundry.org/lager v2.0.0+incompatible
-	code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200302195943-e101663d57a4
+	code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200304231403-c12a5212e5ec
 	github.com/drewolson/testflight v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
