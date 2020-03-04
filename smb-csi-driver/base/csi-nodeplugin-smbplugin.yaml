@@ -22,7 +22,6 @@ spec:
       labels:
         app: csi-nodeplugin-smbplugin
     spec:
-      serviceAccountName: csi-nodeplugin
       hostNetwork: true
       containers:
         - name: node-driver-registrar

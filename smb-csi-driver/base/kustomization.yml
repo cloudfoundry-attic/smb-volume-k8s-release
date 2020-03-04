@@ -3,5 +3,4 @@ kind: Kustomization
 namespace: default
 
 resources:
-  - csi-nodeplugin-rbac.yaml
   - csi-nodeplugin-smbplugin.yaml
