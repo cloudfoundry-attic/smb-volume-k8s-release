@@ -25,10 +25,14 @@ RUN apt-get install -y \
 
 ADD go-version /tmp/go-version
 RUN wget $(cat /tmp/go-version) -O /tmp/golang-linux.tar.gz
-RUN tar -xvf /tmp/golang-linux.tar.gz
-RUN mv bin/go /usr/local/bin
+RUN mkdir ./go && tar -xvf /tmp/golang-linux.tar.gz -C ./go
+RUN mv go /usr/local
 
-ENV GOROOT=/usr/local/bin PATH=/usr/local/go/bin:$PATH
+ENV PATH "$PATH:/usr/local/go/bin"
+ENV GOPATH /go
+ENV GOROOT=/usr/local/go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
 RUN apt-get update && apt-get install -y apt-transport-https
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
