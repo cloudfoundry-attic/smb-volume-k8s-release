@@ -45,7 +45,7 @@ var _ = Describe("CSIDriver object", func() {
 	It("should register a CSIDriver object", func() {
 		getCsiDriverOutout := local_k8s_cluster.Kubectl("get", "csidriver", "-o", "json")
 		csiDriverInfos := CSIDriversInfo{}
-		json.Unmarshal([]byte(getCsiDriverOutout), &csiDriverInfos)
+		Expect(json.Unmarshal([]byte(getCsiDriverOutout), &csiDriverInfos)).NotTo(HaveOccurred())
 
 		var csiDriver Items
 		for _, csiDriverInfo := range csiDriverInfos.Items {
