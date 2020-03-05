@@ -20,7 +20,8 @@ spec:
       labels:
         app: csi-nodeplugin-smbplugin
     spec:
-      hostNetwork: true
+      automountServiceAccountToken: false
+      hostNetwork: false
       containers:
         - name: node-driver-registrar
           image: quay.io/k8scsi/csi-node-driver-registrar:v1.0.2
