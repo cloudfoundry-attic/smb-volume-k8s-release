@@ -35,6 +35,6 @@ function kill_docker() {
 trap kill_docker EXIT
 
 make --directory=smb-volume-k8s-release/smb-broker extract-go-version
-cat /tmp/version
+cat /tmp/go-version
 
-cp /tmp/version /go-version
+cp /tmp/go-version go-version/
