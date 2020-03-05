@@ -24,8 +24,8 @@ RUN apt-get install -y \
   libffi-dev
 
 ADD go-version /tmp/go-version
-RUN wget $(cat /tmp/go-version) -O /tmp/golang-linux.tar.gz
-RUN mkdir ./go && tar -xvf /tmp/golang-linux.tar.gz -C ./go
+RUN wget https://dl.google.com/go/go$(cat /tmp/go-version).linux-amd64.tar.gz
+RUN tar -xvf go$(cat /tmp/go-version).linux-amd64.tar.gz
 RUN mv go /usr/local
 
 ENV PATH "$PATH:/usr/local/go/bin"
