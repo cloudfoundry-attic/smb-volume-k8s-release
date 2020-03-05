@@ -29,14 +29,14 @@ test:
 	@$(MAKE) -f $(THIS_FILE) vet
 	@$(MAKE) -f $(THIS_FILE) build
 	go get github.com/onsi/ginkgo/ginkgo
-	cd identityserver && ~/go/bin/ginkgo -race .
-	cd nodeserver && ~/go/bin/ginkgo -race .
+	cd identityserver && ginkgo -race .
+	cd nodeserver && ginkgo -race .
 
 e2e: SHELL:=/bin/bash
 e2e:
 	@$(MAKE) -f $(THIS_FILE) image-local-registry
 	go get github.com/onsi/ginkgo/ginkgo
-	~/go/bin/ginkgo -r -focus "CSI Volumes|CSIDriver"
+	ginkgo -r -focus "CSI Volumes|CSIDriver"
 
 fly:
 	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release

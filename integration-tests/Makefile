@@ -3,7 +3,7 @@ test:
 	make --directory=../smb-broker image-local-registry
 	make --directory=../smb-broker push-local-image-source
 	make --directory=../smb-csi-driver image-local-registry
-	~/go/bin/ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1 .
+	ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1 .
 
 start-docker:
 	start-docker &
