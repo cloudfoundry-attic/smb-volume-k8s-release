@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"os"
 	"time"
 )
 
@@ -57,7 +58,12 @@ var _ = Describe("CSIDriver object", func() {
 		Expect(csiDriver).NotTo(BeNil())
 		Expect(csiDriver.Spec.AttachRequired).To(BeFalse())
 		Expect(csiDriver.Spec.PodInfoOnMount).To(BeFalse())
-		Expect(csiDriver.Spec.VolumeLifecycleModes).To(ContainElement("Persistent"))
-		Expect(csiDriver.Spec.VolumeLifecycleModes).NotTo(ContainElement("Ephemeral"))
+		k8sVersion := os.Getenv("K8S_IMAGE")
+		if k8sVersion == "kindest/node:v1.15.7" {
+			Expect(csiDriver.Spec.VolumeLifecycleModes).To(BeNil())
+		} else {
+			Expect(csiDriver.Spec.VolumeLifecycleModes).To(ContainElement("Persistent"))
+			Expect(csiDriver.Spec.VolumeLifecycleModes).NotTo(ContainElement("Ephemeral"))
+		}
 	})
 })
