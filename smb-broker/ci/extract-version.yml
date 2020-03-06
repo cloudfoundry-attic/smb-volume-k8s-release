@@ -9,6 +9,7 @@ image_resource:
 
 inputs:
   - name: smb-volume-k8s-release
+  - name: cf-acceptance-tests
 
 outputs:
   - name: go-version

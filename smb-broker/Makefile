@@ -11,9 +11,6 @@ test:
 	@$(MAKE) -f $(THIS_FILE) push-local-image-source
 	ulimit -n 10000 && ulimit -a && GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo && GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
-extract-go-version:
-	pack inspect-image cfpersi/smb-broker --bom | jq -r '.remote[0].version' > /tmp/go-version
-
 fmt:
 	go fmt ./...
 
