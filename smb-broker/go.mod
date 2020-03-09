@@ -12,8 +12,8 @@ require (
 	github.com/onsi/gomega v1.9.0
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pivotal-cf/brokerapi v6.4.2+incompatible
-	github.com/pkg/errors v0.9.0
-	k8s.io/api v0.17.0
-	k8s.io/apimachinery v0.17.0
+	github.com/pkg/errors v0.9.1
+	k8s.io/api v0.17.3
+	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.17.0
 )
