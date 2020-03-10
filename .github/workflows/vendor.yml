@@ -22,14 +22,14 @@ jobs:
           git_user_email: cf-volume-services@pivotal.io
           go_mod_directory: ./smb-broker
       - name: Run smb-csi-driver go-mod-vendor-pr
-          uses: DennisDenuto/go-mod-vendor-pr@master
-          with:
-            git_user_name: GitHub Actions
-            git_user_email: cf-volume-services@pivotal.io
-            go_mod_directory: ./smb-csi-driver
+        uses: DennisDenuto/go-mod-vendor-pr@master
+        with:
+          git_user_name: GitHub Actions
+          git_user_email: cf-volume-services@pivotal.io
+          go_mod_directory: ./smb-csi-driver
       - name: Run integration-tests go-mod-vendor-pr
-          uses: DennisDenuto/go-mod-vendor-pr@master
-          with:
-            git_user_name: GitHub Actions
-            git_user_email: cf-volume-services@pivotal.io
-            go_mod_directory: ./integration-tests
+        uses: DennisDenuto/go-mod-vendor-pr@master
+        with:
+          git_user_name: GitHub Actions
+          git_user_email: cf-volume-services@pivotal.io
+          go_mod_directory: ./integration-tests
