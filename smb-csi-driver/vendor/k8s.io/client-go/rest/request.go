@@ -19,7 +19,6 @@ package rest
 import (
 	"bytes"
 	"context"
-	"os"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -421,17 +420,6 @@ func (r *Request) Body(obj interface{}) *Request {
 		if reflect.ValueOf(t).IsNil() {
 			return r
 		}
-
-		defer func(data interface{}) {
-			if r := recover(); r != nil {
-				err := ioutil.WriteFile("/tmp/lol", []byte(fmt.Sprintf(">>>> %#v", data)), os.ModePerm)
-				if err != nil {
-					panic(err)
-				}
-				panic(r)
-			}
-		}(r.c)
-
 		encoder, err := r.c.content.Negotiator.Encoder(r.c.content.ContentType, nil)
 		if err != nil {
 			r.err = err
