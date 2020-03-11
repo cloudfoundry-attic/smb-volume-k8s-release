@@ -147,6 +147,21 @@ func KubectlWithStringAsStdIn(cmd ...string) func(contents string) string {
 	}
 }
 
+func KappWithStringAsStdIn(cmd ...string) func(contents string) string {
+	return func(contents string) string {
+		tempYamlFile, err := ioutil.TempFile(os.TempDir(), "temp_kapply_yaml")
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = tempYamlFile.WriteString(contents)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(tempYamlFile.Close()).NotTo(HaveOccurred())
+
+		cmd = append(cmd, tempYamlFile.Name())
+		stdout, stderr := runTestCommand("kapp", cmd...)
+
+		return stdout + stderr
+	}
+}
 
 func Helm(cmd ...string) string {
 	stdout, stderr := runTestCommand("helm", cmd...)

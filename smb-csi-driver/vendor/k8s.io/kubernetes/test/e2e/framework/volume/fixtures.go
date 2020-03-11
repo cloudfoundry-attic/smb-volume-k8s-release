@@ -521,7 +521,9 @@ func InjectContent(f *framework.Framework, config TestConfig, fsGroup *int64, fs
 			// Filesystem: write content
 			fileName := fmt.Sprintf("/opt/%d/%s", i, test.File)
 			commands = append(commands, generateWriteFileCmd(test.ExpectedContent, fileName)...)
+			//commands = append(commands, "ls", "/opt")
 		}
+
 		out, err := framework.RunKubectl(injectorPod.Namespace, commands...)
 		framework.ExpectNoError(err, "failed: writing the contents: %s", out)
 	}

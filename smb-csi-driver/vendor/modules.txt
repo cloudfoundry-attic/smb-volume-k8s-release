@@ -7,7 +7,7 @@ code.cloudfoundry.org/goshims/osshim/os_fake
 code.cloudfoundry.org/lager
 code.cloudfoundry.org/lager/lagerctx
 code.cloudfoundry.org/lager/lagertest
-# code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200304231403-c12a5212e5ec
+# code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200311205858-3b77aba392b0
 code.cloudfoundry.org/smb-volume-k8s-local-cluster
 # github.com/BurntSushi/toml v0.3.1
 github.com/BurntSushi/toml

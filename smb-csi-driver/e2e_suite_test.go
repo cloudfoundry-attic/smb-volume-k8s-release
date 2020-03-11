@@ -36,7 +36,9 @@ var _ = BeforeSuite(func() {
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath, os.Getenv("K8S_IMAGE"))
 
-	local_k8s_cluster.Kubectl("apply", "--kustomize", "./base")
+	kubectlStdOut := local_k8s_cluster.KubectlStdOut("kustomize", "./base")
+	local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-csi-driver", "-f")(kubectlStdOut)
+
 	Eventually(func()string{
 		return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
 	}, 10 * time.Minute, 1 * time.Second).Should(ContainSubstring("Running"))
