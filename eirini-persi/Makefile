@@ -1,12 +1,13 @@
 build:
-	kubectl kustomize ./base | kubectl apply -f -
+	kubectl create namespace eirini
+	kubectl kustomize ./base | kapp -y deploy -a eirini-persi -f -
 
 delete:
 	kubectl delete mutatingwebhookconfiguration eirini-x-mutating-hook-eirini -n eirini || true
 	kubectl delete secret eirini-x-setupcertificate -n eirini || true
-	kubectl kustomize ./ephemeral-env | kubectl delete -f -
+	kapp -y delete -a eirini-persi
 
 status:
-	kubectl kustomize ./ephemeral-env | kubectl describe -f -
+	kapp inspect -a eirini-persi
 
 .PHONY: build delete status
