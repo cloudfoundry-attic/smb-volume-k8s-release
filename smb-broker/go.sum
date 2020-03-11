@@ -5,6 +5,8 @@ code.cloudfoundry.org/lager v2.0.0+incompatible h1:WZwDKDB2PLd/oL+USK4b4aEjUymIe
 code.cloudfoundry.org/lager v2.0.0+incompatible/go.mod h1:O2sS7gKP3HM2iemG+EnwvyNQK7pTSC6Foi4QiMp9sSk=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200304231403-c12a5212e5ec h1:QMUIdXLCAX0lU8oPq4X+tYxNaY7ww0pkfl5AoZhvZ1M=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v0.0.0-20200304231403-c12a5212e5ec/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200311205858-3b77aba392b0 h1:WDZgZzyZFzUEfi0pILcM0ktIY2tg5i8py72Dp4SC4GA=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200311205858-3b77aba392b0/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 github.com/Azure/go-autorest/autorest v0.9.0/go.mod h1:xyHB1BMZT0cuDHU7I0+g046+BFDTQ8rEZB0s4Yfa6bI=
 github.com/Azure/go-autorest/autorest/adal v0.5.0/go.mod h1:8Z9fGy2MpX0PvDjB1pEgQTmVqjGhiHBW7RJJEciWzS0=
 github.com/Azure/go-autorest/autorest/date v0.1.0/go.mod h1:plvfp3oPSKwf2DNjlBjWF/7vwR+cUD/ELuzDCXwHUVA=

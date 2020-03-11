@@ -35,7 +35,8 @@ var _ = BeforeSuite(func() {
 	local_k8s_cluster.CreateKpackImageResource()
 
 	local_k8s_cluster.Kubectl("create", "namespace", namespace)
-	local_k8s_cluster.Helm("install", "smb-broker", "./helm", "--set", "smbBrokerUsername="+smbBrokerUsername, "--set", "smbBrokerPassword="+smbBrokerPassword, "--set", "targetNamespace="+namespace, "--set", "ingress.hosts[0].host=localhost", "--set", "ingress.hosts[0].paths={/v2}", "--set", "ingress.enabled=true", "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
+	smbBrokerDeploymentYaml := local_k8s_cluster.HelmStdout("template", "smb-broker", "./helm", "--set", "smbBrokerUsername="+smbBrokerUsername, "--set", "smbBrokerPassword="+smbBrokerPassword, "--set", "targetNamespace="+namespace, "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
+	local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-broker", "-f")(smbBrokerDeploymentYaml)
 
 	By("pulling the smb-broker into the docker daemon", func() {
 		local_k8s_cluster.Docker("pull", "localhost:5000/cfpersi/smb-broker:local-test")
