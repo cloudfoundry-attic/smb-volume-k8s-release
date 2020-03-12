@@ -41,10 +41,6 @@ RUN apt-get update
 RUN apt-get install -y kubectl
 RUN ln -s /usr/bin/kubectl /usr/local/bin/kubectl
 
-RUN wget https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz
-RUN tar -zxvf helm-v3.0.2-linux-amd64.tar.gz
-RUN mv linux-amd64/helm /usr/local/bin/helm
-
 ADD install-ruby.sh /tmp/install-ruby.sh
 RUN chmod +x /tmp/install-ruby.sh
 RUN /tmp/install-ruby.sh && rm /tmp/install-ruby.sh
