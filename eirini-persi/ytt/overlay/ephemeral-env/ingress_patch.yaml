@@ -1,0 +1,9 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Ingress", "metadata":{"name":"eirini-persi"}})
+---
+#@overlay/merge
+spec:
+  rules:
+  #@overlay/match by=overlay.index(0)
+  - host: eirini-persi.app.cf.ephemeral-env-eirini-gke-2.cf-app.com

@@ -13,3 +13,4 @@ spec:
               serviceName: eirini-persi-svc
               servicePort: https
             path: /
+      host:
