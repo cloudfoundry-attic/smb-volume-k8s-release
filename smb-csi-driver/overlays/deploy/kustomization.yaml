@@ -1,4 +1,0 @@
-bases:
-- ../../base
-patchesStrategicMerge:
-  - csi-nodeplugin-smbplugin-registry.yaml
