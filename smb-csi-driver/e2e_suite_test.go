@@ -36,7 +36,7 @@ var _ = BeforeSuite(func() {
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath, os.Getenv("K8S_IMAGE"))
 
-	kubectlStdOut := local_k8s_cluster.KubectlStdOut("kustomize", "./base")
+	kubectlStdOut := local_k8s_cluster.YttStdout("-f", "./ytt/base")
 	local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-csi-driver", "-f")(kubectlStdOut)
 
 	Eventually(func()string{
