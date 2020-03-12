@@ -1,0 +1,23 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end data.values.ingress.enabled:
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: data.values.smbbroker.fullname
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  #@ for ingress_host in data.values.ingress.hosts:
+    - host: #@ ingress_host.host
+      http:
+        paths:
+          #@ for ingress_host_path in ingress_host.paths:
+          - path: #@ ingress_host_path
+            backend:
+              serviceName: #@ data.values.smbbroker.fullname
+              servicePort: http
+          #@ end
+  #@ end

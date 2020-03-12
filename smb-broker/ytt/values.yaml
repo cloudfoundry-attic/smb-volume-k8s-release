@@ -13,3 +13,10 @@ image:
   repository: "cfpersi/smb-broker"
   tag: "latets"
   pullPolicy: Always
+
+ingress:
+  enabled: true
+  hosts:
+    - host: "localhost"
+      paths:
+        - "/v2"
