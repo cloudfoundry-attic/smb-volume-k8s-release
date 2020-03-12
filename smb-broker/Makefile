@@ -26,25 +26,8 @@ push-local-image-source:
 	docker tag cfpersi/smb-broker-source localhost:5000/cfpersi/smb-broker-source:latest && \
 	docker push localhost:5000/cfpersi/smb-broker-source:latest
 
-helm:
-	helm version | grep 'v3.' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
-	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true ./helm
-
-helm-dev:
-	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
-	helm status smb-dev-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods --set ingress.enabled=true --set image.tag=dev smb-dev-broker ./helm || helm install smb-dev-broker --set ingress.enabled=true --set image.tag=dev ./helm
-
-helm_dev_delete:
-	helm delete smb-dev-broker
-
-helm_delete:
-	helm delete smb-broker
-
-helm_scf:
-	helm version | grep 'v3.0' || ( echo 'ERROR: requires helm 3!!!!'; exit 1 )
-	helm status smb-broker | grep 'STATUS: deployed' && helm upgrade --recreate-pods smb-broker --set targetNamespace=eirini --set ingress.enabled=true ./helm || helm install smb-broker --set ingress.enabled=true --set targetNamespace=eirini ./helm
 
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
-.PHONY: test fly image-local-registry push-local-image-source helm
+.PHONY: test fly image-local-registry push-local-image-source

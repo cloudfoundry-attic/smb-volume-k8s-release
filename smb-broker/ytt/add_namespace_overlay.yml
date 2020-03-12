@@ -1,0 +1,22 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.all,expects="0+"
+---
+metadata:
+  #@overlay/match missing_ok=True
+  namespace: #@ data.values.namespace
+
+---
+#@overlay/match by=overlay.subset({"kind":"ClusterRole"})
+---
+metadata:
+  #@overlay/remove
+  namespace:
+
+---
+#@overlay/match by=overlay.subset({"kind":"ClusterRoleBinding"})
+---
+metadata:
+  #@overlay/remove
+  namespace:

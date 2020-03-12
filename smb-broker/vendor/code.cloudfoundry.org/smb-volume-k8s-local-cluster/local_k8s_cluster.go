@@ -121,11 +121,6 @@ func KubectlStdOut(cmd ...string) string {
 	return stdout
 }
 
-func HelmStdout(cmd ...string) string {
-	stdout, _ := runTestCommand("helm", cmd...)
-	return stdout
-}
-
 func Kubectl(cmd ...string) string {
 	stdout, stderr := runTestCommand("kubectl", cmd...)
 	return stdout + stderr
@@ -163,9 +158,14 @@ func KappWithStringAsStdIn(cmd ...string) func(contents string) string {
 	}
 }
 
-func Helm(cmd ...string) string {
-	stdout, stderr := runTestCommand("helm", cmd...)
+func Ytt(cmd ...string) string {
+	stdout, stderr := runTestCommand("ytt", cmd...)
 	return stdout + stderr
+}
+
+func YttStdout(cmd ...string) string {
+	stdout, _ := runTestCommand("ytt", cmd...)
+	return stdout
 }
 
 func Docker(cmd ...string) string {
