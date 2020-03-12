@@ -1,6 +1,6 @@
 # smb-volume-k8s-release
 This is a repository in development, pre alpha, not feature complete.
-This contains helm releases that packages 
+This contains kapp applications that packages 
 
 - an smb broker
 - a smb csi driver
