@@ -1,0 +1,11 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata":{"name":"csi-nodeplugin-smbplugin"}})
+---
+#@overlay/merge
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.index(1)
+        - image: cfpersi/smb-csi-driver
