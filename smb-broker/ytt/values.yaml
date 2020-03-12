@@ -3,20 +3,24 @@
 smbBrokerUsername: ""
 smbBrokerPassword: ""
 
-namespace: "default"
+namespace: default
 replicaCount: 1
 smbbroker:
-  fullname: "smb-broker"
-  name: "smb-broker"
+  fullname: smb-broker
+  name: smb-broker
 
 image:
-  repository: "cfpersi/smb-broker"
-  tag: "latets"
+  repository: cfpersi/smb-broker
+  tag: latest
   pullPolicy: Always
 
 ingress:
   enabled: true
   hosts:
-    - host: "localhost"
+    - host: localhost
       paths:
         - "/v2"
+
+service:
+  type: ClusterIP
+  port: 80
