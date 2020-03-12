@@ -26,8 +26,11 @@ push-local-image-source:
 	docker tag cfpersi/smb-broker-source localhost:5000/cfpersi/smb-broker-source:latest && \
 	docker push localhost:5000/cfpersi/smb-broker-source:latest
 
+kapp: SHELL=/bin/bash
+kapp:
+	kapp deploy -y -a smb-broker -f <(ytt -f ytt/)
 
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
-.PHONY: test fly image-local-registry push-local-image-source
+.PHONY: test fly image-local-registry push-local-image-source kapp
