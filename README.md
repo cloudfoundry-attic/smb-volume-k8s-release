@@ -36,7 +36,7 @@ make kustomize
 ## Installing smbbroker
 ```
 cd smb-broker
-make helm
+make kapp
 cf create-service-broker smbbroker foo foo http://smb-broker.default
 cf enable-service-access smb
 ```
