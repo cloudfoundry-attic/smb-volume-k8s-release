@@ -1,8 +1,10 @@
+build: SHELL:=/bin/bash
 build:
 	kubectl create namespace eirini
-	kubectl kustomize ./base | kapp -y deploy -a eirini-persi -f -
+	kapp deploy -y -a eirini-persi -f <(ytt -f ytt/base -f ytt/overlay/ephemeral-env -v namespace=eirini)
 
 delete:
+	kubectl delete namespace eirini
 	kubectl delete mutatingwebhookconfiguration eirini-x-mutating-hook-eirini -n eirini || true
 	kubectl delete secret eirini-x-setupcertificate -n eirini || true
 	kapp -y delete -a eirini-persi
