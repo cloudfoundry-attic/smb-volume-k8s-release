@@ -1,0 +1,15 @@
+#@data/values
+---
+smbBrokerUsername: ""
+smbBrokerPassword: ""
+
+namespace: "default"
+replicaCount: 1
+smbbroker:
+  fullname: "smb-broker"
+  name: "smb-broker"
+
+image:
+  repository: "cfpersi/smb-broker"
+  tag: "latets"
+  pullPolicy: Always

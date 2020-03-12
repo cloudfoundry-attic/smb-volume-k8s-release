@@ -1,0 +1,114 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: #@ data.values.smbbroker.fullname
+  labels:
+    app: #@ data.values.smbbroker.fullname
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: create-pv
+rules:
+  - apiGroups: ["v1", ""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "create", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: smb-broker-pv-roles
+subjects:
+  - kind: ServiceAccount
+    name: #@ data.values.smbbroker.fullname
+    namespace: #@ data.values.namespace
+roleRef:
+  kind: ClusterRole
+  name: create-pv
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: create-pvc
+rules:
+  - apiGroups: ["v1", ""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "create", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: smb-broker-pvc-roles
+subjects:
+  - kind: ServiceAccount
+    name: #@ data.values.smbbroker.fullname
+    namespace: #@ data.values.namespace
+roleRef:
+  kind: Role
+  name: create-pvc
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: create-secret
+rules:
+  - apiGroups: ["v1", ""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: smb-broker-secret-roles
+subjects:
+  - kind: ServiceAccount
+    name: #@ data.values.smbbroker.fullname
+    namespace: #@ data.values.namespace
+roleRef:
+  kind: Role
+  name: create-secret
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #@ data.values.smbbroker.fullname
+spec:
+  replicas: #@ data.values.replicaCount
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: #@ data.values.smbbroker.name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: #@ data.values.smbbroker.name
+    spec:
+      serviceAccountName: #@ data.values.smbbroker.fullname
+      automountServiceAccountToken: true
+      containers:
+        - name: smb-broker
+          image: #@ data.values.image.repository + ":" + data.values.image.tag
+          imagePullPolicy: #@ data.values.image.pullPolicy
+          env:
+            - name: TARGET_NAMESPACE
+              value: #@ data.values.namespace
+            - name: BROKER_USERNAME
+              value: #@ data.values.smbBrokerUsername
+            - name: BROKER_PASSWORD
+              value: #@ data.values.smbBrokerPassword
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
