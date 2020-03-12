@@ -26,12 +26,12 @@ var _ = BeforeSuite(func() {
 		smbBrokerPassword := "bar"
 		namespace := "cf-workloads"
 
-		smbBrokerDeploymentYaml := local_k8s_cluster.HelmStdout("template", "smb-broker", "../smb-broker/helm", "--set", "smbBrokerUsername="+smbBrokerUsername, "--set", "smbBrokerPassword="+smbBrokerPassword, "--set", "targetNamespace="+namespace, "--set", "image.repository=registry:5000/cfpersi/smb-broker", "--set", "image.tag=local-test")
+		smbBrokerDeploymentYaml := local_k8s_cluster.YttStdout("-f", "./ytt", "-v", "smbBrokerUsername="+smbBrokerUsername, "-v", "smbBrokerPassword="+smbBrokerPassword, "-v", "namespace="+namespace, "-v", "image.repository=registry:5000/cfpersi/smb-broker", "-v", "image.tag=local-test")
 		local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-broker", "-f")(smbBrokerDeploymentYaml)
 	})
 
 	By("deploying smb csi driver into the k8s cluster", func() {
-		kubectlStdOut := local_k8s_cluster.KubectlStdOut("kustomize", "../smb-csi-driver/base")
+		kubectlStdOut := local_k8s_cluster.YttStdout("-f", "./ytt/base")
 		local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-csi-driver", "-f")(kubectlStdOut)
 		Eventually(func()string{
 			return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
