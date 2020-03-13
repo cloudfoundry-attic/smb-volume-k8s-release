@@ -12,9 +12,7 @@ image-local-registry:
 	[ $(running) != "true" ] && docker run \
 	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
-	docker build --no-cache -t cfpersi/smb-plugin .
-	docker tag cfpersi/smb-plugin localhost:5000/cfpersi/smb-plugin:local-test
-	docker push localhost:5000/cfpersi/smb-plugin:local-test
+	pack build localhost:5000/cfpersi/smb-plugin:local-test --builder cloudfoundry/cnb:bionic --run-image cfpersi/cnb-run-csi-driver --publish
 
 start-docker:
 	start-docker &
