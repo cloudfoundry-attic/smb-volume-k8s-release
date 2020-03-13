@@ -53,7 +53,7 @@ func main() {
 	lis, err := net.Listen(proto, addr)
 
 	if err != nil {
-		logger.Fatal("failed to listen: %v", err)
+		logger.Fatal("failed to listen", err)
 	}
 
 	opts := []grpc.ServerOption{
