@@ -46,12 +46,14 @@ spec:
         - name: smb
           securityContext:
             privileged: true
+            runAsUser: 0
+            runAsGroup: 0
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: registry:5000/cfpersi/smb-plugin:local-test
+          command: ["/layers/org.cloudfoundry.go-mod/app-binary/bin/smb-csi-driver"]
           args :
-            - "/app/main"
             - "--nodeid=$(NODE_ID)"
             - "--endpoint=$(CSI_ENDPOINT)"
           env:
