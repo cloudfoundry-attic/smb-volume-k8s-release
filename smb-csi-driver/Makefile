@@ -46,6 +46,6 @@ fly-e2e:
 
 kapp: SHELL=/bin/bash
 kapp:
-	kapp deploy -y -a smb-broker -f <(ytt -f ytt/base)
+	kapp deploy -y -a smb-csi-driver -f <(ytt -f ytt/base)
 
 .PHONY: test fly fly-e2e image-local-registry
