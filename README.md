@@ -22,15 +22,14 @@ cd $HOME/cf-for-k8s/bin
 
 ## Installing eirini-persi (eirini-ext volume services extension)
 ```
-kubectl create namespace eirini
 cd eirini-persi
-make build
+make kapp
 ```
 
 ## Installing smb-csi-driver
 ```
 cd smb-csi-driver
-make kustomize
+make kapp
 ```
 
 ## Installing smbbroker
