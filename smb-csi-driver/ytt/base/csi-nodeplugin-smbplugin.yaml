@@ -1,3 +1,5 @@
+#@ load("@ytt:data", "data")
+
 apiVersion: storage.k8s.io/v1beta1
 kind: CSIDriver
 metadata:
@@ -49,7 +51,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry:5000/cfpersi/smb-plugin:local-test
+          image: #@ data.values.image.repository + ":" + data.values.image.tag
           args :
             - "/app/main"
             - "--nodeid=$(NODE_ID)"

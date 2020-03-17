@@ -1,3 +1,7 @@
 #@data/values
 ---
 namespace: default
+
+image:
+  repository: registry:5000/cfpersi/smb-plugin
+  tag: local-test

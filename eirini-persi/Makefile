@@ -1,6 +1,6 @@
-build: SHELL:=/bin/bash
-build:
-	kubectl create namespace eirini
+kapp: SHELL:=/bin/bash
+kapp:
+	kubectl get namespace eirini || kubectl create namespace eirini
 	kapp deploy -y -a eirini-persi -f <(ytt -f ytt/base -f ytt/overlay/ephemeral-env -v namespace=eirini)
 
 delete:
