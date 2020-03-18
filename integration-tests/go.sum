@@ -1,5 +1,3 @@
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200311205858-3b77aba392b0 h1:WDZgZzyZFzUEfi0pILcM0ktIY2tg5i8py72Dp4SC4GA=
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200311205858-3b77aba392b0/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200312221247-d68bbee1d761 h1:s80mp1xeMNzSp8WgNy9B/7+sl4xGsTrShXkhJfOe6nM=
 code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200312221247-d68bbee1d761/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
