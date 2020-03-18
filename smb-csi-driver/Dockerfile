@@ -2,7 +2,7 @@ FROM golang as builder
 RUN mkdir /app
 ADD . /app/
 WORKDIR /app
-RUN go build -o main -mod=vendor .
+RUN go build -o main .
 
 FROM golang
 RUN apt update && apt -y install cifs-utils
