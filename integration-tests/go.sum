@@ -1,5 +1,5 @@
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200318181354-8556934c8ee5 h1:KgAyzogx+Jkjy7Sw+Rr+R0NRpSVQselw2IrnmCAKh84=
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200318181354-8556934c8ee5/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200319225428-e014570a36b9 h1:aBMnwkERnzBfc8uQeQuaEAwEPS4c6X0GUO7OPVcEohg=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200319225428-e014570a36b9/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
