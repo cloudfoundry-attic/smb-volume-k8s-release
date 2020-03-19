@@ -1,4 +1,5 @@
 #@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
 
 ---
 apiVersion: v1
@@ -118,7 +119,7 @@ spec:
               port: 8080
               httpHeaders:
                 - name: Authorization
-                  value: Basic c21iLWJyb2tlci11c2VybmFtZTpzbWItYnJva2VyLXBhc3N3b3Jk
+                  value: #@ "Basic " + base64.encode(data.values.smbBrokerUsername + ":" + data.values.smbBrokerPassword)
             failureThreshold: 20
             periodSeconds: 10
           readinessProbe:
@@ -127,7 +128,7 @@ spec:
               port: 8080
               httpHeaders:
                 - name: Authorization
-                  value: Basic c21iLWJyb2tlci11c2VybmFtZTpzbWItYnJva2VyLXBhc3N3b3Jk
+                  value: #@ "Basic " + base64.encode(data.values.smbBrokerUsername + ":" + data.values.smbBrokerPassword)
             failureThreshold: 20
             periodSeconds: 10
           livenessProbe:
@@ -136,6 +137,6 @@ spec:
               port: 8080
               httpHeaders:
                 - name: Authorization
-                  value: Basic c21iLWJyb2tlci11c2VybmFtZTpzbWItYnJva2VyLXBhc3N3b3Jk
+                  value: #@ "Basic " + base64.encode(data.values.smbBrokerUsername + ":" + data.values.smbBrokerPassword)
             failureThreshold: 20
             periodSeconds: 10
