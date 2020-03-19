@@ -36,7 +36,7 @@ make kapp
 ```
 cd smb-broker
 make kapp
-cf create-service-broker smbbroker foo foo http://smb-broker.default
+cf create-service-broker smbbroker foo foo http://smb-broker.cf-workloads
 cf enable-service-access smb
 ```
 

@@ -28,7 +28,8 @@ push-local-image-source:
 
 kapp: SHELL=/bin/bash
 kapp:
-	kapp deploy -y -a smb-broker -f <(ytt -f ytt/)
+	kubectl get namespace cf-workloads || kubectl create namespace cf-workloads
+	kapp deploy -y -a smb-broker -f <(ytt -f ytt/ -v smbBrokerUsername=foo -v smbBrokerPassword=foo)
 
 fly:
 	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p

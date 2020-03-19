@@ -3,7 +3,7 @@
 smbBrokerUsername: ""
 smbBrokerPassword: ""
 
-namespace: default
+namespace: cf-workloads
 replicaCount: 1
 smbbroker:
   fullname: smb-broker
