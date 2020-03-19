@@ -3,8 +3,8 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
 code.cloudfoundry.org/lager v2.0.0+incompatible h1:WZwDKDB2PLd/oL+USK4b4aEjUymIej9My2nUQ9oWEwQ=
 code.cloudfoundry.org/lager v2.0.0+incompatible/go.mod h1:O2sS7gKP3HM2iemG+EnwvyNQK7pTSC6Foi4QiMp9sSk=
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200318181354-8556934c8ee5 h1:KgAyzogx+Jkjy7Sw+Rr+R0NRpSVQselw2IrnmCAKh84=
-code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200318181354-8556934c8ee5/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200319225428-e014570a36b9 h1:aBMnwkERnzBfc8uQeQuaEAwEPS4c6X0GUO7OPVcEohg=
+code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200319225428-e014570a36b9/go.mod h1:SQkHTtm+Lvq7j2HjFGBj2ZUUnnvj2R78/SysHk4a1fU=
 github.com/Azure/go-autorest/autorest v0.9.0/go.mod h1:xyHB1BMZT0cuDHU7I0+g046+BFDTQ8rEZB0s4Yfa6bI=
 github.com/Azure/go-autorest/autorest/adal v0.5.0/go.mod h1:8Z9fGy2MpX0PvDjB1pEgQTmVqjGhiHBW7RJJEciWzS0=
 github.com/Azure/go-autorest/autorest/date v0.1.0/go.mod h1:plvfp3oPSKwf2DNjlBjWF/7vwR+cUD/ELuzDCXwHUVA=
