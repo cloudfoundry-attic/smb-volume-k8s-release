@@ -120,8 +120,8 @@ spec:
               httpHeaders:
                 - name: Authorization
                   value: #@ "Basic " + base64.encode(data.values.smbBrokerUsername + ":" + data.values.smbBrokerPassword)
-            failureThreshold: 20
-            periodSeconds: 10
+            failureThreshold: 10
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /v2/catalog
