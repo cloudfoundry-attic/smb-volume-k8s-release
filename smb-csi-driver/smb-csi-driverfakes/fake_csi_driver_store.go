@@ -9,12 +9,18 @@ import (
 )
 
 type FakeCSIDriverStore struct {
-	CreateStub        func(string, *csi.NodePublishVolumeRequest, error)
+	CreateStub        func(string, *csi.NodePublishVolumeRequest, error) error
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
 		arg1 string
 		arg2 *csi.NodePublishVolumeRequest
 		arg3 error
+	}
+	createReturns struct {
+		result1 error
+	}
+	createReturnsOnCall map[int]struct {
+		result1 error
 	}
 	DeleteStub        func(string)
 	deleteMutex       sync.RWMutex
@@ -41,8 +47,9 @@ type FakeCSIDriverStore struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeCSIDriverStore) Create(arg1 string, arg2 *csi.NodePublishVolumeRequest, arg3 error) {
+func (fake *FakeCSIDriverStore) Create(arg1 string, arg2 *csi.NodePublishVolumeRequest, arg3 error) error {
 	fake.createMutex.Lock()
+	ret, specificReturn := fake.createReturnsOnCall[len(fake.createArgsForCall)]
 	fake.createArgsForCall = append(fake.createArgsForCall, struct {
 		arg1 string
 		arg2 *csi.NodePublishVolumeRequest
@@ -51,8 +58,13 @@ func (fake *FakeCSIDriverStore) Create(arg1 string, arg2 *csi.NodePublishVolumeR
 	fake.recordInvocation("Create", []interface{}{arg1, arg2, arg3})
 	fake.createMutex.Unlock()
 	if fake.CreateStub != nil {
-		fake.CreateStub(arg1, arg2, arg3)
+		return fake.CreateStub(arg1, arg2, arg3)
 	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.createReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeCSIDriverStore) CreateCallCount() int {
@@ -61,7 +73,7 @@ func (fake *FakeCSIDriverStore) CreateCallCount() int {
 	return len(fake.createArgsForCall)
 }
 
-func (fake *FakeCSIDriverStore) CreateCalls(stub func(string, *csi.NodePublishVolumeRequest, error)) {
+func (fake *FakeCSIDriverStore) CreateCalls(stub func(string, *csi.NodePublishVolumeRequest, error) error) {
 	fake.createMutex.Lock()
 	defer fake.createMutex.Unlock()
 	fake.CreateStub = stub
@@ -72,6 +84,29 @@ func (fake *FakeCSIDriverStore) CreateArgsForCall(i int) (string, *csi.NodePubli
 	defer fake.createMutex.RUnlock()
 	argsForCall := fake.createArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeCSIDriverStore) CreateReturns(result1 error) {
+	fake.createMutex.Lock()
+	defer fake.createMutex.Unlock()
+	fake.CreateStub = nil
+	fake.createReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeCSIDriverStore) CreateReturnsOnCall(i int, result1 error) {
+	fake.createMutex.Lock()
+	defer fake.createMutex.Unlock()
+	fake.CreateStub = nil
+	if fake.createReturnsOnCall == nil {
+		fake.createReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.createReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeCSIDriverStore) Delete(arg1 string) {

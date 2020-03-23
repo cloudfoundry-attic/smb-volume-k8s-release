@@ -20,7 +20,7 @@ var defaultMountOptions = "uid=2000,gid=2000"
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_csi_driver_store.go . CSIDriverStore
 type CSIDriverStore interface {
-	Create(string, *csi.NodePublishVolumeRequest, error)
+	Create(string, *csi.NodePublishVolumeRequest, error) error
 	Delete(string)
 	Get(string, *csi.NodePublishVolumeRequest) (err error, exists bool, optionsMatch bool)
 }
@@ -51,10 +51,14 @@ func (c *CheckParallelCSIDriverRequests) Get(targetPath string, k *csi.NodePubli
 	return nil, false, false
 }
 
-func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePublishVolumeRequest, v error) {
-	options, _ := json.Marshal(k.VolumeContext)
+func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePublishVolumeRequest, v error) error {
+	options, err := json.Marshal(k.VolumeContext)
+	if err != nil {
+		return err
+	}
 	hash := sha256.Sum256(options)
 	c.store[targetPath] = volumeInfo{v, hash}
+	return nil
 }
 
 func (c *CheckParallelCSIDriverRequests) Delete(k string) {
@@ -106,7 +110,10 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	}
 
 	defer func() {
-		n.csiDriverStore.Create(r.TargetPath, r, err)
+		createErr := n.csiDriverStore.Create(r.TargetPath, r, err)
+		if createErr != nil {
+			err = createErr
+		}
 	}()
 
 	if r.VolumeCapability == nil {

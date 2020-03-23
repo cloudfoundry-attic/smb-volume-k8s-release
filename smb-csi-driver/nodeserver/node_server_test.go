@@ -209,6 +209,18 @@ var _ = Describe("NodeServer", func() {
 			})
 		})
 
+		Context("when creating an entry in the store fails", func() {
+
+			BeforeEach(func() {
+				fakeCSIDriverStore.CreateReturns(errors.New("hash failure"))
+			})
+
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("hash failure"))
+			})
+		})
+
 		Context("when a second NodePublish occurs", func() {
 			Context("when it uses the same mount options", func() {
 
@@ -227,7 +239,6 @@ var _ = Describe("NodeServer", func() {
 				})
 			})
 		})
-
 	})
 
 	Describe("#NodeUnpublishVolume", func() {
