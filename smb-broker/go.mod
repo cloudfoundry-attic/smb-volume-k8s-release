@@ -7,7 +7,7 @@ require (
 	code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200319225428-e014570a36b9
 	github.com/drewolson/testflight v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.4
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.2
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.3
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.9.0
 	github.com/pborman/uuid v1.2.0 // indirect
