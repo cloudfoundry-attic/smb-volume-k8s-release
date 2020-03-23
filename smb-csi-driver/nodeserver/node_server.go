@@ -30,7 +30,7 @@ func NewStore() CSIDriverStore {
 }
 
 type volumeInfo struct {
-	err error
+	err  error
 	hash [32]byte
 }
 

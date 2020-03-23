@@ -42,7 +42,7 @@ var _ = Describe("NodeServer", func() {
 
 	Describe("parallel identical #NodePublish requests", func() {
 		var (
-			request                   *csi.NodePublishVolumeRequest
+			request *csi.NodePublishVolumeRequest
 		)
 
 		BeforeEach(func() {
@@ -60,14 +60,13 @@ var _ = Describe("NodeServer", func() {
 			fakeCSIDriverStore.GetReturns(nil, true, true)
 			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false, true)
 
-
 		})
 
-		It("should handle concurrent requests correctly", func(){
+		It("should handle concurrent requests correctly", func() {
 			var wg sync.WaitGroup
 
 			wg.Add(10)
-			for i:=0; i<10;i++ {
+			for i := 0; i < 10; i++ {
 				go func() {
 					defer GinkgoRecover()
 					defer wg.Done()
@@ -198,7 +197,7 @@ var _ = Describe("NodeServer", func() {
 				Eventually(logger.Buffer()).Should(Say("cmd-failed"))
 			})
 
-			It("should store the error in case we get called again", func(){
+			It("should store the error in case we get called again", func() {
 				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
 				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
 				Expect(p).To(Equal(request.TargetPath))
