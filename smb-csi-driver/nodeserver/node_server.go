@@ -22,7 +22,7 @@ var defaultMountOptions = "uid=2000,gid=2000"
 type CSIDriverStore interface {
 	Create(string, *csi.NodePublishVolumeRequest, error) error
 	Delete(string)
-	Get(string, *csi.NodePublishVolumeRequest) (err error, exists bool, optionsMatch bool)
+	Get(string, *csi.NodePublishVolumeRequest) (opError error, exists bool, optionsMatch bool, err error)
 }
 
 func NewStore() CSIDriverStore {
@@ -38,17 +38,20 @@ type CheckParallelCSIDriverRequests struct {
 	store map[string]volumeInfo
 }
 
-func (c *CheckParallelCSIDriverRequests) Get(targetPath string, k *csi.NodePublishVolumeRequest) (err error, exists bool, optionsMatch bool) {
-	options, _ := json.Marshal(k.VolumeContext)
+func (c *CheckParallelCSIDriverRequests) Get(targetPath string, k *csi.NodePublishVolumeRequest) (opErr error, exists bool, optionsMatch bool, err error) {
+	options, err := json.Marshal(k.VolumeContext)
+	if err != nil {
+		return nil, true, true, err
+	}
 	hash := sha256.Sum256(options)
 
 	if val, ok := c.store[targetPath]; ok {
 		if val.hash == hash {
-			return val.err, ok, true
+			return val.err, ok, true, nil
 		}
-		return val.err, ok, false
+		return val.err, ok, false, nil
 	}
-	return nil, false, false
+	return nil, false, false, nil
 }
 
 func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePublishVolumeRequest, v error) error {
@@ -91,28 +94,31 @@ func (smbNodeServer) NodeUnstageVolume(context.Context, *csi.NodeUnstageVolumeRe
 	panic("implement me")
 }
 
-func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (_ *csi.NodePublishVolumeResponse, err error) {
+func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVolumeRequest) (_ *csi.NodePublishVolumeResponse, opErr error) {
 	n.lock.Lock()
 	defer func() {
 		n.lock.Unlock()
 	}()
 
-	err, found, optionsMatch := n.csiDriverStore.Get(r.TargetPath, r)
+	opErr, found, optionsMatch, err := n.csiDriverStore.Get(r.TargetPath, r)
+	if err != nil {
+		return &csi.NodePublishVolumeResponse{}, err
+	}
 	if found {
 		if optionsMatch == false {
 			return &csi.NodePublishVolumeResponse{}, status.Error(codes.AlreadyExists, "options mismatch")
 		}
 
-		if err == nil {
+		if opErr == nil {
 			return &csi.NodePublishVolumeResponse{}, nil
 		}
-		return nil, err
+		return nil, opErr
 	}
 
 	defer func() {
-		createErr := n.csiDriverStore.Create(r.TargetPath, r, err)
+		createErr := n.csiDriverStore.Create(r.TargetPath, r, opErr)
 		if createErr != nil {
-			err = createErr
+			opErr = createErr
 		}
 	}()
 
@@ -120,9 +126,9 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf(errorFmt, "VolumeCapability"))
 	}
 
-	err = os.MkdirAll(r.TargetPath, os.ModePerm)
-	if err != nil {
-		n.logger.Error("create-targetpath-fail", err)
+	opErr = os.MkdirAll(r.TargetPath, os.ModePerm)
+	if opErr != nil {
+		n.logger.Error("create-targetpath-fail", opErr)
 	}
 
 	share := r.GetVolumeContext()["share"]
@@ -133,10 +139,10 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 
 	n.logger.Info("started mount", lager.Data{"share": share})
 	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
-	combinedOutput, err := cmdshim.CombinedOutput()
-	if err != nil {
-		n.logger.Error("mount-failed", err, lager.Data{"combinedOutput": string(combinedOutput)})
-		return nil, status.Error(codes.Internal, err.Error())
+	combinedOutput, opErr := cmdshim.CombinedOutput()
+	if opErr != nil {
+		n.logger.Error("mount-failed", opErr, lager.Data{"combinedOutput": string(combinedOutput)})
+		return nil, status.Error(codes.Internal, opErr.Error())
 	}
 	n.logger.Info("finished mount", lager.Data{"share": share})
 

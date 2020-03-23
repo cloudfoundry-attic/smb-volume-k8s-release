@@ -57,8 +57,8 @@ var _ = Describe("NodeServer", func() {
 					"password": "pass1",
 				},
 			}
-			fakeCSIDriverStore.GetReturns(nil, true, true)
-			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false, true)
+			fakeCSIDriverStore.GetReturns(nil, true, true, nil)
+			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false, true, nil)
 
 		})
 
@@ -151,7 +151,7 @@ var _ = Describe("NodeServer", func() {
 
 			Context("when a second identical request is made", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(nil, true, false)
+					fakeCSIDriverStore.GetReturns(nil, true, false, nil)
 				})
 
 				It("return the response of the previous request", func() {
@@ -162,7 +162,7 @@ var _ = Describe("NodeServer", func() {
 
 			Context("when a second identical request is made after an error", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(errors.New("I <3 you."), true, true)
+					fakeCSIDriverStore.GetReturns(errors.New("I <3 you."), true, true, nil)
 				})
 
 				It("return the response of the previous request", func() {
@@ -208,6 +208,18 @@ var _ = Describe("NodeServer", func() {
 			})
 		})
 
+		Context("when getting an entry in the store fails", func() {
+
+			BeforeEach(func() {
+				fakeCSIDriverStore.GetReturns(nil, true, true, errors.New("hash failure"))
+			})
+
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("hash failure"))
+			})
+		})
+
 		Context("when creating an entry in the store fails", func() {
 
 			BeforeEach(func() {
@@ -230,7 +242,7 @@ var _ = Describe("NodeServer", func() {
 
 			Context("when it uses different mount options", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(nil, true, false)
+					fakeCSIDriverStore.GetReturns(nil, true, false, nil)
 				})
 
 				It("return ALREADY_EXISTS", func() {
