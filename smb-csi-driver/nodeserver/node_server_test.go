@@ -57,8 +57,8 @@ var _ = Describe("NodeServer", func() {
 					"password": "pass1",
 				},
 			}
-			fakeCSIDriverStore.GetReturns(nil, true)
-			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false)
+			fakeCSIDriverStore.GetReturns(nil, true, true)
+			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false, true)
 
 
 		})
@@ -78,8 +78,9 @@ var _ = Describe("NodeServer", func() {
 			wg.Wait()
 
 			Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
-			k, v := fakeCSIDriverStore.CreateArgsForCall(0)
-			Expect(k).To(Equal(request.TargetPath))
+			p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+			Expect(p).To(Equal(request.TargetPath))
+			Expect(k).To(Equal(request))
 			Expect(v).NotTo(HaveOccurred())
 		})
 	})
@@ -120,8 +121,9 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
 
 				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
-				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
-				Expect(k).To(Equal(request.TargetPath))
+				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+				Expect(p).To(Equal(request.TargetPath))
+				Expect(k).To(Equal(request))
 				Expect(v).To(HaveOccurred())
 				Expect(v).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
 			})
@@ -137,29 +139,20 @@ var _ = Describe("NodeServer", func() {
 			})
 		})
 
-		PContext("when making the target directory already that already exists with different arguments", func() {
-			BeforeEach(func() {
-				request.TargetPath = "/tmp"
-			})
-
-			It("should return a ALREADY_EXISTS error", func() {
-				Expect(err).To(HaveOccurred())
-			})
-		})
-
 		Context("given a server, a share, a username and password", func() {
 
 			It("should audit the operation in a map", func() {
 				Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
-				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
 
-				Expect(k).To(Equal("/tmp/target_path"))
+				Expect(p).To(Equal(request.TargetPath))
+				Expect(k).To(Equal(request))
 				Expect(v).To(BeNil())
 			})
 
 			Context("when a second identical request is made", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(nil, true)
+					fakeCSIDriverStore.GetReturns(nil, true, false)
 				})
 
 				It("return the response of the previous request", func() {
@@ -170,7 +163,7 @@ var _ = Describe("NodeServer", func() {
 
 			Context("when a second identical request is made after an error", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(errors.New("I <3 you."), true)
+					fakeCSIDriverStore.GetReturns(errors.New("I <3 you."), true, true)
 				})
 
 				It("return the response of the previous request", func() {
@@ -207,13 +200,34 @@ var _ = Describe("NodeServer", func() {
 
 			It("should store the error in case we get called again", func(){
 				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
-				k, v := fakeCSIDriverStore.CreateArgsForCall(0)
-				Expect(k).To(Equal(request.TargetPath))
+				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+				Expect(p).To(Equal(request.TargetPath))
+				Expect(k).To(Equal(request))
 				Expect(v).To(HaveOccurred())
 				Expect(v).To(MatchError("rpc error: code = Internal desc = cmd-failed"))
 
 			})
 		})
+
+		Context("when a second NodePublish occurs", func() {
+			Context("when it uses the same mount options", func() {
+
+				It("return successfully", func() {
+					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+
+			Context("when it uses different mount options", func() {
+				BeforeEach(func() {
+					fakeCSIDriverStore.GetReturns(nil, true, false)
+				})
+
+				It("return ALREADY_EXISTS", func() {
+					Expect(err).To(MatchError("rpc error: code = AlreadyExists desc = options mismatch"))
+				})
+			})
+		})
+
 	})
 
 	Describe("#NodeUnpublishVolume", func() {

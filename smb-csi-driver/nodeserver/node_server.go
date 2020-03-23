@@ -5,6 +5,8 @@ import (
 	"code.cloudfoundry.org/goshims/osshim"
 	"code.cloudfoundry.org/lager"
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"google.golang.org/grpc/codes"
@@ -18,26 +20,41 @@ var defaultMountOptions = "uid=2000,gid=2000"
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_csi_driver_store.go . CSIDriverStore
 type CSIDriverStore interface {
-	Create(string, error)
+	Create(string, *csi.NodePublishVolumeRequest, error)
 	Delete(string)
-	Get(string) (error, bool)
+	Get(string, *csi.NodePublishVolumeRequest) (err error, exists bool, optionsMatch bool)
 }
 
 func NewStore() CSIDriverStore {
-	return &CheckParallelCSIDriverRequests{store: map[string]error{}}
+	return &CheckParallelCSIDriverRequests{store: map[string]volumeInfo{}}
+}
+
+type volumeInfo struct {
+	err error
+	hash [32]byte
 }
 
 type CheckParallelCSIDriverRequests struct {
-	store map[string]error
+	store map[string]volumeInfo
 }
 
-func (c *CheckParallelCSIDriverRequests) Get(k string) (error, bool) {
-	val, ok := c.store[k]
-	return val, ok
+func (c *CheckParallelCSIDriverRequests) Get(targetPath string, k *csi.NodePublishVolumeRequest) (err error, exists bool, optionsMatch bool) {
+	options, _ := json.Marshal(k.VolumeContext)
+	hash := sha256.Sum256(options)
+
+	if val, ok := c.store[targetPath]; ok {
+		if val.hash == hash {
+			return val.err, ok, true
+		}
+		return val.err, ok, false
+	}
+	return nil, false, false
 }
 
-func (c *CheckParallelCSIDriverRequests) Create(k string, v error) {
-	c.store[k] = v
+func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePublishVolumeRequest, v error) {
+	options, _ := json.Marshal(k.VolumeContext)
+	hash := sha256.Sum256(options)
+	c.store[targetPath] = volumeInfo{v, hash}
 }
 
 func (c *CheckParallelCSIDriverRequests) Delete(k string) {
@@ -76,16 +93,20 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 		n.lock.Unlock()
 	}()
 
-	res, found := n.csiDriverStore.Get(r.TargetPath)
+	err, found, optionsMatch := n.csiDriverStore.Get(r.TargetPath, r)
 	if found {
-		if res == nil {
+		if optionsMatch == false {
+			return &csi.NodePublishVolumeResponse{}, status.Error(codes.AlreadyExists, "options mismatch")
+		}
+
+		if err == nil {
 			return &csi.NodePublishVolumeResponse{}, nil
 		}
-		return nil, res
+		return nil, err
 	}
 
 	defer func() {
-		n.csiDriverStore.Create(r.TargetPath, err)
+		n.csiDriverStore.Create(r.TargetPath, r, err)
 	}()
 
 	if r.VolumeCapability == nil {

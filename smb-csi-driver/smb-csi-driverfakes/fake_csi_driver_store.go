@@ -5,47 +5,53 @@ import (
 	"sync"
 
 	"code.cloudfoundry.org/smb-csi-driver/nodeserver"
+	"github.com/container-storage-interface/spec/lib/go/csi"
 )
 
 type FakeCSIDriverStore struct {
-	CreateStub        func(string, error)
+	CreateStub        func(string, *csi.NodePublishVolumeRequest, error)
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
 		arg1 string
-		arg2 error
+		arg2 *csi.NodePublishVolumeRequest
+		arg3 error
 	}
 	DeleteStub        func(string)
 	deleteMutex       sync.RWMutex
 	deleteArgsForCall []struct {
 		arg1 string
 	}
-	GetStub        func(string) (error, bool)
+	GetStub        func(string, *csi.NodePublishVolumeRequest) (error, bool, bool)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
 		arg1 string
+		arg2 *csi.NodePublishVolumeRequest
 	}
 	getReturns struct {
 		result1 error
 		result2 bool
+		result3 bool
 	}
 	getReturnsOnCall map[int]struct {
 		result1 error
 		result2 bool
+		result3 bool
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeCSIDriverStore) Create(arg1 string, arg2 error) {
+func (fake *FakeCSIDriverStore) Create(arg1 string, arg2 *csi.NodePublishVolumeRequest, arg3 error) {
 	fake.createMutex.Lock()
 	fake.createArgsForCall = append(fake.createArgsForCall, struct {
 		arg1 string
-		arg2 error
-	}{arg1, arg2})
-	fake.recordInvocation("Create", []interface{}{arg1, arg2})
+		arg2 *csi.NodePublishVolumeRequest
+		arg3 error
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Create", []interface{}{arg1, arg2, arg3})
 	fake.createMutex.Unlock()
 	if fake.CreateStub != nil {
-		fake.CreateStub(arg1, arg2)
+		fake.CreateStub(arg1, arg2, arg3)
 	}
 }
 
@@ -55,17 +61,17 @@ func (fake *FakeCSIDriverStore) CreateCallCount() int {
 	return len(fake.createArgsForCall)
 }
 
-func (fake *FakeCSIDriverStore) CreateCalls(stub func(string, error)) {
+func (fake *FakeCSIDriverStore) CreateCalls(stub func(string, *csi.NodePublishVolumeRequest, error)) {
 	fake.createMutex.Lock()
 	defer fake.createMutex.Unlock()
 	fake.CreateStub = stub
 }
 
-func (fake *FakeCSIDriverStore) CreateArgsForCall(i int) (string, error) {
+func (fake *FakeCSIDriverStore) CreateArgsForCall(i int) (string, *csi.NodePublishVolumeRequest, error) {
 	fake.createMutex.RLock()
 	defer fake.createMutex.RUnlock()
 	argsForCall := fake.createArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeCSIDriverStore) Delete(arg1 string) {
@@ -99,22 +105,23 @@ func (fake *FakeCSIDriverStore) DeleteArgsForCall(i int) string {
 	return argsForCall.arg1
 }
 
-func (fake *FakeCSIDriverStore) Get(arg1 string) (error, bool) {
+func (fake *FakeCSIDriverStore) Get(arg1 string, arg2 *csi.NodePublishVolumeRequest) (error, bool, bool) {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
 		arg1 string
-	}{arg1})
-	fake.recordInvocation("Get", []interface{}{arg1})
+		arg2 *csi.NodePublishVolumeRequest
+	}{arg1, arg2})
+	fake.recordInvocation("Get", []interface{}{arg1, arg2})
 	fake.getMutex.Unlock()
 	if fake.GetStub != nil {
-		return fake.GetStub(arg1)
+		return fake.GetStub(arg1, arg2)
 	}
 	if specificReturn {
-		return ret.result1, ret.result2
+		return ret.result1, ret.result2, ret.result3
 	}
 	fakeReturns := fake.getReturns
-	return fakeReturns.result1, fakeReturns.result2
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
 func (fake *FakeCSIDriverStore) GetCallCount() int {
@@ -123,30 +130,31 @@ func (fake *FakeCSIDriverStore) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeCSIDriverStore) GetCalls(stub func(string) (error, bool)) {
+func (fake *FakeCSIDriverStore) GetCalls(stub func(string, *csi.NodePublishVolumeRequest) (error, bool, bool)) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
 }
 
-func (fake *FakeCSIDriverStore) GetArgsForCall(i int) string {
+func (fake *FakeCSIDriverStore) GetArgsForCall(i int) (string, *csi.NodePublishVolumeRequest) {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	argsForCall := fake.getArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeCSIDriverStore) GetReturns(result1 error, result2 bool) {
+func (fake *FakeCSIDriverStore) GetReturns(result1 error, result2 bool, result3 bool) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
 	fake.getReturns = struct {
 		result1 error
 		result2 bool
-	}{result1, result2}
+		result3 bool
+	}{result1, result2, result3}
 }
 
-func (fake *FakeCSIDriverStore) GetReturnsOnCall(i int, result1 error, result2 bool) {
+func (fake *FakeCSIDriverStore) GetReturnsOnCall(i int, result1 error, result2 bool, result3 bool) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = nil
@@ -154,12 +162,14 @@ func (fake *FakeCSIDriverStore) GetReturnsOnCall(i int, result1 error, result2 b
 		fake.getReturnsOnCall = make(map[int]struct {
 			result1 error
 			result2 bool
+			result3 bool
 		})
 	}
 	fake.getReturnsOnCall[i] = struct {
 		result1 error
 		result2 bool
-	}{result1, result2}
+		result3 bool
+	}{result1, result2, result3}
 }
 
 func (fake *FakeCSIDriverStore) Invocations() map[string][][]interface{} {
