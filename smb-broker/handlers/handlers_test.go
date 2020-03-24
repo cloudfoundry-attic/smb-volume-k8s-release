@@ -74,7 +74,7 @@ var _ = Describe("Handlers", func() {
 				serviceInstanceKey = randomString(source)
 
 				var err error
-				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "parameter1": "1", "parameter2": "foo" } }`))
+				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "foo", "password": "bar" } }`))
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -97,7 +97,7 @@ var _ = Describe("Handlers", func() {
 								CSI: &v1.CSIPersistentVolumeSource{
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
-									VolumeAttributes: map[string]string{},
+									VolumeAttributes: map[string]string{"share": "share"},
 									NodePublishSecretRef: &v1.SecretReference{
 										Name:      serviceInstanceKey,
 										Namespace: "eirini",
@@ -213,15 +213,17 @@ var _ = Describe("Handlers", func() {
 			})
 
 			Context("when service instance parameters are not provided", func() {
-				BeforeEach(func() {
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
-					Expect(err).NotTo(HaveOccurred())
-				})
 
-				It("should allow provisioning and store the new service instance", func() {
-					Expect(recorder.Code).To(Equal(201))
-					Expect(recorder.Body).To(MatchJSON(`{}`))
+				Context("no required parameters are provided", func(){
+					BeforeEach(func() {
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+						Expect(err).NotTo(HaveOccurred())
+					})
 
+					It("should respond with error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "share, username and password must be provided"}`))
+					})
 				})
 
 				Context("when username is not supplied", func() {
@@ -233,7 +235,7 @@ var _ = Describe("Handlers", func() {
 
 					It("should respond with an error", func() {
 						Expect(recorder.Code).To(Equal(400))
-						Expect(recorder.Body).To(MatchJSON(`{ "description": "both username and password must be provided"}`))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "share, username and password must be provided"}`))
 
 					})
 				})
@@ -247,18 +249,28 @@ var _ = Describe("Handlers", func() {
 
 					It("should respond with an error", func() {
 						Expect(recorder.Code).To(Equal(400))
-						Expect(recorder.Body).To(MatchJSON(`{ "description": "both username and password must be provided"}`))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "share, username and password must be provided"}`))
 
 					})
 				})
+
+				Context("when share is not supplied", func() {
+
+					BeforeEach(func() {
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"username": "foo", "password": "bar"}}`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should respond with an error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "share, username and password must be provided"}`))
+
+					})
+				})
+
 			})
 
-			Context("when a username and password are supplied", func() {
-				BeforeEach(func() {
-					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
-					Expect(err).NotTo(HaveOccurred())
-				})
+			Context("username and password", func() {
 
 				It("should store the username and password in a secret", func() {
 					Expect(fakeSecretClient.CreateCallCount()).To(Equal(1))
@@ -286,7 +298,7 @@ var _ = Describe("Handlers", func() {
 									CSI: &v1.CSIPersistentVolumeSource{
 										Driver:           "org.cloudfoundry.smb",
 										VolumeHandle:     "volume-handle",
-										VolumeAttributes: map[string]string{},
+										VolumeAttributes: map[string]string{"share": "share"},
 										NodePublishSecretRef: &v1.SecretReference{
 											Name:      serviceInstanceKey,
 											Namespace: "eirini",
@@ -332,7 +344,7 @@ var _ = Describe("Handlers", func() {
 					fakeSecretClient.CreateReturns(nil, errors.New("secret-failed"))
 
 					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar" } }`))
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "foo", "password": "bar" } }`))
 					Expect(err).NotTo(HaveOccurred())
 				})
 

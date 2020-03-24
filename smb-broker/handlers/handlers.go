@@ -114,19 +114,20 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 	password, err := getAttribute(serviceInstanceParameters, "password")
-
 	if err != nil {
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	if (username != "" && password == "") || (username == "" && password != "") {
-		return domain.ProvisionedServiceSpec{}, invalidParametersResponse("both username and password must be provided")
+	share, err := getAttribute(serviceInstanceParameters, "share")
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	va := map[string]string{}
-	if share, found := serviceInstanceParameters["share"]; found {
-		va["share"] = share.(string)
+	if username == "" || password == "" || share == "" {
+		return domain.ProvisionedServiceSpec{}, invalidParametersResponse("share, username and password must be provided")
 	}
+
+	va := map[string]string{"share": share}
 
 	_, err = s.Secret.Create(&v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
