@@ -90,6 +90,19 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		}
 	}
 
+	username, err := getAttribute(serviceInstanceParameters, "username")
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+	password, err := getAttribute(serviceInstanceParameters, "password")
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+	share, err := getAttribute(serviceInstanceParameters, "share")
+	if err != nil {
+		return domain.ProvisionedServiceSpec{}, err
+	}
+
 	storageClass := ""
 
 	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
@@ -108,26 +121,6 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	if err != nil {
 		return domain.ProvisionedServiceSpec{}, err
 	}
-
-	username, err := getAttribute(serviceInstanceParameters, "username")
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
-	}
-	password, err := getAttribute(serviceInstanceParameters, "password")
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
-	}
-
-	share, err := getAttribute(serviceInstanceParameters, "share")
-	if err != nil {
-		return domain.ProvisionedServiceSpec{}, err
-	}
-
-	if username == "" || password == "" || share == "" {
-		return domain.ProvisionedServiceSpec{}, invalidParametersResponse("share, username and password must be provided")
-	}
-
-	va := map[string]string{"share": share}
 
 	_, err = s.Secret.Create(&v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -153,7 +146,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 				CSI: &v1.CSIPersistentVolumeSource{
 					Driver:           "org.cloudfoundry.smb",
 					VolumeHandle:     "volume-handle",
-					VolumeAttributes: va,
+					VolumeAttributes: map[string]string{"share": share},
 					NodePublishSecretRef: &v1.SecretReference{
 						Name:      instanceID,
 						Namespace: s.Namespace,
@@ -294,7 +287,7 @@ func getAttribute(source map[string]interface{}, key string) (string, error) {
 			return val, nil
 		}
 	}
-	return "", nil
+	return "",  invalidParametersResponse("share, username and password must be provided")
 }
 
 func (s smbServiceBroker) cleanupResourcesCreatedByProvision(instanceID string) {

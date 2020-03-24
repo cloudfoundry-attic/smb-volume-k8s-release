@@ -76,7 +76,7 @@ var _ = Describe("Main", func() {
 	Describe("#Deprovision", func() {
 		BeforeEach(func() {
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ := http.DefaultClient.Do(request)
@@ -137,7 +137,7 @@ var _ = Describe("Main", func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -180,7 +180,7 @@ var _ = Describe("Main", func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)

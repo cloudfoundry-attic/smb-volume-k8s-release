@@ -270,7 +270,7 @@ var _ = Describe("Handlers", func() {
 
 			})
 
-			Context("username and password", func() {
+			Context("storing username and password", func() {
 
 				It("should store the username and password in a secret", func() {
 					Expect(fakeSecretClient.CreateCallCount()).To(Equal(1))
@@ -312,30 +312,46 @@ var _ = Describe("Handlers", func() {
 				})
 			})
 
-			Context("when an invalid username is supplied", func() {
-				BeforeEach(func() {
-					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": 123, "password": "321" } }`))
-					Expect(err).NotTo(HaveOccurred())
+			Context("service instance parameter validations", func(){
+				Context("when an invalid username is supplied", func() {
+					BeforeEach(func() {
+						var err error
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": 123, "password": "321", "share": "share" } }`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should respond with an error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "username must be a string value"}`))
+					})
 				})
 
-				It("should respond with an error", func() {
-					Expect(recorder.Code).To(Equal(400))
-					Expect(recorder.Body).To(MatchJSON(`{ "description": "username must be a string value"}`))
-				})
-			})
+				Context("when an invalid password is supplied", func() {
+					BeforeEach(func() {
+						var err error
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "123", "password": 321 } }`))
+						Expect(err).NotTo(HaveOccurred())
+					})
 
-			Context("when an invalid password is supplied", func() {
-				BeforeEach(func() {
-					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "123", "password": 321 } }`))
-					Expect(err).NotTo(HaveOccurred())
+					It("should respond with an error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "password must be a string value"}`))
+					})
 				})
 
-				It("should respond with an error", func() {
-					Expect(recorder.Code).To(Equal(400))
-					Expect(recorder.Body).To(MatchJSON(`{ "description": "password must be a string value"}`))
+				Context("when an empty strings are supplied", func() {
+					BeforeEach(func() {
+						var err error
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "", "password": "" } }`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should allow provisioning", func() {
+						Expect(recorder.Code).To(Equal(201))
+						Expect(recorder.Body).To(MatchJSON(`{}`))
+					})
 				})
+
 			})
 
 			Context("when creating a secret fails", func() {
