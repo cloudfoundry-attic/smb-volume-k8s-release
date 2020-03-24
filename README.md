@@ -1,6 +1,6 @@
 # smb-volume-k8s-release
 This is a repository in development, pre alpha, not feature complete.
-This contains kapp applications that packages 
+This contains kapp applications that package:
 
 - an smb broker
 - a smb csi driver
