@@ -1,3 +1,7 @@
 #@data/values
 ---
 namespace:
+
+image:
+  repository: cfpersi/eirini-persi
+  tag: v0.0.0-alpha

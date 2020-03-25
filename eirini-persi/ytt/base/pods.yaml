@@ -1,3 +1,5 @@
+#@ load("@ytt:data", "data")
+
 apiVersion: v1
 kind: Pod
 metadata:
@@ -9,7 +11,7 @@ spec:
   serviceAccountName: eirini-persi-volume-services
   automountServiceAccountToken: true
   containers:
-  - image: cfpersi/eirini-persi
+  - image: #@ data.values.image.repository + ":" + data.values.image.tag
     imagePullPolicy: Always
     name: eirini-persi
     env:
@@ -18,7 +20,7 @@ spec:
     - name: OPERATOR_WEBHOOK_PORT
       value: "443"
     - name: OPERATOR_SERVICE_NAME
-      value: $(EIRINI_EXT_SERVICE)
+      value: "eirini-persi-svc"
     - name: OPERATOR_WEBHOOK_NAMESPACE
       value: "eirini"
     ports:
