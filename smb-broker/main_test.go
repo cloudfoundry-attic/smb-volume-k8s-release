@@ -53,7 +53,7 @@ var _ = Describe("Main", func() {
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")).NotTo(ContainSubstring(instanceID))
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "//unc.path/share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -76,7 +76,7 @@ var _ = Describe("Main", func() {
 	Describe("#Deprovision", func() {
 		BeforeEach(func() {
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "//unc.path/share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ := http.DefaultClient.Do(request)
@@ -137,7 +137,7 @@ var _ = Describe("Main", func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "//unc.path/share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -180,7 +180,7 @@ var _ = Describe("Main", func() {
 			bindingID = randomString(source)
 
 			Eventually(func() string {
-				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "share" } }`))
+				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "//unc.path/share" } }`))
 				Expect(err).NotTo(HaveOccurred())
 
 				resp, _ = http.DefaultClient.Do(request)
@@ -230,7 +230,7 @@ var _ = Describe("Main", func() {
 			BeforeEach(func() {
 				By("provisioning a service", func() {
 					Eventually(func() string {
-						request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share_value", "username": "username_value", "password": "password_value"} }`))
+						request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "username_value", "password": "password_value"} }`))
 						Expect(err).NotTo(HaveOccurred())
 
 						resp, _ = http.DefaultClient.Do(request)
@@ -259,7 +259,7 @@ var _ = Describe("Main", func() {
 
 				bytes, err := ioutil.ReadAll(resp.Body)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(string(bytes)).To(MatchJSON(`{"service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share_value", "username": "username_value" } }`))
+				Expect(string(bytes)).To(MatchJSON(`{"service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "username_value" } }`))
 			})
 
 		})

@@ -74,7 +74,7 @@ var _ = Describe("Handlers", func() {
 				serviceInstanceKey = randomString(source)
 
 				var err error
-				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "foo", "password": "bar" } }`))
+				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar" } }`))
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -97,7 +97,7 @@ var _ = Describe("Handlers", func() {
 								CSI: &v1.CSIPersistentVolumeSource{
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
-									VolumeAttributes: map[string]string{"share": "share"},
+									VolumeAttributes: map[string]string{"share": "//unc.path/share"},
 									NodePublishSecretRef: &v1.SecretReference{
 										Name:      serviceInstanceKey,
 										Namespace: "eirini",
@@ -298,7 +298,7 @@ var _ = Describe("Handlers", func() {
 									CSI: &v1.CSIPersistentVolumeSource{
 										Driver:           "org.cloudfoundry.smb",
 										VolumeHandle:     "volume-handle",
-										VolumeAttributes: map[string]string{"share": "share"},
+										VolumeAttributes: map[string]string{"share": "//unc.path/share"},
 										NodePublishSecretRef: &v1.SecretReference{
 											Name:      serviceInstanceKey,
 											Namespace: "eirini",
@@ -316,7 +316,7 @@ var _ = Describe("Handlers", func() {
 				Context("when an invalid username is supplied", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": 123, "password": "321", "share": "share" } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": 123, "password": "321", "share": "//unc.path/share" } }`))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -329,7 +329,7 @@ var _ = Describe("Handlers", func() {
 				Context("when an invalid password is supplied", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "123", "password": 321 } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "123", "password": 321 } }`))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -339,10 +339,23 @@ var _ = Describe("Handlers", func() {
 					})
 				})
 
+				Context("when share is not a valid unc path", func() {
+					BeforeEach(func() {
+						var err error
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "invalidshare", "username": "123", "password": "321" } }`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should respond with an error", func() {
+						Expect(recorder.Code).To(Equal(400))
+						Expect(recorder.Body).To(MatchJSON(`{ "description": "share must be a UNC path"}`))
+					})
+				})
+
 				Context("when an empty strings are supplied", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "", "password": "" } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "", "password": "" } }`))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -360,7 +373,7 @@ var _ = Describe("Handlers", func() {
 					fakeSecretClient.CreateReturns(nil, errors.New("secret-failed"))
 
 					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "share", "username": "foo", "password": "bar" } }`))
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar" } }`))
 					Expect(err).NotTo(HaveOccurred())
 				})
 

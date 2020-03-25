@@ -17,6 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"net/http"
+	"regexp"
 )
 
 const MountConfigKey = "name"
@@ -24,6 +25,7 @@ const MountBindOptionKey = "mount"
 const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "123"
 const PlanID = "plan-id"
+const UncPathRegex = `^[\\\/]{2,}[^\\\/]+[\\\/]+[^\\\/]+`
 
 func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface, username string, password string, logger lager.Logger) (http.Handler, error) {
 	router := mux.NewRouter()
@@ -101,6 +103,14 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 	share, err := getAttribute(serviceInstanceParameters, "share")
 	if err != nil {
 		return domain.ProvisionedServiceSpec{}, err
+	}
+
+	match, err := regexp.MatchString(UncPathRegex, share)
+	if err != nil {
+		panic("can't compile regex")
+	}
+	if match == false {
+		return domain.ProvisionedServiceSpec{}, invalidParametersResponse("share must be a UNC path")
 	}
 
 	storageClass := ""
