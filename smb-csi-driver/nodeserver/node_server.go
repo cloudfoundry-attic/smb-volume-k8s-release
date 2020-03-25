@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"strings"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"os"
@@ -136,6 +137,14 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	password := r.GetSecrets()["password"]
 
 	mountOptions := fmt.Sprintf("%s,username=%s,password=%s", defaultMountOptions, username, password)
+
+	vers, ok := r.GetVolumeContext()["vers"]
+	if ok {
+		if strings.Contains(vers, ",") {
+			return nil, status.Error(codes.InvalidArgument, "Error: invalid VolumeContext value for 'vers'")
+		}
+		mountOptions += ",vers=" + vers
+	}
 
 	n.logger.Info("started mount", lager.Data{"share": share})
 	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)

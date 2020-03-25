@@ -172,6 +172,28 @@ var _ = Describe("NodeServer", func() {
 				})
 			})
 
+			Context(" when given a smb version", func() {
+				BeforeEach(func() {
+					request.VolumeContext["vers"] = "1.0"
+				})
+
+				It("should perform a mount", func() {
+					Expect(err).NotTo(HaveOccurred())
+					_, args := fakeExec.CommandArgsForCall(0)
+					Expect(args[3]).To(ContainSubstring("vers=1.0"))
+				})
+
+				Context("when the smb version contains a comma (which introduces injection vulnerabilities)", func() {
+					BeforeEach(func() {
+						request.VolumeContext["vers"] = "1.0,"
+					})
+
+					It("should return an error.", func() {
+						Expect(err).To(HaveOccurred())
+					})
+				})
+			})
+
 			It("should perform a mount", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(fakeExec.CommandCallCount()).To(Equal(1))
