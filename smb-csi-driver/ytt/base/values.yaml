@@ -3,5 +3,5 @@
 namespace: default
 
 image:
-  repository: registry:5000/cfpersi/smb-plugin
-  tag: local-test
+  repository: cfpersi/smb-csi-driver
+  tag: 0.143.0

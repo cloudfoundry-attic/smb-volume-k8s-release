@@ -1,0 +1,5 @@
+#@data/values
+---
+image:
+  repository: registry:5000/cfpersi/smb-plugin
+  tag: local-test
