@@ -105,10 +105,9 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	match, err := regexp.MatchString(UncPathRegex, share)
-	if err != nil {
-		panic("can't compile regex")
-	}
+	re := regexp.MustCompile(UncPathRegex)
+	match := re.MatchString(share)
+
 	if match == false {
 		return domain.ProvisionedServiceSpec{}, invalidParametersResponse("share must be a UNC path")
 	}
