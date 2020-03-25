@@ -16,7 +16,10 @@ import (
 )
 
 var CSITestSuites = []func() testsuites.TestSuite{
-	testsuites.InitVolumesTestSuite,
+	//testsuites.InitVolumesTestSuite,
+	//testsuites.InitVolumeIOTestSuite,
+	//testsuites.InitVolumeModeTestSuite,
+	testsuites.InitSubPathTestSuite,
 }
 
 // This executes testSuites for csi volumes.

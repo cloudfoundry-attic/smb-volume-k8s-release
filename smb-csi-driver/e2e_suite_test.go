@@ -45,5 +45,5 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
-	local_k8s_cluster.DeleteK8sCluster(nodeName, kubeConfigPath)
+	//local_k8s_cluster.DeleteK8sCluster(nodeName, kubeConfigPath)
 })

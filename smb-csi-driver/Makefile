@@ -36,7 +36,7 @@ e2e: SHELL:=/bin/bash
 e2e:
 	@$(MAKE) -f $(THIS_FILE) image-local-registry
 	go get github.com/onsi/ginkgo/ginkgo
-	ginkgo -r -focus "CSI Volumes|CSIDriver"
+	ginkgo -v -r -focus "CSI Volumes|CSIDriver"
 
 fly:
 	fly -t persi execute -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release
