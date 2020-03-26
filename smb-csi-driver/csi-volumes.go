@@ -12,22 +12,25 @@ import (
 	"k8s.io/kubernetes/test/e2e/storage/testsuites"
 	"k8s.io/kubernetes/test/e2e/storage/utils"
 	local_k8s_cluster "code.cloudfoundry.org/smb-volume-k8s-local-cluster"
-
+	"os"
 )
 
 var CSITestSuites = []func() testsuites.TestSuite{
 	testsuites.InitVolumesTestSuite,
 	testsuites.InitVolumeIOTestSuite,
-	testsuites.InitVolumeModeTestSuite,
 }
 
 // This executes testSuites for csi volumes.
 var _ = utils.SIGDescribe("CSI Volumes", func() {
 	curDriver := noopTestDriver{}
 	Context(testsuites.GetDriverNameWithFeatureTags(curDriver), func() {
+
+		if val, found := os.LookupEnv("VOLUME_MODE_SUITE"); found && val == "true" {
+			CSITestSuites = append(CSITestSuites, testsuites.InitVolumeModeTestSuite)
+		}
+
 		testsuites.DefineTestSuite(curDriver, CSITestSuites)
 	})
-
 })
 
 type noopTestDriver struct{}
