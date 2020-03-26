@@ -31,7 +31,7 @@ var _ = BeforeSuite(func() {
 	})
 
 	By("deploying smb csi driver into the k8s cluster", func() {
-		kubectlStdOut := local_k8s_cluster.YttStdout("-f", "../smb-csi-driver/ytt/base")
+		kubectlStdOut := local_k8s_cluster.YttStdout("-f", "../smb-csi-driver/ytt/base", "-f", "../smb-csi-driver/ytt/test.yaml")
 		local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-csi-driver", "-f")(kubectlStdOut)
 		Eventually(func()string{
 			return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
