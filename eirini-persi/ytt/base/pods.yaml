@@ -13,7 +13,9 @@ spec:
   containers:
   - image: #@ data.values.image.repository + ":" + data.values.image.tag
     imagePullPolicy: Always
-    name: eirini-persi
+    name: eirini-persi-start
+    command: ["/app/main"]
+    args: ["start", "--register", "false"]
     env:
     - name: OPERATOR_WEBHOOK_HOST
       value: 0.0.0.0
@@ -27,6 +29,21 @@ spec:
     - containerPort: 443
       name: http
       protocol: TCP
+  initContainers:
+  - image: #@ data.values.image.repository + ":" + data.values.image.tag
+    imagePullPolicy: Always
+    name: eirini-persi-register
+    command: ["/app/main"]
+    args: ["register"]
+    env:
+    - name: OPERATOR_WEBHOOK_HOST
+      value: 0.0.0.0
+    - name: OPERATOR_WEBHOOK_PORT
+      value: "443"
+    - name: OPERATOR_SERVICE_NAME
+      value: "eirini-persi-svc"
+    - name: OPERATOR_WEBHOOK_NAMESPACE
+      value: "eirini"
   tolerations:
   - effect: NoExecute
     key: node.kubernetes.io/not-ready
