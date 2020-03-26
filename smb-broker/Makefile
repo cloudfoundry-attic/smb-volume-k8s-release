@@ -32,6 +32,6 @@ kapp:
 	kapp deploy -y -a smb-broker -f <(ytt -f ytt/ -v smbBrokerUsername=foo -v smbBrokerPassword=foo)
 
 fly:
-	fly -t persi execute -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
+	fly -t persi execute --tag=kind -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
 .PHONY: test fly image-local-registry push-local-image-source kapp
