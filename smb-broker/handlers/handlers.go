@@ -144,6 +144,15 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
+	volumeAttributesMap := map[string]string{"share": share}
+	if vers, found := serviceInstanceParameters["vers"]; found {
+		var ok bool
+		if volumeAttributesMap["vers"], ok = vers.(string); !ok {
+			resp := apiresponses.NewFailureResponse(errors.New("'vers' configuration value must be a string"), http.StatusBadRequest, "")
+			return domain.ProvisionedServiceSpec{}, resp
+		}
+	}
+
 	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: instanceID,
@@ -155,7 +164,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 				CSI: &v1.CSIPersistentVolumeSource{
 					Driver:           "org.cloudfoundry.smb",
 					VolumeHandle:     "volume-handle",
-					VolumeAttributes: map[string]string{"share": share},
+					VolumeAttributes: volumeAttributesMap,
 					NodePublishSecretRef: &v1.SecretReference{
 						Name:      instanceID,
 						Namespace: s.Namespace,
