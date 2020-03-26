@@ -13,3 +13,6 @@ start-docker:
 
 kill-docker:
 	pkill dockerd
+
+fly:
+	fly -t persi execute --tag=kind -c $$HOME/workspace/smb-volume-k8s-release/ci/integration-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
