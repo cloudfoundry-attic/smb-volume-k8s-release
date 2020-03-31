@@ -2,6 +2,7 @@
 package smbbrokerfakes
 
 import (
+	"context"
 	"sync"
 
 	v1a "k8s.io/api/core/v1"
@@ -12,10 +13,12 @@ import (
 )
 
 type FakePersistentVolumeClaimInterface struct {
-	CreateStub        func(*v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error)
+	CreateStub        func(context.Context, *v1a.PersistentVolumeClaim, v1b.CreateOptions) (*v1a.PersistentVolumeClaim, error)
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
-		arg1 *v1a.PersistentVolumeClaim
+		arg1 context.Context
+		arg2 *v1a.PersistentVolumeClaim
+		arg3 v1b.CreateOptions
 	}
 	createReturns struct {
 		result1 *v1a.PersistentVolumeClaim
@@ -25,11 +28,12 @@ type FakePersistentVolumeClaimInterface struct {
 		result1 *v1a.PersistentVolumeClaim
 		result2 error
 	}
-	DeleteStub        func(string, *v1b.DeleteOptions) error
+	DeleteStub        func(context.Context, string, v1b.DeleteOptions) error
 	deleteMutex       sync.RWMutex
 	deleteArgsForCall []struct {
-		arg1 string
-		arg2 *v1b.DeleteOptions
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.DeleteOptions
 	}
 	deleteReturns struct {
 		result1 error
@@ -37,11 +41,12 @@ type FakePersistentVolumeClaimInterface struct {
 	deleteReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteCollectionStub        func(*v1b.DeleteOptions, v1b.ListOptions) error
+	DeleteCollectionStub        func(context.Context, v1b.DeleteOptions, v1b.ListOptions) error
 	deleteCollectionMutex       sync.RWMutex
 	deleteCollectionArgsForCall []struct {
-		arg1 *v1b.DeleteOptions
-		arg2 v1b.ListOptions
+		arg1 context.Context
+		arg2 v1b.DeleteOptions
+		arg3 v1b.ListOptions
 	}
 	deleteCollectionReturns struct {
 		result1 error
@@ -49,11 +54,12 @@ type FakePersistentVolumeClaimInterface struct {
 	deleteCollectionReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetStub        func(string, v1b.GetOptions) (*v1a.PersistentVolumeClaim, error)
+	GetStub        func(context.Context, string, v1b.GetOptions) (*v1a.PersistentVolumeClaim, error)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
-		arg1 string
-		arg2 v1b.GetOptions
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.GetOptions
 	}
 	getReturns struct {
 		result1 *v1a.PersistentVolumeClaim
@@ -63,10 +69,11 @@ type FakePersistentVolumeClaimInterface struct {
 		result1 *v1a.PersistentVolumeClaim
 		result2 error
 	}
-	ListStub        func(v1b.ListOptions) (*v1a.PersistentVolumeClaimList, error)
+	ListStub        func(context.Context, v1b.ListOptions) (*v1a.PersistentVolumeClaimList, error)
 	listMutex       sync.RWMutex
 	listArgsForCall []struct {
-		arg1 v1b.ListOptions
+		arg1 context.Context
+		arg2 v1b.ListOptions
 	}
 	listReturns struct {
 		result1 *v1a.PersistentVolumeClaimList
@@ -76,13 +83,15 @@ type FakePersistentVolumeClaimInterface struct {
 		result1 *v1a.PersistentVolumeClaimList
 		result2 error
 	}
-	PatchStub        func(string, types.PatchType, []byte, ...string) (*v1a.PersistentVolumeClaim, error)
+	PatchStub        func(context.Context, string, types.PatchType, []byte, v1b.PatchOptions, ...string) (*v1a.PersistentVolumeClaim, error)
 	patchMutex       sync.RWMutex
 	patchArgsForCall []struct {
-		arg1 string
-		arg2 types.PatchType
-		arg3 []byte
-		arg4 []string
+		arg1 context.Context
+		arg2 string
+		arg3 types.PatchType
+		arg4 []byte
+		arg5 v1b.PatchOptions
+		arg6 []string
 	}
 	patchReturns struct {
 		result1 *v1a.PersistentVolumeClaim
@@ -92,10 +101,12 @@ type FakePersistentVolumeClaimInterface struct {
 		result1 *v1a.PersistentVolumeClaim
 		result2 error
 	}
-	UpdateStub        func(*v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error)
+	UpdateStub        func(context.Context, *v1a.PersistentVolumeClaim, v1b.UpdateOptions) (*v1a.PersistentVolumeClaim, error)
 	updateMutex       sync.RWMutex
 	updateArgsForCall []struct {
-		arg1 *v1a.PersistentVolumeClaim
+		arg1 context.Context
+		arg2 *v1a.PersistentVolumeClaim
+		arg3 v1b.UpdateOptions
 	}
 	updateReturns struct {
 		result1 *v1a.PersistentVolumeClaim
@@ -105,10 +116,12 @@ type FakePersistentVolumeClaimInterface struct {
 		result1 *v1a.PersistentVolumeClaim
 		result2 error
 	}
-	UpdateStatusStub        func(*v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error)
+	UpdateStatusStub        func(context.Context, *v1a.PersistentVolumeClaim, v1b.UpdateOptions) (*v1a.PersistentVolumeClaim, error)
 	updateStatusMutex       sync.RWMutex
 	updateStatusArgsForCall []struct {
-		arg1 *v1a.PersistentVolumeClaim
+		arg1 context.Context
+		arg2 *v1a.PersistentVolumeClaim
+		arg3 v1b.UpdateOptions
 	}
 	updateStatusReturns struct {
 		result1 *v1a.PersistentVolumeClaim
@@ -118,10 +131,11 @@ type FakePersistentVolumeClaimInterface struct {
 		result1 *v1a.PersistentVolumeClaim
 		result2 error
 	}
-	WatchStub        func(v1b.ListOptions) (watch.Interface, error)
+	WatchStub        func(context.Context, v1b.ListOptions) (watch.Interface, error)
 	watchMutex       sync.RWMutex
 	watchArgsForCall []struct {
-		arg1 v1b.ListOptions
+		arg1 context.Context
+		arg2 v1b.ListOptions
 	}
 	watchReturns struct {
 		result1 watch.Interface
@@ -135,16 +149,18 @@ type FakePersistentVolumeClaimInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakePersistentVolumeClaimInterface) Create(arg1 *v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error) {
+func (fake *FakePersistentVolumeClaimInterface) Create(arg1 context.Context, arg2 *v1a.PersistentVolumeClaim, arg3 v1b.CreateOptions) (*v1a.PersistentVolumeClaim, error) {
 	fake.createMutex.Lock()
 	ret, specificReturn := fake.createReturnsOnCall[len(fake.createArgsForCall)]
 	fake.createArgsForCall = append(fake.createArgsForCall, struct {
-		arg1 *v1a.PersistentVolumeClaim
-	}{arg1})
-	fake.recordInvocation("Create", []interface{}{arg1})
+		arg1 context.Context
+		arg2 *v1a.PersistentVolumeClaim
+		arg3 v1b.CreateOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Create", []interface{}{arg1, arg2, arg3})
 	fake.createMutex.Unlock()
 	if fake.CreateStub != nil {
-		return fake.CreateStub(arg1)
+		return fake.CreateStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -159,17 +175,17 @@ func (fake *FakePersistentVolumeClaimInterface) CreateCallCount() int {
 	return len(fake.createArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) CreateCalls(stub func(*v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error)) {
+func (fake *FakePersistentVolumeClaimInterface) CreateCalls(stub func(context.Context, *v1a.PersistentVolumeClaim, v1b.CreateOptions) (*v1a.PersistentVolumeClaim, error)) {
 	fake.createMutex.Lock()
 	defer fake.createMutex.Unlock()
 	fake.CreateStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) CreateArgsForCall(i int) *v1a.PersistentVolumeClaim {
+func (fake *FakePersistentVolumeClaimInterface) CreateArgsForCall(i int) (context.Context, *v1a.PersistentVolumeClaim, v1b.CreateOptions) {
 	fake.createMutex.RLock()
 	defer fake.createMutex.RUnlock()
 	argsForCall := fake.createArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakePersistentVolumeClaimInterface) CreateReturns(result1 *v1a.PersistentVolumeClaim, result2 error) {
@@ -198,17 +214,18 @@ func (fake *FakePersistentVolumeClaimInterface) CreateReturnsOnCall(i int, resul
 	}{result1, result2}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) Delete(arg1 string, arg2 *v1b.DeleteOptions) error {
+func (fake *FakePersistentVolumeClaimInterface) Delete(arg1 context.Context, arg2 string, arg3 v1b.DeleteOptions) error {
 	fake.deleteMutex.Lock()
 	ret, specificReturn := fake.deleteReturnsOnCall[len(fake.deleteArgsForCall)]
 	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
-		arg1 string
-		arg2 *v1b.DeleteOptions
-	}{arg1, arg2})
-	fake.recordInvocation("Delete", []interface{}{arg1, arg2})
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.DeleteOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Delete", []interface{}{arg1, arg2, arg3})
 	fake.deleteMutex.Unlock()
 	if fake.DeleteStub != nil {
-		return fake.DeleteStub(arg1, arg2)
+		return fake.DeleteStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -223,17 +240,17 @@ func (fake *FakePersistentVolumeClaimInterface) DeleteCallCount() int {
 	return len(fake.deleteArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) DeleteCalls(stub func(string, *v1b.DeleteOptions) error) {
+func (fake *FakePersistentVolumeClaimInterface) DeleteCalls(stub func(context.Context, string, v1b.DeleteOptions) error) {
 	fake.deleteMutex.Lock()
 	defer fake.deleteMutex.Unlock()
 	fake.DeleteStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) DeleteArgsForCall(i int) (string, *v1b.DeleteOptions) {
+func (fake *FakePersistentVolumeClaimInterface) DeleteArgsForCall(i int) (context.Context, string, v1b.DeleteOptions) {
 	fake.deleteMutex.RLock()
 	defer fake.deleteMutex.RUnlock()
 	argsForCall := fake.deleteArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakePersistentVolumeClaimInterface) DeleteReturns(result1 error) {
@@ -259,17 +276,18 @@ func (fake *FakePersistentVolumeClaimInterface) DeleteReturnsOnCall(i int, resul
 	}{result1}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) DeleteCollection(arg1 *v1b.DeleteOptions, arg2 v1b.ListOptions) error {
+func (fake *FakePersistentVolumeClaimInterface) DeleteCollection(arg1 context.Context, arg2 v1b.DeleteOptions, arg3 v1b.ListOptions) error {
 	fake.deleteCollectionMutex.Lock()
 	ret, specificReturn := fake.deleteCollectionReturnsOnCall[len(fake.deleteCollectionArgsForCall)]
 	fake.deleteCollectionArgsForCall = append(fake.deleteCollectionArgsForCall, struct {
-		arg1 *v1b.DeleteOptions
-		arg2 v1b.ListOptions
-	}{arg1, arg2})
-	fake.recordInvocation("DeleteCollection", []interface{}{arg1, arg2})
+		arg1 context.Context
+		arg2 v1b.DeleteOptions
+		arg3 v1b.ListOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DeleteCollection", []interface{}{arg1, arg2, arg3})
 	fake.deleteCollectionMutex.Unlock()
 	if fake.DeleteCollectionStub != nil {
-		return fake.DeleteCollectionStub(arg1, arg2)
+		return fake.DeleteCollectionStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -284,17 +302,17 @@ func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionCallCount() int 
 	return len(fake.deleteCollectionArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionCalls(stub func(*v1b.DeleteOptions, v1b.ListOptions) error) {
+func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionCalls(stub func(context.Context, v1b.DeleteOptions, v1b.ListOptions) error) {
 	fake.deleteCollectionMutex.Lock()
 	defer fake.deleteCollectionMutex.Unlock()
 	fake.DeleteCollectionStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionArgsForCall(i int) (*v1b.DeleteOptions, v1b.ListOptions) {
+func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionArgsForCall(i int) (context.Context, v1b.DeleteOptions, v1b.ListOptions) {
 	fake.deleteCollectionMutex.RLock()
 	defer fake.deleteCollectionMutex.RUnlock()
 	argsForCall := fake.deleteCollectionArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionReturns(result1 error) {
@@ -320,17 +338,18 @@ func (fake *FakePersistentVolumeClaimInterface) DeleteCollectionReturnsOnCall(i 
 	}{result1}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) Get(arg1 string, arg2 v1b.GetOptions) (*v1a.PersistentVolumeClaim, error) {
+func (fake *FakePersistentVolumeClaimInterface) Get(arg1 context.Context, arg2 string, arg3 v1b.GetOptions) (*v1a.PersistentVolumeClaim, error) {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
-		arg1 string
-		arg2 v1b.GetOptions
-	}{arg1, arg2})
-	fake.recordInvocation("Get", []interface{}{arg1, arg2})
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.GetOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Get", []interface{}{arg1, arg2, arg3})
 	fake.getMutex.Unlock()
 	if fake.GetStub != nil {
-		return fake.GetStub(arg1, arg2)
+		return fake.GetStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -345,17 +364,17 @@ func (fake *FakePersistentVolumeClaimInterface) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) GetCalls(stub func(string, v1b.GetOptions) (*v1a.PersistentVolumeClaim, error)) {
+func (fake *FakePersistentVolumeClaimInterface) GetCalls(stub func(context.Context, string, v1b.GetOptions) (*v1a.PersistentVolumeClaim, error)) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) GetArgsForCall(i int) (string, v1b.GetOptions) {
+func (fake *FakePersistentVolumeClaimInterface) GetArgsForCall(i int) (context.Context, string, v1b.GetOptions) {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	argsForCall := fake.getArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakePersistentVolumeClaimInterface) GetReturns(result1 *v1a.PersistentVolumeClaim, result2 error) {
@@ -384,16 +403,17 @@ func (fake *FakePersistentVolumeClaimInterface) GetReturnsOnCall(i int, result1 
 	}{result1, result2}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) List(arg1 v1b.ListOptions) (*v1a.PersistentVolumeClaimList, error) {
+func (fake *FakePersistentVolumeClaimInterface) List(arg1 context.Context, arg2 v1b.ListOptions) (*v1a.PersistentVolumeClaimList, error) {
 	fake.listMutex.Lock()
 	ret, specificReturn := fake.listReturnsOnCall[len(fake.listArgsForCall)]
 	fake.listArgsForCall = append(fake.listArgsForCall, struct {
-		arg1 v1b.ListOptions
-	}{arg1})
-	fake.recordInvocation("List", []interface{}{arg1})
+		arg1 context.Context
+		arg2 v1b.ListOptions
+	}{arg1, arg2})
+	fake.recordInvocation("List", []interface{}{arg1, arg2})
 	fake.listMutex.Unlock()
 	if fake.ListStub != nil {
-		return fake.ListStub(arg1)
+		return fake.ListStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -408,17 +428,17 @@ func (fake *FakePersistentVolumeClaimInterface) ListCallCount() int {
 	return len(fake.listArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) ListCalls(stub func(v1b.ListOptions) (*v1a.PersistentVolumeClaimList, error)) {
+func (fake *FakePersistentVolumeClaimInterface) ListCalls(stub func(context.Context, v1b.ListOptions) (*v1a.PersistentVolumeClaimList, error)) {
 	fake.listMutex.Lock()
 	defer fake.listMutex.Unlock()
 	fake.ListStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) ListArgsForCall(i int) v1b.ListOptions {
+func (fake *FakePersistentVolumeClaimInterface) ListArgsForCall(i int) (context.Context, v1b.ListOptions) {
 	fake.listMutex.RLock()
 	defer fake.listMutex.RUnlock()
 	argsForCall := fake.listArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakePersistentVolumeClaimInterface) ListReturns(result1 *v1a.PersistentVolumeClaimList, result2 error) {
@@ -447,24 +467,26 @@ func (fake *FakePersistentVolumeClaimInterface) ListReturnsOnCall(i int, result1
 	}{result1, result2}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) Patch(arg1 string, arg2 types.PatchType, arg3 []byte, arg4 ...string) (*v1a.PersistentVolumeClaim, error) {
-	var arg3Copy []byte
-	if arg3 != nil {
-		arg3Copy = make([]byte, len(arg3))
-		copy(arg3Copy, arg3)
+func (fake *FakePersistentVolumeClaimInterface) Patch(arg1 context.Context, arg2 string, arg3 types.PatchType, arg4 []byte, arg5 v1b.PatchOptions, arg6 ...string) (*v1a.PersistentVolumeClaim, error) {
+	var arg4Copy []byte
+	if arg4 != nil {
+		arg4Copy = make([]byte, len(arg4))
+		copy(arg4Copy, arg4)
 	}
 	fake.patchMutex.Lock()
 	ret, specificReturn := fake.patchReturnsOnCall[len(fake.patchArgsForCall)]
 	fake.patchArgsForCall = append(fake.patchArgsForCall, struct {
-		arg1 string
-		arg2 types.PatchType
-		arg3 []byte
-		arg4 []string
-	}{arg1, arg2, arg3Copy, arg4})
-	fake.recordInvocation("Patch", []interface{}{arg1, arg2, arg3Copy, arg4})
+		arg1 context.Context
+		arg2 string
+		arg3 types.PatchType
+		arg4 []byte
+		arg5 v1b.PatchOptions
+		arg6 []string
+	}{arg1, arg2, arg3, arg4Copy, arg5, arg6})
+	fake.recordInvocation("Patch", []interface{}{arg1, arg2, arg3, arg4Copy, arg5, arg6})
 	fake.patchMutex.Unlock()
 	if fake.PatchStub != nil {
-		return fake.PatchStub(arg1, arg2, arg3, arg4...)
+		return fake.PatchStub(arg1, arg2, arg3, arg4, arg5, arg6...)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -479,17 +501,17 @@ func (fake *FakePersistentVolumeClaimInterface) PatchCallCount() int {
 	return len(fake.patchArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) PatchCalls(stub func(string, types.PatchType, []byte, ...string) (*v1a.PersistentVolumeClaim, error)) {
+func (fake *FakePersistentVolumeClaimInterface) PatchCalls(stub func(context.Context, string, types.PatchType, []byte, v1b.PatchOptions, ...string) (*v1a.PersistentVolumeClaim, error)) {
 	fake.patchMutex.Lock()
 	defer fake.patchMutex.Unlock()
 	fake.PatchStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) PatchArgsForCall(i int) (string, types.PatchType, []byte, []string) {
+func (fake *FakePersistentVolumeClaimInterface) PatchArgsForCall(i int) (context.Context, string, types.PatchType, []byte, v1b.PatchOptions, []string) {
 	fake.patchMutex.RLock()
 	defer fake.patchMutex.RUnlock()
 	argsForCall := fake.patchArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
 }
 
 func (fake *FakePersistentVolumeClaimInterface) PatchReturns(result1 *v1a.PersistentVolumeClaim, result2 error) {
@@ -518,16 +540,18 @@ func (fake *FakePersistentVolumeClaimInterface) PatchReturnsOnCall(i int, result
 	}{result1, result2}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) Update(arg1 *v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error) {
+func (fake *FakePersistentVolumeClaimInterface) Update(arg1 context.Context, arg2 *v1a.PersistentVolumeClaim, arg3 v1b.UpdateOptions) (*v1a.PersistentVolumeClaim, error) {
 	fake.updateMutex.Lock()
 	ret, specificReturn := fake.updateReturnsOnCall[len(fake.updateArgsForCall)]
 	fake.updateArgsForCall = append(fake.updateArgsForCall, struct {
-		arg1 *v1a.PersistentVolumeClaim
-	}{arg1})
-	fake.recordInvocation("Update", []interface{}{arg1})
+		arg1 context.Context
+		arg2 *v1a.PersistentVolumeClaim
+		arg3 v1b.UpdateOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3})
 	fake.updateMutex.Unlock()
 	if fake.UpdateStub != nil {
-		return fake.UpdateStub(arg1)
+		return fake.UpdateStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -542,17 +566,17 @@ func (fake *FakePersistentVolumeClaimInterface) UpdateCallCount() int {
 	return len(fake.updateArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) UpdateCalls(stub func(*v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error)) {
+func (fake *FakePersistentVolumeClaimInterface) UpdateCalls(stub func(context.Context, *v1a.PersistentVolumeClaim, v1b.UpdateOptions) (*v1a.PersistentVolumeClaim, error)) {
 	fake.updateMutex.Lock()
 	defer fake.updateMutex.Unlock()
 	fake.UpdateStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) UpdateArgsForCall(i int) *v1a.PersistentVolumeClaim {
+func (fake *FakePersistentVolumeClaimInterface) UpdateArgsForCall(i int) (context.Context, *v1a.PersistentVolumeClaim, v1b.UpdateOptions) {
 	fake.updateMutex.RLock()
 	defer fake.updateMutex.RUnlock()
 	argsForCall := fake.updateArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakePersistentVolumeClaimInterface) UpdateReturns(result1 *v1a.PersistentVolumeClaim, result2 error) {
@@ -581,16 +605,18 @@ func (fake *FakePersistentVolumeClaimInterface) UpdateReturnsOnCall(i int, resul
 	}{result1, result2}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) UpdateStatus(arg1 *v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error) {
+func (fake *FakePersistentVolumeClaimInterface) UpdateStatus(arg1 context.Context, arg2 *v1a.PersistentVolumeClaim, arg3 v1b.UpdateOptions) (*v1a.PersistentVolumeClaim, error) {
 	fake.updateStatusMutex.Lock()
 	ret, specificReturn := fake.updateStatusReturnsOnCall[len(fake.updateStatusArgsForCall)]
 	fake.updateStatusArgsForCall = append(fake.updateStatusArgsForCall, struct {
-		arg1 *v1a.PersistentVolumeClaim
-	}{arg1})
-	fake.recordInvocation("UpdateStatus", []interface{}{arg1})
+		arg1 context.Context
+		arg2 *v1a.PersistentVolumeClaim
+		arg3 v1b.UpdateOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("UpdateStatus", []interface{}{arg1, arg2, arg3})
 	fake.updateStatusMutex.Unlock()
 	if fake.UpdateStatusStub != nil {
-		return fake.UpdateStatusStub(arg1)
+		return fake.UpdateStatusStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -605,17 +631,17 @@ func (fake *FakePersistentVolumeClaimInterface) UpdateStatusCallCount() int {
 	return len(fake.updateStatusArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) UpdateStatusCalls(stub func(*v1a.PersistentVolumeClaim) (*v1a.PersistentVolumeClaim, error)) {
+func (fake *FakePersistentVolumeClaimInterface) UpdateStatusCalls(stub func(context.Context, *v1a.PersistentVolumeClaim, v1b.UpdateOptions) (*v1a.PersistentVolumeClaim, error)) {
 	fake.updateStatusMutex.Lock()
 	defer fake.updateStatusMutex.Unlock()
 	fake.UpdateStatusStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) UpdateStatusArgsForCall(i int) *v1a.PersistentVolumeClaim {
+func (fake *FakePersistentVolumeClaimInterface) UpdateStatusArgsForCall(i int) (context.Context, *v1a.PersistentVolumeClaim, v1b.UpdateOptions) {
 	fake.updateStatusMutex.RLock()
 	defer fake.updateStatusMutex.RUnlock()
 	argsForCall := fake.updateStatusArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakePersistentVolumeClaimInterface) UpdateStatusReturns(result1 *v1a.PersistentVolumeClaim, result2 error) {
@@ -644,16 +670,17 @@ func (fake *FakePersistentVolumeClaimInterface) UpdateStatusReturnsOnCall(i int,
 	}{result1, result2}
 }
 
-func (fake *FakePersistentVolumeClaimInterface) Watch(arg1 v1b.ListOptions) (watch.Interface, error) {
+func (fake *FakePersistentVolumeClaimInterface) Watch(arg1 context.Context, arg2 v1b.ListOptions) (watch.Interface, error) {
 	fake.watchMutex.Lock()
 	ret, specificReturn := fake.watchReturnsOnCall[len(fake.watchArgsForCall)]
 	fake.watchArgsForCall = append(fake.watchArgsForCall, struct {
-		arg1 v1b.ListOptions
-	}{arg1})
-	fake.recordInvocation("Watch", []interface{}{arg1})
+		arg1 context.Context
+		arg2 v1b.ListOptions
+	}{arg1, arg2})
+	fake.recordInvocation("Watch", []interface{}{arg1, arg2})
 	fake.watchMutex.Unlock()
 	if fake.WatchStub != nil {
-		return fake.WatchStub(arg1)
+		return fake.WatchStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -668,17 +695,17 @@ func (fake *FakePersistentVolumeClaimInterface) WatchCallCount() int {
 	return len(fake.watchArgsForCall)
 }
 
-func (fake *FakePersistentVolumeClaimInterface) WatchCalls(stub func(v1b.ListOptions) (watch.Interface, error)) {
+func (fake *FakePersistentVolumeClaimInterface) WatchCalls(stub func(context.Context, v1b.ListOptions) (watch.Interface, error)) {
 	fake.watchMutex.Lock()
 	defer fake.watchMutex.Unlock()
 	fake.WatchStub = stub
 }
 
-func (fake *FakePersistentVolumeClaimInterface) WatchArgsForCall(i int) v1b.ListOptions {
+func (fake *FakePersistentVolumeClaimInterface) WatchArgsForCall(i int) (context.Context, v1b.ListOptions) {
 	fake.watchMutex.RLock()
 	defer fake.watchMutex.RUnlock()
 	argsForCall := fake.watchArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakePersistentVolumeClaimInterface) WatchReturns(result1 watch.Interface, result2 error) {

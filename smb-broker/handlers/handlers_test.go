@@ -8,17 +8,18 @@ import (
 
 	"errors"
 	"fmt"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"io/ioutil"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-brokerfakes/fake_persistent_volume_interface.go k8s.io/client-go/kubernetes/typed/core/v1.PersistentVolumeInterface
@@ -85,7 +86,8 @@ var _ = Describe("Handlers", func() {
 
 			It("should create a persistent volume", func() {
 				Expect(fakePersistentVolumeClient.CreateCallCount()).To(Equal(1))
-				Expect(fakePersistentVolumeClient.CreateArgsForCall(0)).To(Equal(
+				_, pvc, _ := fakePersistentVolumeClient.CreateArgsForCall(0)
+				Expect(pvc).To(Equal(
 					&v1.PersistentVolume{
 						ObjectMeta: metav1.ObjectMeta{
 							Name: serviceInstanceKey,
@@ -112,7 +114,8 @@ var _ = Describe("Handlers", func() {
 			It("should create a persistent volume claim", func() {
 				Expect(fakePersistentVolumeClaimClient.CreateCallCount()).To(Equal(1))
 				storageClass := ""
-				Expect(fakePersistentVolumeClaimClient.CreateArgsForCall(0)).To(Equal(
+				_, pvc, _ := fakePersistentVolumeClaimClient.CreateArgsForCall(0)
+				Expect(pvc).To(Equal(
 					&v1.PersistentVolumeClaim{
 						ObjectMeta: metav1.ObjectMeta{
 							Name: serviceInstanceKey,
@@ -149,23 +152,23 @@ var _ = Describe("Handlers", func() {
 
 				It("should not leave behind orphaned resources", func() {
 					Expect(fakePersistentVolumeClient.DeleteCallCount()).To(Equal(1))
-					instanceId, opts := fakePersistentVolumeClient.DeleteArgsForCall(0)
+					_, instanceId, opts := fakePersistentVolumeClient.DeleteArgsForCall(0)
 					Expect(instanceId).To(Equal(serviceInstanceKey))
-					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
+					Expect(opts).To(Equal(metav1.DeleteOptions{}))
 
 					Expect(fakePersistentVolumeClaimClient.DeleteCallCount()).To(Equal(1))
-					instanceId, opts = fakePersistentVolumeClaimClient.DeleteArgsForCall(0)
+					_, instanceId, opts = fakePersistentVolumeClaimClient.DeleteArgsForCall(0)
 					Expect(instanceId).To(Equal(serviceInstanceKey))
-					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
+					Expect(opts).To(Equal(metav1.DeleteOptions{}))
 
 					Expect(fakeSecretClient.DeleteCallCount()).To(Equal(1))
-					instanceId, opts = fakeSecretClient.DeleteArgsForCall(0)
+					_, instanceId, opts = fakeSecretClient.DeleteArgsForCall(0)
 					Expect(instanceId).To(Equal(serviceInstanceKey))
-					Expect(opts).To(Equal(&metav1.DeleteOptions{}))
+					Expect(opts).To(Equal(metav1.DeleteOptions{}))
 				})
 
 				Context("when unable to cleanupResourcesCreatedByProvision any k8s resources", func() {
-					Context("failure cleaning up PV", func(){
+					Context("failure cleaning up PV", func() {
 						BeforeEach(func() {
 							fakePersistentVolumeClient.DeleteReturns(errors.New("K8s ERROR"))
 						})
@@ -175,7 +178,7 @@ var _ = Describe("Handlers", func() {
 						})
 					})
 
-					Context("failure cleaning up PVC", func(){
+					Context("failure cleaning up PVC", func() {
 						BeforeEach(func() {
 							fakePersistentVolumeClaimClient.DeleteReturns(errors.New("K8s ERROR"))
 						})
@@ -185,7 +188,7 @@ var _ = Describe("Handlers", func() {
 						})
 					})
 
-					Context("failure cleaning up secret", func(){
+					Context("failure cleaning up secret", func() {
 						BeforeEach(func() {
 							fakeSecretClient.DeleteReturns(errors.New("K8s ERROR"))
 						})
@@ -194,7 +197,6 @@ var _ = Describe("Handlers", func() {
 							Expect(testLogger.Buffer()).To(gbytes.Say(`"message":"handler_test.handlers.cleanupResourcesCreatedByProvision-failed","log_level":2,"data":{"error":"K8s ERROR"}}`))
 						})
 					})
-
 
 				})
 			})
@@ -214,7 +216,7 @@ var _ = Describe("Handlers", func() {
 
 			Context("when service instance parameters are not provided", func() {
 
-				Context("no required parameters are provided", func(){
+				Context("no required parameters are provided", func() {
 					BeforeEach(func() {
 						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
 						Expect(err).NotTo(HaveOccurred())
@@ -274,7 +276,8 @@ var _ = Describe("Handlers", func() {
 
 				It("should store the username and password in a secret", func() {
 					Expect(fakeSecretClient.CreateCallCount()).To(Equal(1))
-					Expect(fakeSecretClient.CreateArgsForCall(0)).To(Equal(
+					_, s, _ := fakeSecretClient.CreateArgsForCall(0)
+					Expect(s).To(Equal(
 						&v1.Secret{
 							ObjectMeta: metav1.ObjectMeta{
 								Name: serviceInstanceKey,
@@ -286,7 +289,8 @@ var _ = Describe("Handlers", func() {
 
 				It("should store a reference to the secret in the PV", func() {
 					Expect(fakePersistentVolumeClient.CreateCallCount()).To(Equal(1))
-					Expect(fakePersistentVolumeClient.CreateArgsForCall(0)).To(Equal(
+					_, pv, _ := fakePersistentVolumeClient.CreateArgsForCall(0)
+					Expect(pv).To(Equal(
 						&v1.PersistentVolume{
 							ObjectMeta: metav1.ObjectMeta{
 								Name: serviceInstanceKey,
@@ -312,7 +316,7 @@ var _ = Describe("Handlers", func() {
 				})
 			})
 
-			Context("service instance parameter validations", func(){
+			Context("service instance parameter validations", func() {
 				Context("when an invalid username is supplied", func() {
 					BeforeEach(func() {
 						var err error
@@ -385,7 +389,7 @@ var _ = Describe("Handlers", func() {
 				})
 			})
 
-			Context("when smb version is specified", func(){
+			Context("when smb version is specified", func() {
 				BeforeEach(func() {
 					var err error
 					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers":"3.0" } }`))
@@ -394,7 +398,7 @@ var _ = Describe("Handlers", func() {
 
 				It("should create a persistent volume with the version in the attributes", func() {
 					Expect(fakePersistentVolumeClient.CreateCallCount()).To(Equal(1))
-					pv := fakePersistentVolumeClient.CreateArgsForCall(0)
+					_, pv, _ := fakePersistentVolumeClient.CreateArgsForCall(0)
 					Expect(pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes).To(HaveKeyWithValue("vers", "3.0"))
 				})
 
@@ -427,23 +431,23 @@ var _ = Describe("Handlers", func() {
 
 			It("should delete a persistent volume", func() {
 				Expect(fakePersistentVolumeClient.DeleteCallCount()).To(Equal(1))
-				name, options := fakePersistentVolumeClient.DeleteArgsForCall(0)
+				_, name, options := fakePersistentVolumeClient.DeleteArgsForCall(0)
 				Expect(name).To(Equal(serviceInstanceKey))
-				Expect(options).To(Equal(&metav1.DeleteOptions{}))
+				Expect(options).To(Equal(metav1.DeleteOptions{}))
 			})
 
 			It("should delete a persistent volume claim", func() {
 				Expect(fakePersistentVolumeClaimClient.DeleteCallCount()).To(Equal(1))
-				name, options := fakePersistentVolumeClaimClient.DeleteArgsForCall(0)
+				_, name, options := fakePersistentVolumeClaimClient.DeleteArgsForCall(0)
 				Expect(name).To(Equal(serviceInstanceKey))
-				Expect(options).To(Equal(&metav1.DeleteOptions{}))
+				Expect(options).To(Equal(metav1.DeleteOptions{}))
 			})
 
 			It("should delete the secret", func() {
 				Expect(fakeSecretClient.DeleteCallCount()).To(Equal(1))
-				name, options := fakeSecretClient.DeleteArgsForCall(0)
+				_, name, options := fakeSecretClient.DeleteArgsForCall(0)
 				Expect(name).To(Equal(serviceInstanceKey))
-				Expect(options).To(Equal(&metav1.DeleteOptions{}))
+				Expect(options).To(Equal(metav1.DeleteOptions{}))
 			})
 
 			Context("when unable to delete a persistent volume", func() {
@@ -532,7 +536,7 @@ var _ = Describe("Handlers", func() {
 			It("should retrieve a service instance that was earlier provisioned", func() {
 				Expect(fakePersistentVolumeClient.GetCallCount()).To(Equal(1))
 
-				instanceIDArg, getOpts := fakePersistentVolumeClient.GetArgsForCall(0)
+				_, instanceIDArg, getOpts := fakePersistentVolumeClient.GetArgsForCall(0)
 				Expect(instanceIDArg).To(Equal(instanceID))
 				Expect(getOpts).To(Equal(metav1.GetOptions{}))
 
@@ -542,7 +546,7 @@ var _ = Describe("Handlers", func() {
 
 			It("should retrieve the username from the secret named after the instance ID", func() {
 				Expect(fakeSecretClient.GetCallCount()).To(Equal(1))
-				secretName, _ := fakeSecretClient.GetArgsForCall(0)
+				_, secretName, _ := fakeSecretClient.GetArgsForCall(0)
 				Expect(secretName).To(Equal(instanceID))
 			})
 			It("shows share and username but not password", func() {
@@ -590,7 +594,7 @@ var _ = Describe("Handlers", func() {
 
 			It("fetches the PV from k8s", func() {
 				Expect(fakePersistentVolumeClient.GetCallCount()).To(Equal(1))
-				instanceIDArg, optionsArg := fakePersistentVolumeClient.GetArgsForCall(0)
+				_, instanceIDArg, optionsArg := fakePersistentVolumeClient.GetArgsForCall(0)
 				Expect(instanceIDArg).To(Equal(instanceID))
 				Expect(optionsArg).To(Equal(metav1.GetOptions{}))
 			})
@@ -668,7 +672,7 @@ var _ = Describe("Handlers", func() {
 
 			It("returns 200", func() {
 				Expect(fakePersistentVolumeClient.GetCallCount()).To(Equal(1))
-				instanceIDArg, getOpts := fakePersistentVolumeClient.GetArgsForCall(0)
+				_, instanceIDArg, getOpts := fakePersistentVolumeClient.GetArgsForCall(0)
 				Expect(instanceIDArg).To(Equal(instanceID))
 				Expect(getOpts).To(Equal(metav1.GetOptions{}))
 

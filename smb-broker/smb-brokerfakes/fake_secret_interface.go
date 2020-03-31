@@ -2,6 +2,7 @@
 package smbbrokerfakes
 
 import (
+	"context"
 	"sync"
 
 	v1a "k8s.io/api/core/v1"
@@ -12,10 +13,12 @@ import (
 )
 
 type FakeSecretInterface struct {
-	CreateStub        func(*v1a.Secret) (*v1a.Secret, error)
+	CreateStub        func(context.Context, *v1a.Secret, v1b.CreateOptions) (*v1a.Secret, error)
 	createMutex       sync.RWMutex
 	createArgsForCall []struct {
-		arg1 *v1a.Secret
+		arg1 context.Context
+		arg2 *v1a.Secret
+		arg3 v1b.CreateOptions
 	}
 	createReturns struct {
 		result1 *v1a.Secret
@@ -25,11 +28,12 @@ type FakeSecretInterface struct {
 		result1 *v1a.Secret
 		result2 error
 	}
-	DeleteStub        func(string, *v1b.DeleteOptions) error
+	DeleteStub        func(context.Context, string, v1b.DeleteOptions) error
 	deleteMutex       sync.RWMutex
 	deleteArgsForCall []struct {
-		arg1 string
-		arg2 *v1b.DeleteOptions
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.DeleteOptions
 	}
 	deleteReturns struct {
 		result1 error
@@ -37,11 +41,12 @@ type FakeSecretInterface struct {
 	deleteReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteCollectionStub        func(*v1b.DeleteOptions, v1b.ListOptions) error
+	DeleteCollectionStub        func(context.Context, v1b.DeleteOptions, v1b.ListOptions) error
 	deleteCollectionMutex       sync.RWMutex
 	deleteCollectionArgsForCall []struct {
-		arg1 *v1b.DeleteOptions
-		arg2 v1b.ListOptions
+		arg1 context.Context
+		arg2 v1b.DeleteOptions
+		arg3 v1b.ListOptions
 	}
 	deleteCollectionReturns struct {
 		result1 error
@@ -49,11 +54,12 @@ type FakeSecretInterface struct {
 	deleteCollectionReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetStub        func(string, v1b.GetOptions) (*v1a.Secret, error)
+	GetStub        func(context.Context, string, v1b.GetOptions) (*v1a.Secret, error)
 	getMutex       sync.RWMutex
 	getArgsForCall []struct {
-		arg1 string
-		arg2 v1b.GetOptions
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.GetOptions
 	}
 	getReturns struct {
 		result1 *v1a.Secret
@@ -63,10 +69,11 @@ type FakeSecretInterface struct {
 		result1 *v1a.Secret
 		result2 error
 	}
-	ListStub        func(v1b.ListOptions) (*v1a.SecretList, error)
+	ListStub        func(context.Context, v1b.ListOptions) (*v1a.SecretList, error)
 	listMutex       sync.RWMutex
 	listArgsForCall []struct {
-		arg1 v1b.ListOptions
+		arg1 context.Context
+		arg2 v1b.ListOptions
 	}
 	listReturns struct {
 		result1 *v1a.SecretList
@@ -76,13 +83,15 @@ type FakeSecretInterface struct {
 		result1 *v1a.SecretList
 		result2 error
 	}
-	PatchStub        func(string, types.PatchType, []byte, ...string) (*v1a.Secret, error)
+	PatchStub        func(context.Context, string, types.PatchType, []byte, v1b.PatchOptions, ...string) (*v1a.Secret, error)
 	patchMutex       sync.RWMutex
 	patchArgsForCall []struct {
-		arg1 string
-		arg2 types.PatchType
-		arg3 []byte
-		arg4 []string
+		arg1 context.Context
+		arg2 string
+		arg3 types.PatchType
+		arg4 []byte
+		arg5 v1b.PatchOptions
+		arg6 []string
 	}
 	patchReturns struct {
 		result1 *v1a.Secret
@@ -92,10 +101,12 @@ type FakeSecretInterface struct {
 		result1 *v1a.Secret
 		result2 error
 	}
-	UpdateStub        func(*v1a.Secret) (*v1a.Secret, error)
+	UpdateStub        func(context.Context, *v1a.Secret, v1b.UpdateOptions) (*v1a.Secret, error)
 	updateMutex       sync.RWMutex
 	updateArgsForCall []struct {
-		arg1 *v1a.Secret
+		arg1 context.Context
+		arg2 *v1a.Secret
+		arg3 v1b.UpdateOptions
 	}
 	updateReturns struct {
 		result1 *v1a.Secret
@@ -105,10 +116,11 @@ type FakeSecretInterface struct {
 		result1 *v1a.Secret
 		result2 error
 	}
-	WatchStub        func(v1b.ListOptions) (watch.Interface, error)
+	WatchStub        func(context.Context, v1b.ListOptions) (watch.Interface, error)
 	watchMutex       sync.RWMutex
 	watchArgsForCall []struct {
-		arg1 v1b.ListOptions
+		arg1 context.Context
+		arg2 v1b.ListOptions
 	}
 	watchReturns struct {
 		result1 watch.Interface
@@ -122,16 +134,18 @@ type FakeSecretInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeSecretInterface) Create(arg1 *v1a.Secret) (*v1a.Secret, error) {
+func (fake *FakeSecretInterface) Create(arg1 context.Context, arg2 *v1a.Secret, arg3 v1b.CreateOptions) (*v1a.Secret, error) {
 	fake.createMutex.Lock()
 	ret, specificReturn := fake.createReturnsOnCall[len(fake.createArgsForCall)]
 	fake.createArgsForCall = append(fake.createArgsForCall, struct {
-		arg1 *v1a.Secret
-	}{arg1})
-	fake.recordInvocation("Create", []interface{}{arg1})
+		arg1 context.Context
+		arg2 *v1a.Secret
+		arg3 v1b.CreateOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Create", []interface{}{arg1, arg2, arg3})
 	fake.createMutex.Unlock()
 	if fake.CreateStub != nil {
-		return fake.CreateStub(arg1)
+		return fake.CreateStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -146,17 +160,17 @@ func (fake *FakeSecretInterface) CreateCallCount() int {
 	return len(fake.createArgsForCall)
 }
 
-func (fake *FakeSecretInterface) CreateCalls(stub func(*v1a.Secret) (*v1a.Secret, error)) {
+func (fake *FakeSecretInterface) CreateCalls(stub func(context.Context, *v1a.Secret, v1b.CreateOptions) (*v1a.Secret, error)) {
 	fake.createMutex.Lock()
 	defer fake.createMutex.Unlock()
 	fake.CreateStub = stub
 }
 
-func (fake *FakeSecretInterface) CreateArgsForCall(i int) *v1a.Secret {
+func (fake *FakeSecretInterface) CreateArgsForCall(i int) (context.Context, *v1a.Secret, v1b.CreateOptions) {
 	fake.createMutex.RLock()
 	defer fake.createMutex.RUnlock()
 	argsForCall := fake.createArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeSecretInterface) CreateReturns(result1 *v1a.Secret, result2 error) {
@@ -185,17 +199,18 @@ func (fake *FakeSecretInterface) CreateReturnsOnCall(i int, result1 *v1a.Secret,
 	}{result1, result2}
 }
 
-func (fake *FakeSecretInterface) Delete(arg1 string, arg2 *v1b.DeleteOptions) error {
+func (fake *FakeSecretInterface) Delete(arg1 context.Context, arg2 string, arg3 v1b.DeleteOptions) error {
 	fake.deleteMutex.Lock()
 	ret, specificReturn := fake.deleteReturnsOnCall[len(fake.deleteArgsForCall)]
 	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
-		arg1 string
-		arg2 *v1b.DeleteOptions
-	}{arg1, arg2})
-	fake.recordInvocation("Delete", []interface{}{arg1, arg2})
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.DeleteOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Delete", []interface{}{arg1, arg2, arg3})
 	fake.deleteMutex.Unlock()
 	if fake.DeleteStub != nil {
-		return fake.DeleteStub(arg1, arg2)
+		return fake.DeleteStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -210,17 +225,17 @@ func (fake *FakeSecretInterface) DeleteCallCount() int {
 	return len(fake.deleteArgsForCall)
 }
 
-func (fake *FakeSecretInterface) DeleteCalls(stub func(string, *v1b.DeleteOptions) error) {
+func (fake *FakeSecretInterface) DeleteCalls(stub func(context.Context, string, v1b.DeleteOptions) error) {
 	fake.deleteMutex.Lock()
 	defer fake.deleteMutex.Unlock()
 	fake.DeleteStub = stub
 }
 
-func (fake *FakeSecretInterface) DeleteArgsForCall(i int) (string, *v1b.DeleteOptions) {
+func (fake *FakeSecretInterface) DeleteArgsForCall(i int) (context.Context, string, v1b.DeleteOptions) {
 	fake.deleteMutex.RLock()
 	defer fake.deleteMutex.RUnlock()
 	argsForCall := fake.deleteArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeSecretInterface) DeleteReturns(result1 error) {
@@ -246,17 +261,18 @@ func (fake *FakeSecretInterface) DeleteReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeSecretInterface) DeleteCollection(arg1 *v1b.DeleteOptions, arg2 v1b.ListOptions) error {
+func (fake *FakeSecretInterface) DeleteCollection(arg1 context.Context, arg2 v1b.DeleteOptions, arg3 v1b.ListOptions) error {
 	fake.deleteCollectionMutex.Lock()
 	ret, specificReturn := fake.deleteCollectionReturnsOnCall[len(fake.deleteCollectionArgsForCall)]
 	fake.deleteCollectionArgsForCall = append(fake.deleteCollectionArgsForCall, struct {
-		arg1 *v1b.DeleteOptions
-		arg2 v1b.ListOptions
-	}{arg1, arg2})
-	fake.recordInvocation("DeleteCollection", []interface{}{arg1, arg2})
+		arg1 context.Context
+		arg2 v1b.DeleteOptions
+		arg3 v1b.ListOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("DeleteCollection", []interface{}{arg1, arg2, arg3})
 	fake.deleteCollectionMutex.Unlock()
 	if fake.DeleteCollectionStub != nil {
-		return fake.DeleteCollectionStub(arg1, arg2)
+		return fake.DeleteCollectionStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -271,17 +287,17 @@ func (fake *FakeSecretInterface) DeleteCollectionCallCount() int {
 	return len(fake.deleteCollectionArgsForCall)
 }
 
-func (fake *FakeSecretInterface) DeleteCollectionCalls(stub func(*v1b.DeleteOptions, v1b.ListOptions) error) {
+func (fake *FakeSecretInterface) DeleteCollectionCalls(stub func(context.Context, v1b.DeleteOptions, v1b.ListOptions) error) {
 	fake.deleteCollectionMutex.Lock()
 	defer fake.deleteCollectionMutex.Unlock()
 	fake.DeleteCollectionStub = stub
 }
 
-func (fake *FakeSecretInterface) DeleteCollectionArgsForCall(i int) (*v1b.DeleteOptions, v1b.ListOptions) {
+func (fake *FakeSecretInterface) DeleteCollectionArgsForCall(i int) (context.Context, v1b.DeleteOptions, v1b.ListOptions) {
 	fake.deleteCollectionMutex.RLock()
 	defer fake.deleteCollectionMutex.RUnlock()
 	argsForCall := fake.deleteCollectionArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeSecretInterface) DeleteCollectionReturns(result1 error) {
@@ -307,17 +323,18 @@ func (fake *FakeSecretInterface) DeleteCollectionReturnsOnCall(i int, result1 er
 	}{result1}
 }
 
-func (fake *FakeSecretInterface) Get(arg1 string, arg2 v1b.GetOptions) (*v1a.Secret, error) {
+func (fake *FakeSecretInterface) Get(arg1 context.Context, arg2 string, arg3 v1b.GetOptions) (*v1a.Secret, error) {
 	fake.getMutex.Lock()
 	ret, specificReturn := fake.getReturnsOnCall[len(fake.getArgsForCall)]
 	fake.getArgsForCall = append(fake.getArgsForCall, struct {
-		arg1 string
-		arg2 v1b.GetOptions
-	}{arg1, arg2})
-	fake.recordInvocation("Get", []interface{}{arg1, arg2})
+		arg1 context.Context
+		arg2 string
+		arg3 v1b.GetOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Get", []interface{}{arg1, arg2, arg3})
 	fake.getMutex.Unlock()
 	if fake.GetStub != nil {
-		return fake.GetStub(arg1, arg2)
+		return fake.GetStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -332,17 +349,17 @@ func (fake *FakeSecretInterface) GetCallCount() int {
 	return len(fake.getArgsForCall)
 }
 
-func (fake *FakeSecretInterface) GetCalls(stub func(string, v1b.GetOptions) (*v1a.Secret, error)) {
+func (fake *FakeSecretInterface) GetCalls(stub func(context.Context, string, v1b.GetOptions) (*v1a.Secret, error)) {
 	fake.getMutex.Lock()
 	defer fake.getMutex.Unlock()
 	fake.GetStub = stub
 }
 
-func (fake *FakeSecretInterface) GetArgsForCall(i int) (string, v1b.GetOptions) {
+func (fake *FakeSecretInterface) GetArgsForCall(i int) (context.Context, string, v1b.GetOptions) {
 	fake.getMutex.RLock()
 	defer fake.getMutex.RUnlock()
 	argsForCall := fake.getArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeSecretInterface) GetReturns(result1 *v1a.Secret, result2 error) {
@@ -371,16 +388,17 @@ func (fake *FakeSecretInterface) GetReturnsOnCall(i int, result1 *v1a.Secret, re
 	}{result1, result2}
 }
 
-func (fake *FakeSecretInterface) List(arg1 v1b.ListOptions) (*v1a.SecretList, error) {
+func (fake *FakeSecretInterface) List(arg1 context.Context, arg2 v1b.ListOptions) (*v1a.SecretList, error) {
 	fake.listMutex.Lock()
 	ret, specificReturn := fake.listReturnsOnCall[len(fake.listArgsForCall)]
 	fake.listArgsForCall = append(fake.listArgsForCall, struct {
-		arg1 v1b.ListOptions
-	}{arg1})
-	fake.recordInvocation("List", []interface{}{arg1})
+		arg1 context.Context
+		arg2 v1b.ListOptions
+	}{arg1, arg2})
+	fake.recordInvocation("List", []interface{}{arg1, arg2})
 	fake.listMutex.Unlock()
 	if fake.ListStub != nil {
-		return fake.ListStub(arg1)
+		return fake.ListStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -395,17 +413,17 @@ func (fake *FakeSecretInterface) ListCallCount() int {
 	return len(fake.listArgsForCall)
 }
 
-func (fake *FakeSecretInterface) ListCalls(stub func(v1b.ListOptions) (*v1a.SecretList, error)) {
+func (fake *FakeSecretInterface) ListCalls(stub func(context.Context, v1b.ListOptions) (*v1a.SecretList, error)) {
 	fake.listMutex.Lock()
 	defer fake.listMutex.Unlock()
 	fake.ListStub = stub
 }
 
-func (fake *FakeSecretInterface) ListArgsForCall(i int) v1b.ListOptions {
+func (fake *FakeSecretInterface) ListArgsForCall(i int) (context.Context, v1b.ListOptions) {
 	fake.listMutex.RLock()
 	defer fake.listMutex.RUnlock()
 	argsForCall := fake.listArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeSecretInterface) ListReturns(result1 *v1a.SecretList, result2 error) {
@@ -434,24 +452,26 @@ func (fake *FakeSecretInterface) ListReturnsOnCall(i int, result1 *v1a.SecretLis
 	}{result1, result2}
 }
 
-func (fake *FakeSecretInterface) Patch(arg1 string, arg2 types.PatchType, arg3 []byte, arg4 ...string) (*v1a.Secret, error) {
-	var arg3Copy []byte
-	if arg3 != nil {
-		arg3Copy = make([]byte, len(arg3))
-		copy(arg3Copy, arg3)
+func (fake *FakeSecretInterface) Patch(arg1 context.Context, arg2 string, arg3 types.PatchType, arg4 []byte, arg5 v1b.PatchOptions, arg6 ...string) (*v1a.Secret, error) {
+	var arg4Copy []byte
+	if arg4 != nil {
+		arg4Copy = make([]byte, len(arg4))
+		copy(arg4Copy, arg4)
 	}
 	fake.patchMutex.Lock()
 	ret, specificReturn := fake.patchReturnsOnCall[len(fake.patchArgsForCall)]
 	fake.patchArgsForCall = append(fake.patchArgsForCall, struct {
-		arg1 string
-		arg2 types.PatchType
-		arg3 []byte
-		arg4 []string
-	}{arg1, arg2, arg3Copy, arg4})
-	fake.recordInvocation("Patch", []interface{}{arg1, arg2, arg3Copy, arg4})
+		arg1 context.Context
+		arg2 string
+		arg3 types.PatchType
+		arg4 []byte
+		arg5 v1b.PatchOptions
+		arg6 []string
+	}{arg1, arg2, arg3, arg4Copy, arg5, arg6})
+	fake.recordInvocation("Patch", []interface{}{arg1, arg2, arg3, arg4Copy, arg5, arg6})
 	fake.patchMutex.Unlock()
 	if fake.PatchStub != nil {
-		return fake.PatchStub(arg1, arg2, arg3, arg4...)
+		return fake.PatchStub(arg1, arg2, arg3, arg4, arg5, arg6...)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -466,17 +486,17 @@ func (fake *FakeSecretInterface) PatchCallCount() int {
 	return len(fake.patchArgsForCall)
 }
 
-func (fake *FakeSecretInterface) PatchCalls(stub func(string, types.PatchType, []byte, ...string) (*v1a.Secret, error)) {
+func (fake *FakeSecretInterface) PatchCalls(stub func(context.Context, string, types.PatchType, []byte, v1b.PatchOptions, ...string) (*v1a.Secret, error)) {
 	fake.patchMutex.Lock()
 	defer fake.patchMutex.Unlock()
 	fake.PatchStub = stub
 }
 
-func (fake *FakeSecretInterface) PatchArgsForCall(i int) (string, types.PatchType, []byte, []string) {
+func (fake *FakeSecretInterface) PatchArgsForCall(i int) (context.Context, string, types.PatchType, []byte, v1b.PatchOptions, []string) {
 	fake.patchMutex.RLock()
 	defer fake.patchMutex.RUnlock()
 	argsForCall := fake.patchArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
 }
 
 func (fake *FakeSecretInterface) PatchReturns(result1 *v1a.Secret, result2 error) {
@@ -505,16 +525,18 @@ func (fake *FakeSecretInterface) PatchReturnsOnCall(i int, result1 *v1a.Secret, 
 	}{result1, result2}
 }
 
-func (fake *FakeSecretInterface) Update(arg1 *v1a.Secret) (*v1a.Secret, error) {
+func (fake *FakeSecretInterface) Update(arg1 context.Context, arg2 *v1a.Secret, arg3 v1b.UpdateOptions) (*v1a.Secret, error) {
 	fake.updateMutex.Lock()
 	ret, specificReturn := fake.updateReturnsOnCall[len(fake.updateArgsForCall)]
 	fake.updateArgsForCall = append(fake.updateArgsForCall, struct {
-		arg1 *v1a.Secret
-	}{arg1})
-	fake.recordInvocation("Update", []interface{}{arg1})
+		arg1 context.Context
+		arg2 *v1a.Secret
+		arg3 v1b.UpdateOptions
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("Update", []interface{}{arg1, arg2, arg3})
 	fake.updateMutex.Unlock()
 	if fake.UpdateStub != nil {
-		return fake.UpdateStub(arg1)
+		return fake.UpdateStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -529,17 +551,17 @@ func (fake *FakeSecretInterface) UpdateCallCount() int {
 	return len(fake.updateArgsForCall)
 }
 
-func (fake *FakeSecretInterface) UpdateCalls(stub func(*v1a.Secret) (*v1a.Secret, error)) {
+func (fake *FakeSecretInterface) UpdateCalls(stub func(context.Context, *v1a.Secret, v1b.UpdateOptions) (*v1a.Secret, error)) {
 	fake.updateMutex.Lock()
 	defer fake.updateMutex.Unlock()
 	fake.UpdateStub = stub
 }
 
-func (fake *FakeSecretInterface) UpdateArgsForCall(i int) *v1a.Secret {
+func (fake *FakeSecretInterface) UpdateArgsForCall(i int) (context.Context, *v1a.Secret, v1b.UpdateOptions) {
 	fake.updateMutex.RLock()
 	defer fake.updateMutex.RUnlock()
 	argsForCall := fake.updateArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeSecretInterface) UpdateReturns(result1 *v1a.Secret, result2 error) {
@@ -568,16 +590,17 @@ func (fake *FakeSecretInterface) UpdateReturnsOnCall(i int, result1 *v1a.Secret,
 	}{result1, result2}
 }
 
-func (fake *FakeSecretInterface) Watch(arg1 v1b.ListOptions) (watch.Interface, error) {
+func (fake *FakeSecretInterface) Watch(arg1 context.Context, arg2 v1b.ListOptions) (watch.Interface, error) {
 	fake.watchMutex.Lock()
 	ret, specificReturn := fake.watchReturnsOnCall[len(fake.watchArgsForCall)]
 	fake.watchArgsForCall = append(fake.watchArgsForCall, struct {
-		arg1 v1b.ListOptions
-	}{arg1})
-	fake.recordInvocation("Watch", []interface{}{arg1})
+		arg1 context.Context
+		arg2 v1b.ListOptions
+	}{arg1, arg2})
+	fake.recordInvocation("Watch", []interface{}{arg1, arg2})
 	fake.watchMutex.Unlock()
 	if fake.WatchStub != nil {
-		return fake.WatchStub(arg1)
+		return fake.WatchStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -592,17 +615,17 @@ func (fake *FakeSecretInterface) WatchCallCount() int {
 	return len(fake.watchArgsForCall)
 }
 
-func (fake *FakeSecretInterface) WatchCalls(stub func(v1b.ListOptions) (watch.Interface, error)) {
+func (fake *FakeSecretInterface) WatchCalls(stub func(context.Context, v1b.ListOptions) (watch.Interface, error)) {
 	fake.watchMutex.Lock()
 	defer fake.watchMutex.Unlock()
 	fake.WatchStub = stub
 }
 
-func (fake *FakeSecretInterface) WatchArgsForCall(i int) v1b.ListOptions {
+func (fake *FakeSecretInterface) WatchArgsForCall(i int) (context.Context, v1b.ListOptions) {
 	fake.watchMutex.RLock()
 	defer fake.watchMutex.RUnlock()
 	argsForCall := fake.watchArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeSecretInterface) WatchReturns(result1 watch.Interface, result2 error) {

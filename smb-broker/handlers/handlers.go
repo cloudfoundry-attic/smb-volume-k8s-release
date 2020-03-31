@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"bytes"
-	"code.cloudfoundry.org/lager"
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"regexp"
+
+	"code.cloudfoundry.org/lager"
 	"github.com/gorilla/mux"
 	"github.com/pivotal-cf/brokerapi"
 	"github.com/pivotal-cf/brokerapi/auth"
@@ -16,8 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
-	"net/http"
-	"regexp"
 )
 
 const MountConfigKey = "name"
@@ -36,7 +37,7 @@ func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc co
 		PersistentVolumeClaim: pvc,
 		Secret:                secret,
 		Namespace:             namespace,
-		Logger: logger,
+		Logger:                logger,
 	}, logger)
 	return router, nil
 }
@@ -46,7 +47,7 @@ type smbServiceBroker struct {
 	PersistentVolumeClaim corev1.PersistentVolumeClaimInterface
 	Secret                corev1.SecretInterface
 	Namespace             string
-	Logger lager.Logger
+	Logger                lager.Logger
 }
 
 func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error) {
@@ -78,7 +79,7 @@ func (s smbServiceBroker) Services(ctx context.Context) ([]domain.Service, error
 func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, details domain.ProvisionDetails, asyncAllowed bool) (_ domain.ProvisionedServiceSpec, err error) {
 	defer func() {
 		if err != nil {
-			s.cleanupResourcesCreatedByProvision(instanceID)
+			s.cleanupResourcesCreatedByProvision(ctx, instanceID)
 		}
 	}()
 
@@ -114,32 +115,39 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 
 	storageClass := ""
 
-	_, err = s.PersistentVolumeClaim.Create(&v1.PersistentVolumeClaim{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: instanceID,
-		},
-		Spec: v1.PersistentVolumeClaimSpec{
-			StorageClassName: &storageClass,
-			VolumeName:       instanceID,
-			AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-			Resources: v1.ResourceRequirements{
-				Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
+	_, err = s.PersistentVolumeClaim.Create(
+		ctx,
+		&v1.PersistentVolumeClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: instanceID,
+			},
+			Spec: v1.PersistentVolumeClaimSpec{
+				StorageClassName: &storageClass,
+				VolumeName:       instanceID,
+				AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+				Resources: v1.ResourceRequirements{
+					Requests: v1.ResourceList{v1.ResourceStorage: resource.MustParse("1M")},
+				},
 			},
 		},
-	})
+		metav1.CreateOptions{},
+	)
 	if err != nil {
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	_, err = s.Secret.Create(&v1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: instanceID,
+	_, err = s.Secret.Create(
+		ctx,
+		&v1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: instanceID,
+			},
+			StringData: map[string]string{
+				"username": username,
+				"password": password,
+			},
 		},
-		StringData: map[string]string{
-			"username": username,
-			"password": password,
-		},
-	})
+		metav1.CreateOptions{})
 	if err != nil {
 		return domain.ProvisionedServiceSpec{}, err
 	}
@@ -153,43 +161,45 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		}
 	}
 
-	_, err = s.PersistentVolume.Create(&v1.PersistentVolume{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: instanceID,
-		},
-		Spec: v1.PersistentVolumeSpec{
-			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
-			Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
-			PersistentVolumeSource: v1.PersistentVolumeSource{
-				CSI: &v1.CSIPersistentVolumeSource{
-					Driver:           "org.cloudfoundry.smb",
-					VolumeHandle:     "volume-handle",
-					VolumeAttributes: volumeAttributesMap,
-					NodePublishSecretRef: &v1.SecretReference{
-						Name:      instanceID,
-						Namespace: s.Namespace,
+	_, err = s.PersistentVolume.Create(
+		ctx,
+		&v1.PersistentVolume{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: instanceID,
+			},
+			Spec: v1.PersistentVolumeSpec{
+				AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+				Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+				PersistentVolumeSource: v1.PersistentVolumeSource{
+					CSI: &v1.CSIPersistentVolumeSource{
+						Driver:           "org.cloudfoundry.smb",
+						VolumeHandle:     "volume-handle",
+						VolumeAttributes: volumeAttributesMap,
+						NodePublishSecretRef: &v1.SecretReference{
+							Name:      instanceID,
+							Namespace: s.Namespace,
+						},
 					},
 				},
 			},
 		},
-	})
+		metav1.CreateOptions{})
 
 	return domain.ProvisionedServiceSpec{}, err
 }
 
-
 func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, details domain.DeprovisionDetails, asyncAllowed bool) (domain.DeprovisionServiceSpec, error) {
-	err := s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
+	err := s.Secret.Delete(ctx, instanceID, metav1.DeleteOptions{})
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}
 
-	err = s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
+	err = s.PersistentVolumeClaim.Delete(ctx, instanceID, metav1.DeleteOptions{})
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}
 
-	err = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
+	err = s.PersistentVolume.Delete(ctx, instanceID, metav1.DeleteOptions{})
 	if err != nil {
 		return domain.DeprovisionServiceSpec{}, err
 	}
@@ -198,12 +208,12 @@ func (s smbServiceBroker) Deprovision(ctx context.Context, instanceID string, de
 }
 
 func (s smbServiceBroker) GetInstance(ctx context.Context, instanceID string) (domain.GetInstanceDetailsSpec, error) {
-	pv, err := s.PersistentVolume.Get(instanceID, metav1.GetOptions{})
+	pv, err := s.PersistentVolume.Get(ctx, instanceID, metav1.GetOptions{})
 	if err != nil {
 		return domain.GetInstanceDetailsSpec{}, apiresponses.NewFailureResponse(errors.New("unable to find service instance"), 404, "")
 	}
 
-	secret, err := s.Secret.Get(instanceID, metav1.GetOptions{})
+	secret, err := s.Secret.Get(ctx, instanceID, metav1.GetOptions{})
 	if err != nil {
 		return domain.GetInstanceDetailsSpec{}, apiresponses.NewFailureResponse(errors.New("unable to establish username"), 404, "")
 	}
@@ -230,7 +240,7 @@ func (s smbServiceBroker) LastOperation(ctx context.Context, instanceID string, 
 
 func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string, details domain.BindDetails, asyncAllowed bool) (domain.Binding, error) {
 
-	_, err := s.PersistentVolume.Get(instanceID, metav1.GetOptions{})
+	_, err := s.PersistentVolume.Get(ctx, instanceID, metav1.GetOptions{})
 	if err != nil {
 		return domain.Binding{}, apiresponses.ErrInstanceDoesNotExist
 	}
@@ -272,7 +282,7 @@ func (s smbServiceBroker) Bind(ctx context.Context, instanceID, bindingID string
 }
 
 func (s smbServiceBroker) Unbind(ctx context.Context, instanceID, bindingID string, details domain.UnbindDetails, asyncAllowed bool) (domain.UnbindSpec, error) {
-	_, err := s.PersistentVolume.Get(instanceID, metav1.GetOptions{})
+	_, err := s.PersistentVolume.Get(ctx, instanceID, metav1.GetOptions{})
 	if err != nil {
 		return domain.UnbindSpec{}, apiresponses.ErrInstanceDoesNotExist
 	}
@@ -305,20 +315,21 @@ func getAttribute(source map[string]interface{}, key string) (string, error) {
 			return val, nil
 		}
 	}
-	return "",  invalidParametersResponse("share, username and password must be provided")
+	return "", invalidParametersResponse("share, username and password must be provided")
 }
 
-func (s smbServiceBroker) cleanupResourcesCreatedByProvision(instanceID string) {
-	e := s.PersistentVolumeClaim.Delete(instanceID, &metav1.DeleteOptions{})
+func (s smbServiceBroker) cleanupResourcesCreatedByProvision(ctx context.Context, instanceID string) {
+	e := s.PersistentVolumeClaim.Delete(ctx, instanceID, metav1.DeleteOptions{})
 	if e != nil {
 		s.Logger.Error("handlers.cleanupResourcesCreatedByProvision-failed", e)
 	}
-	e = s.PersistentVolume.Delete(instanceID, &metav1.DeleteOptions{})
+	e = s.PersistentVolume.Delete(ctx, instanceID, metav1.DeleteOptions{})
 	if e != nil {
 		s.Logger.Error("handlers.cleanupResourcesCreatedByProvision-failed", e)
 	}
-	e = s.Secret.Delete(instanceID, &metav1.DeleteOptions{})
+	e = s.Secret.Delete(ctx, instanceID, metav1.DeleteOptions{})
 	if e != nil {
 		s.Logger.Error("handlers.cleanupResourcesCreatedByProvision-failed", e)
 	}
 }
+
