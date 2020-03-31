@@ -11,7 +11,7 @@ smbbroker:
 
 image:
   repository: cfpersi/smb-broker
-  tag: 0.143.0
+  tag: latest
   pullPolicy: Always
 
 ingress:

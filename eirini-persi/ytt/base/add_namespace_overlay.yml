@@ -8,14 +8,14 @@ metadata:
   namespace: #@ data.values.namespace
 
 ---
-#@overlay/match by=overlay.subset({"kind":"ClusterRole"})
+#@overlay/match by=overlay.subset({"kind":"ClusterRole"}),expects="1+"
 ---
 metadata:
   #@overlay/remove
   namespace:
 
 ---
-#@overlay/match by=overlay.subset({"kind":"ClusterRoleBinding"})
+#@overlay/match by=overlay.subset({"kind":"ClusterRoleBinding"}),expects="1+"
 ---
 metadata:
   #@overlay/remove

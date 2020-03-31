@@ -384,6 +384,35 @@ var _ = Describe("Handlers", func() {
 					Expect(string(bytes)).To(Equal("{\"description\":\"secret-failed\"}\n"))
 				})
 			})
+
+			Context("when smb version is specified", func(){
+				BeforeEach(func() {
+					var err error
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers":"3.0" } }`))
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should create a persistent volume with the version in the attributes", func() {
+					Expect(fakePersistentVolumeClient.CreateCallCount()).To(Equal(1))
+					pv := fakePersistentVolumeClient.CreateArgsForCall(0)
+					Expect(pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes).To(HaveKeyWithValue("vers", "3.0"))
+				})
+
+				Context("when smb version is not a string but a number", func() {
+					BeforeEach(func() {
+						var err error
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers": 3 } }`))
+						Expect(err).NotTo(HaveOccurred())
+					})
+
+					It("should not panic and return a sensible http error code", func() {
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(recorder.Code).To(Equal(400))
+					})
+
+				})
+			})
 		})
 
 		Describe("#Deprovision endpoint", func() {

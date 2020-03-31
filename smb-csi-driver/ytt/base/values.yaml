@@ -4,4 +4,4 @@ namespace: default
 
 image:
   repository: cfpersi/smb-csi-driver
-  tag: 0.143.0
+  tag: latest

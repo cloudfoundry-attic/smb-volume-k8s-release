@@ -4,28 +4,86 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: eirini-persi-volume-services
+  name: eirini-persi-volume-services-register
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: register-eirini-persi-volume-services-webhook
+  name: eirini-persi-volume-services-register
 rules:
-  - apiGroups: ["v1", "", "admissionregistration.k8s.io"]
-    resources: ["*"]
-    verbs: ["*"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "update"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: register-eirini-persi-volume-services-webhook-binding
+  name: eirini-persi-volume-services-register
 subjects:
   - kind: ServiceAccount
-    name: eirini-persi-volume-services
+    name: eirini-persi-volume-services-register
     namespace: #@ data.values.namespace
 roleRef:
   kind: ClusterRole
-  name: register-eirini-persi-volume-services-webhook
+  name: eirini-persi-volume-services-register
   apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eirini-persi-volume-services-register
+  annotations:
+    kubernetes.io/service-account.name: eirini-persi-volume-services-register
+type: kubernetes.io/service-account-token
+
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eirini-persi-volume-services-start
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: eirini-persi-volume-services-start
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "update"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eirini-persi-volume-services-start
+subjects:
+  - kind: ServiceAccount
+    name: eirini-persi-volume-services-start
+    namespace: #@ data.values.namespace
+roleRef:
+  kind: ClusterRole
+  name: eirini-persi-volume-services-start
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eirini-persi-volume-services-start
+  annotations:
+    kubernetes.io/service-account.name: eirini-persi-volume-services-start
+type: kubernetes.io/service-account-token

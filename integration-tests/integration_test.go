@@ -24,7 +24,7 @@ var _ = Describe("Integration", func() {
 
 		By("deploying a smb server", func() {
 			command := fmt.Sprintf(`[ "/sbin/tini", "--", "/usr/bin/samba.sh", "-p","-u","%s;%s","-s","%s;/export;no;no;no;%s","-p","-S" ]`, username, password, share, username)
-			overrides := fmt.Sprintf(`{"spec": {"template":  {"spec": {"containers": [{"name": "test-smb1", "command": %s, "image": "dperson/samba", "securityContext":{"privileged":true}, "ports": [{"containerPort": 139, "protocol": "TCP"}, {"containerPort": 445, "protocol": "TCP"}]}]}}}}`, command)
+			overrides := fmt.Sprintf(`{"spec": {"containers": [{"name": "test-smb1", "command": %s, "image": "dperson/samba", "securityContext":{"privileged":true}, "ports": [{"containerPort": 139, "protocol": "TCP"}, {"containerPort": 445, "protocol": "TCP"}]}]}}`, command)
 			local_k8s_cluster.Kubectl("run", "--overrides", overrides, "--image", "dperson/samba", "test-smb1")
 			Eventually(func() string {
 				podIP = local_k8s_cluster.Kubectl("get", "pods", "-l", "run=test-smb1", "-o", "jsonpath={.items[0].status.podIPs[0].ip}")

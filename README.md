@@ -8,17 +8,7 @@ This contains kapp applications that package:
 
 # Deploying to Cloud Foundry
 ## Prerequisites
-- Install Cloud Foundry on a k8s cluster
-
-### CF4K8s
-- Turn on the feature flag on capi:
-Make the local change here.
-https://github.com/cloudfoundry/cf-for-k8s/blob/7dc8b899316b7091affe2bf59947b93234143545/config/_ytt_lib/github.com/cloudfoundry/capi-k8s-release/templates/ccng-config.lib.yml#L53
-Then re-install to re-apply the changes:
-```
-cd $HOME/cf-for-k8s/bin
-./install-cf.sh /tmp/cf-values.yml
-```
+- [Install Cloud Foundry on a k8s cluster](https://github.com/cloudfoundry/cf-for-k8s/blob/master/docs/deploy.md)
 
 ## Installing eirini-persi (eirini-ext volume services extension)
 ```
