@@ -13,7 +13,7 @@ require (
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pivotal-cf/brokerapi v6.4.2+incompatible
 	github.com/pkg/errors v0.9.1
-	k8s.io/api v0.17.4
+	k8s.io/api v0.18.0
 	k8s.io/apimachinery v0.17.4
 	k8s.io/client-go v0.17.4
 )
