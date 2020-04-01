@@ -1,3 +1,5 @@
+[![Build Status](https://hush-house.pivotal.io/api/v1/teams/cf-volume-services/pipelines/cf-volume-services-k8s/badge)](https://hush-house.pivotal.io/api/v1/teams/cf-volume-services/pipelines/cf-volume-services-k8s/badge)
+
 # smb-volume-k8s-release
 This is a repository in development, pre alpha, not feature complete.
 This contains kapp applications that package:
