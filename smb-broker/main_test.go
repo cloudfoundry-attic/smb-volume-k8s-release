@@ -42,8 +42,8 @@ var _ = Describe("Main", func() {
 
 	Describe("#Provision", func() {
 		AfterEach(func() {
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 		})
 
 		It("provision a new service", func() {
@@ -133,8 +133,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 		})
 
 		BeforeEach(func() {
@@ -176,8 +176,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 		})
 
 		BeforeEach(func() {
@@ -227,8 +227,8 @@ var _ = Describe("Main", func() {
 		Context("when a service instance has been provisioned", func() {
 
 			AfterEach(func() {
-				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
+				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
 			})
 
 			BeforeEach(func() {
