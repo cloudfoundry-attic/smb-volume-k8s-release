@@ -67,8 +67,12 @@ var _ = Describe("Main", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)).To(ContainSubstring("Available"))
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)
+			}).Should(ContainSubstring("Available"))
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaim", instanceID)
+			}).Should(ContainSubstring("Bound"))
 			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
 		})
 	})
