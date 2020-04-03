@@ -17,7 +17,7 @@ import (
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
-var defaultMountOptions = "uid=2000,gid=2000"
+var defaultMountOptions = "uid=1000,gid=1000"
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_csi_driver_store.go . CSIDriverStore
 type CSIDriverStore interface {
