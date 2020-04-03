@@ -21,11 +21,6 @@ image-local-registry:
 	    registry:2 || true
 	pack build localhost:5000/cfpersi/smb-broker:local-test --builder cloudfoundry/cnb:bionic --publish
 
-push-local-image-source:
-	docker build --no-cache -f ./test/Dockerfile -t cfpersi/smb-broker-source . && \
-	docker tag cfpersi/smb-broker-source localhost:5000/cfpersi/smb-broker-source:latest && \
-	docker push localhost:5000/cfpersi/smb-broker-source:latest
-
 tag	:=	"$(shell (git symbolic-ref -q --short HEAD || git describe --tags --exact-match) | sed 's/master/latest/')"
 kapp: SHELL=/bin/bash
 kapp:
@@ -35,4 +30,4 @@ kapp:
 fly:
 	fly -t persi execute --tag=kind -c $$HOME/workspace/smb-volume-k8s-release/smb-broker/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p
 
-.PHONY: test fly image-local-registry push-local-image-source kapp
+.PHONY: test fly image-local-registry kapp

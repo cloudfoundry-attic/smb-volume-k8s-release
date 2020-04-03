@@ -1,7 +1,6 @@
 test:
 	go get github.com/onsi/ginkgo/ginkgo
 	make --directory=../smb-broker image-local-registry
-	make --directory=../smb-broker push-local-image-source
 	make --directory=../smb-csi-driver image-local-registry
 	ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1 .
 
