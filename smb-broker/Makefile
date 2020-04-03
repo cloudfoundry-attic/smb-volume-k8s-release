@@ -8,7 +8,6 @@ install:
 
 test:
 	@$(MAKE) -f $(THIS_FILE) image-local-registry
-	@$(MAKE) -f $(THIS_FILE) push-local-image-source
 	ulimit -n 10000 && ulimit -a && GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo && GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
@@ -20,6 +19,7 @@ image-local-registry:
 	[ $(running) != "true" ] && docker run \
 	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
+	pack build localhost:5000/cfpersi/smb-broker:local-test --builder cloudfoundry/cnb:bionic --publish
 
 push-local-image-source:
 	docker build --no-cache -f ./test/Dockerfile -t cfpersi/smb-broker-source . && \
