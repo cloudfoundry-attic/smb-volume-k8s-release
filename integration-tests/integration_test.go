@@ -18,18 +18,18 @@ var _ = Describe("Integration", func() {
 	password := "pass"
 
 	BeforeEach(func() {
-		var podIP string
 		username := "user"
-		share := "share"
+		share := "//smb1.default/share"
 
 		By("deploying a smb server", func() {
-			command := fmt.Sprintf(`[ "/sbin/tini", "--", "/usr/bin/samba.sh", "-p","-u","%s;%s","-s","%s;/export;no;no;no;%s","-p","-S" ]`, username, password, share, username)
-			overrides := fmt.Sprintf(`{"spec": {"containers": [{"name": "test-smb1", "command": %s, "image": "dperson/samba", "securityContext":{"privileged":true}, "ports": [{"containerPort": 139, "protocol": "TCP"}, {"containerPort": 445, "protocol": "TCP"}]}]}}`, command)
-			local_k8s_cluster.Kubectl("run", "--overrides", overrides, "--image", "dperson/samba", "test-smb1")
+			local_k8s_cluster.Kubectl("apply", "-f", "./assets/samba.yml")
 			Eventually(func() string {
-				podIP = local_k8s_cluster.Kubectl("get", "pods", "-l", "run=test-smb1", "-o", "jsonpath={.items[0].status.podIPs[0].ip}")
-				return podIP
-			}, 10 * time.Minute, 2 * time.Second).Should(Not(Equal("")))
+				return local_k8s_cluster.Kubectl("get", "po", "-l=app.kubernetes.io/name=test-smb1")
+			}, 10 * time.Minute, 2 * time.Second).Should((ContainSubstring("Running")))
+
+			Eventually(func() string {
+				return local_k8s_cluster.Kubectl("logs", "-l=app.kubernetes.io/name=test-smb1")
+			}, 10 * time.Minute, 2 * time.Second).Should((ContainSubstring("finished starting up")))
 		})
 
 		var resp *http.Response
@@ -46,7 +46,6 @@ var _ = Describe("Integration", func() {
 		bindingID := "binding1"
 
 		Eventually(func() string {
-			share := fmt.Sprintf("//%s/%s", podIP, share)
 			requestPayload := fmt.Sprintf(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"share": "%s", "username": "%s", "password": "%s"} }`, share, username, password)
 			request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(requestPayload))
 			Expect(err).NotTo(HaveOccurred())
@@ -91,7 +90,7 @@ var _ = Describe("Integration", func() {
 			return local_k8s_cluster.Kubectl("get", "events", "-n", "cf-workloads")
 		}, 10 * time.Minute, 2 * time.Second).Should(ContainSubstring("Started container integration-test-reader"))
 
-		mountCommand := fmt.Sprintf("mkdir /instance1 && mount -t cifs -o username=%s,password=%s //%s/%s /instance1", username, password, podIP, share)
+		mountCommand := fmt.Sprintf("mkdir /instance1 && mount -t cifs -o username=%s,password=%s %s /instance1", username, password, share)
 		local_k8s_cluster.Kubectl("exec", "-n", "cf-workloads", "-i", "integration-test-reader", "--", "bash", "-c", mountCommand)
 	})
 
