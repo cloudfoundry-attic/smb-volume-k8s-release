@@ -5,7 +5,7 @@ go 1.13
 require (
 	code.cloudfoundry.org/goshims v0.1.0
 	code.cloudfoundry.org/lager v2.0.0+incompatible
-	code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200326224655-f9b595631b53
+	code.cloudfoundry.org/smb-volume-k8s-local-cluster v1.0.1-0.20200406185913-5c68b17f89f3
 	github.com/container-storage-interface/spec v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kubernetes-csi/csi-lib-utils v0.7.0
