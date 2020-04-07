@@ -21,7 +21,7 @@ spec:
     imagePullPolicy: Always
     name: eirini-persi-start
     command: ["/app/main"]
-    args: ["start"]
+    args: ["start", "-n", "cf-workloads"]
     env:
     - name: OPERATOR_WEBHOOK_HOST
       value: 0.0.0.0
@@ -30,7 +30,7 @@ spec:
     - name: OPERATOR_SERVICE_NAME
       value: "eirini-persi-svc"
     - name: OPERATOR_WEBHOOK_NAMESPACE
-      value: "eirini"
+      value: #@ data.values.namespace
     - name: EIRINI_EXTENSION_REGISTER
       value: "false"
     ports:
@@ -45,7 +45,7 @@ spec:
     imagePullPolicy: Always
     name: eirini-persi-register
     command: ["/app/main"]
-    args: ["register"]
+    args: ["register", "-n", "cf-workloads"]
     env:
     - name: OPERATOR_WEBHOOK_HOST
       value: 0.0.0.0
@@ -54,7 +54,7 @@ spec:
     - name: OPERATOR_SERVICE_NAME
       value: "eirini-persi-svc"
     - name: OPERATOR_WEBHOOK_NAMESPACE
-      value: "eirini"
+      value: #@ data.values.namespace
     volumeMounts:
       - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
         name: register-secret-volume

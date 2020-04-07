@@ -3,6 +3,7 @@ kind: Pod
 metadata:
   labels:
     run: dev
+    cloudfoundry.org/source_type: APP
   name: dev
   namespace: cf-workloads
 spec:
@@ -11,16 +12,12 @@ spec:
         - bash
       args:
         - -c
-        - echo {{.ExpectedFileContents}} > /instance1/foo; sleep 3600
+        - echo hello > /instance1/foo; sleep 3600
       image: ubuntu
       securityContext:
         privileged: true
       imagePullPolicy: Always
       name: dev
-      volumeMounts:
-        - mountPath: /instance1
-          name: instance-1-volume
-  volumes:
-    - name: instance-1-volume
-      persistentVolumeClaim:
-        claimName: {{.InstanceID}}
+      env:
+        - name: "VCAP_SERVICES"
+          value: '{"eirini-persi": [{ "credentials": { "volume_id": "instance1" }, "label": "eirini-persi", "name": "instance1", "plan": "Existing", "tags": [], "volume_mounts": [ { "container_dir": "/instance1", "device_type": "shared", "mode": "rw" } ] } ] }'
