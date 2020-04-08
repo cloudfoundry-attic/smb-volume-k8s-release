@@ -9,8 +9,6 @@ image_resource:
 
 inputs:
   - name: smb-volume-k8s-release
-  - name: smb-release-version
-  - name: cluster-info
   - name: cf-for-k8s
 
 outputs:

@@ -15,7 +15,6 @@ fi
 
 gcloud -q container clusters create ${CLUSTER_NAME} --zone ${ZONE} --machine-type n1-standard-4 --image-type=ubuntu --num-nodes=3
 
-VERSION=$(cat smb-release-version/version)
 CLUSTER_IP_NAME=${CLUSTER_NAME}
 CLUSTER_DNS=${CLUSTER_NAME}.persi.cf-app.com
 
@@ -92,10 +91,10 @@ popd
 pushd smb-volume-k8s-release
     pushd smb-broker
         kubectl get namespace cf-workloads || kubectl create namespace cf-workloads
-        kapp deploy -y -a smb-broker -f <(ytt -f ytt/ -v smbBrokerUsername=foo -v smbBrokerPassword=foo -v image.tag=${VERSION})
+        kapp deploy -y -a smb-broker -f <(ytt -f ytt/ -v smbBrokerUsername=foo -v smbBrokerPassword=foo -v image.tag=latest)
     popd
     pushd smb-csi-driver
-        kapp deploy -y -a smb-csi-driver -f <(ytt -f ytt/base -v image.tag=${VERSION})
+        kapp deploy -y -a smb-csi-driver -f <(ytt -f ytt/base -v image.tag=latest)
     popd
     pushd eirini-persi
         make kapp
