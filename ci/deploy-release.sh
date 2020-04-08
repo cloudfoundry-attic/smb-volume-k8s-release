@@ -105,4 +105,4 @@ popd
 mkdir -p cluster-info
 cluster_info_json="{\"name\":\"${CLUSTER_NAME}\", \"zone\":\"${ZONE}\", \"cluster_ip_name\": \"${CLUSTER_IP_NAME}\", \"lb_ip\": \"${LB_IP}\"}"
 echo ${cluster_info_json} > cluster-info/cluster.json
-cp /tmp/cf-values.yml /cluster-info
+cp /tmp/cf-values.yml cluster-info
