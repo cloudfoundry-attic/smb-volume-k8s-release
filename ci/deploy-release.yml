@@ -1,0 +1,27 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: cfpersi/smb-volume-k8s-release-deploy
+    tag: latest
+
+inputs:
+  - name: smb-volume-k8s-release
+  - name: smb-release-version
+  - name: cluster-info
+  - name: cf-for-k8s
+
+outputs:
+  - name: cluster-info
+
+run:
+  path: smb-volume-k8s-release/ci/deploy-release.sh
+
+params:
+  GCP_KEY: ~
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
+  AWS_DEFAULT_REGION:
+  AWS_HOSTED_ZONE:
