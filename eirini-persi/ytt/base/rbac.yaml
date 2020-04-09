@@ -5,6 +5,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: eirini-persi-volume-services-register
+  annotations:
+    kapp.k14s.io/change-group: "smb.cloudfoundry.org/service-accounts"
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -43,6 +45,8 @@ metadata:
   name: eirini-persi-volume-services-register
   annotations:
     kubernetes.io/service-account.name: eirini-persi-volume-services-register
+    kapp.k14s.io/change-group: "smb.cloudfoundry.org/service-account-tokens"
+    kapp.k14s.io/change-rule: "upsert after upserting smb.cloudfoundry.org/service-accounts"
 type: kubernetes.io/service-account-token
 
 
@@ -51,6 +55,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: eirini-persi-volume-services-start
+  annotations:
+    kapp.k14s.io/change-group: "smb.cloudfoundry.org/service-accounts"
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -86,4 +92,6 @@ metadata:
   name: eirini-persi-volume-services-start
   annotations:
     kubernetes.io/service-account.name: eirini-persi-volume-services-start
+    kapp.k14s.io/change-group: "smb.cloudfoundry.org/service-account-tokens"
+    kapp.k14s.io/change-rule: "upsert after upserting smb.cloudfoundry.org/service-accounts"
 type: kubernetes.io/service-account-token
