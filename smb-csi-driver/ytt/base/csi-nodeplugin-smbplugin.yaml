@@ -54,7 +54,8 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: #@ data.values.image.repository + ":" + data.values.image.tag
-          command: ["/app/main"]
+          command:
+          - #@ data.values.command
           args :
             - "--nodeid=$(NODE_ID)"
             - "--endpoint=$(CSI_ENDPOINT)"
