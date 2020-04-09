@@ -65,10 +65,15 @@ cat << EOF > file.txt
 }
 EOF
 
+## DNS AWS
 aws route53 change-resource-record-sets \
   --hosted-zone-id /hostedzone/$AWS_HOSTED_ZONE \
   --change-batch "$(cat ./file.txt)"
-## DNS AWS
+
+# output mapping
+mkdir -p cluster-info
+cluster_info_json="{\"name\":\"${CLUSTER_NAME}\", \"zone\":\"${ZONE}\", \"cluster_ip_name\": \"${CLUSTER_IP_NAME}\", \"lb_ip\": \"${LB_IP}\"}"
+echo ${cluster_info_json} > cluster-info/cluster.json
 
 pushd cf-for-k8s
     ./hack/generate-values.sh -d ${CLUSTER_DNS} > /tmp/cf-values.yml
@@ -101,8 +106,5 @@ pushd smb-volume-k8s-release
     popd
 popd
 
-# output mapping
-mkdir -p cluster-info
-cluster_info_json="{\"name\":\"${CLUSTER_NAME}\", \"zone\":\"${ZONE}\", \"cluster_ip_name\": \"${CLUSTER_IP_NAME}\", \"lb_ip\": \"${LB_IP}\"}"
-echo ${cluster_info_json} > cluster-info/cluster.json
+# add cf-values to output mapping
 cp /tmp/cf-values.yml cluster-info
