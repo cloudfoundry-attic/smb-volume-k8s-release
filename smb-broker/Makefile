@@ -8,7 +8,10 @@ install:
 
 test:
 	@$(MAKE) -f $(THIS_FILE) image-local-registry
-	ulimit -n 10000 && ulimit -a && GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo && GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
+	ulimit -n 10000 && ulimit -a && \
+	GO111MODULE=off go get github.com/onsi/ginkgo/ginkgo && \
+	GO111MODULE=on go generate ./... && \
+	GO111MODULE=on ginkgo -v -r -keepGoing -trace -randomizeAllSpecs -progress --nodes=1
 
 fmt:
 	go fmt ./...
