@@ -10,7 +10,7 @@ ZONE=$(cat cluster-info/cluster.json| jq -r '.zone')
 CLUSTER_IP_NAME=$(cat cluster-info/cluster.json| jq -r '.cluster_ip_name')
 LB_IP=$(cat cluster-info/cluster.json| jq -r '.lb_ip')
 
-gcloud -q compute addresses delete ${CLUSTER_IP_NAME} --region us-west2 || true
+gcloud -q compute addresses delete ${CLUSTER_IP_NAME} --region us-west1 || true
 
 gcloud -q container clusters delete ${CLUSTER_NAME} --zone ${ZONE}
 
