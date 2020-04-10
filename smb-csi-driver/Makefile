@@ -3,6 +3,9 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 vet:
 	go vet .
 
+fakes:
+	go generate ./...
+
 build:
 	go build .
 
@@ -25,6 +28,7 @@ kill-docker:
 
 test:
 	@$(MAKE) -f $(THIS_FILE) vet
+	@$(MAKE) -f $(THIS_FILE) fakes
 	@$(MAKE) -f $(THIS_FILE) build
 	go get github.com/onsi/ginkgo/ginkgo
 	cd identityserver && ginkgo -race .
