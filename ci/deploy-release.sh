@@ -94,8 +94,10 @@ EOF
 popd
 
 pushd smb-volume-k8s-release
+    kubectl get namespace cf-smb || kubectl create namespace cf-smb
+    kubectl get namespace cf-workloads || kubectl create namespace cf-workloads
+
     pushd smb-broker
-        kubectl get namespace cf-workloads || kubectl create namespace cf-workloads
         kapp deploy -y -a smb-broker -f <(ytt -f ytt/ -v smbBrokerUsername=foo -v smbBrokerPassword=foo -v image.tag=latest)
     popd
     pushd smb-csi-driver

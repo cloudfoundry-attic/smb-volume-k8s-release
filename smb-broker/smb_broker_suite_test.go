@@ -19,13 +19,15 @@ func TestSmbBroker(t *testing.T) {
 var kubeConfigPath string
 var nodeName string
 var namespace string
+var targetNamespace string
 var smbBrokerUsername string
 var smbBrokerPassword string
 
 var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(10 * time.Minute)
 
-	namespace = "smb-test-namespace"
+	targetNamespace = "cf-workloads"
+	namespace = "cf-smb"
 	nodeName = "default-smb-broker-test-node"
 	kubeConfigPath = "/tmp/kubeconfig"
 	smbBrokerUsername = "smb-broker-username"
@@ -33,9 +35,15 @@ var _ = BeforeSuite(func() {
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath, os.Getenv("K8S_IMAGE"))
 
-	local_k8s_cluster.Kubectl("create", "namespace", namespace)
-	smbBrokerDeploymentYaml := local_k8s_cluster.YttStdout("-f", "./ytt", "-v", "smbBrokerUsername="+smbBrokerUsername, "-v", "smbBrokerPassword="+smbBrokerPassword, "-v", "namespace="+namespace, "-v", "image.repository=registry:5000/cfpersi/smb-broker", "-v", "image.tag=local-test")
-	local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-broker", "-f")(smbBrokerDeploymentYaml)
+	By("creating namespaces", func(){
+		local_k8s_cluster.Kubectl("create", "namespace", namespace)
+		local_k8s_cluster.Kubectl("create", "namespace", targetNamespace)
+	})
+
+	By("Deploying broker", func(){
+		smbBrokerDeploymentYaml := local_k8s_cluster.YttStdout("-f", "./ytt", "-v", "smbBrokerUsername="+smbBrokerUsername, "-v", "smbBrokerPassword="+smbBrokerPassword, "-v", "namespace="+namespace, "-v", "image.repository=registry:5000/cfpersi/smb-broker", "-v", "image.tag=local-test")
+		local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-broker", "-f")(smbBrokerDeploymentYaml)
+	})
 
 	By("pulling the smb-broker into the docker daemon", func() {
 		local_k8s_cluster.Docker("pull", "localhost:5000/cfpersi/smb-broker:local-test")

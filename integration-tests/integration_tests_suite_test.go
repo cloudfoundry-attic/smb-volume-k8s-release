@@ -16,14 +16,19 @@ func TestIntegrationTests(t *testing.T) {
 
 var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(10 * time.Minute)
-
+	namespace := "cf-smb"
+	targetNamespace := "cf-workloads"
+	
 	local_k8s_cluster.CreateK8sCluster("test", "/tmp/kubeconfig", "")
 
+	By("creating namespaces", func(){
+		local_k8s_cluster.Kubectl("create", "namespace", namespace)
+		local_k8s_cluster.Kubectl("create", "namespace", targetNamespace)
+	})
+
 	By("deploying the smb broker into the k8s cluster", func() {
-		local_k8s_cluster.Kubectl("create", "namespace", "cf-workloads")
 		smbBrokerUsername := "foo"
 		smbBrokerPassword := "bar"
-		namespace := "cf-workloads"
 
 		smbBrokerDeploymentYaml := local_k8s_cluster.YttStdout("-f", "../smb-broker/ytt", "-v", "smbBrokerUsername="+smbBrokerUsername, "-v", "smbBrokerPassword="+smbBrokerPassword, "-v", "namespace="+namespace, "-v", "image.repository=registry:5000/cfpersi/smb-broker", "-v", "image.tag=local-test")
 		local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-broker", "-f")(smbBrokerDeploymentYaml)
@@ -33,7 +38,7 @@ var _ = BeforeSuite(func() {
 		kubectlStdOut := local_k8s_cluster.YttStdout("-f", "../smb-csi-driver/ytt/base", "-f", "../smb-csi-driver/ytt/test.yaml")
 		local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-csi-driver", "-f")(kubectlStdOut)
 		Eventually(func()string{
-			return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
+			return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin", "-n", namespace)
 		}, 10 * time.Minute, 1 * time.Second).Should(ContainSubstring("Running"))
 	})
 })

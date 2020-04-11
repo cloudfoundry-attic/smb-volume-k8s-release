@@ -1,6 +1,6 @@
 #@data/values
 ---
-namespace: default
+namespace: cf-smb
 
 image:
   repository: cfpersi/smb-csi-driver

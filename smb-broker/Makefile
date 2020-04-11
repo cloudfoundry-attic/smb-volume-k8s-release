@@ -28,6 +28,7 @@ tag	:=	"$(shell (git symbolic-ref -q --short HEAD || git describe --tags --exact
 kapp: SHELL=/bin/bash
 kapp:
 	kubectl get namespace cf-workloads || kubectl create namespace cf-workloads
+	kubectl get namespace cf-smb || kubectl create namespace cf-smb
 	kapp deploy -y -a smb-broker -f <(ytt -f ytt/ -v smbBrokerUsername=foo -v smbBrokerPassword=foo -v image.tag=$(tag))
 
 fly:

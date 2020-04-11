@@ -33,14 +33,16 @@ var _ = BeforeSuite(func() {
 	SetDefaultEventuallyTimeout(10 * time.Minute)
 	nodeName = "default-smb-csi-driver-test-node"
 	kubeConfigPath = "/tmp/csi-kubeconfig"
+	namespace := "cf-smb"
 
 	local_k8s_cluster.CreateK8sCluster(nodeName, kubeConfigPath, os.Getenv("K8S_IMAGE"))
+	local_k8s_cluster.Kubectl("create", "namespace", namespace)
 
 	kubectlStdOut := local_k8s_cluster.YttStdout("-f", "./ytt/base", "-f", "ytt/test.yaml")
 	local_k8s_cluster.KappWithStringAsStdIn("-y", "deploy", "-a", "smb-csi-driver", "-f")(kubectlStdOut)
 
 	Eventually(func()string{
-		return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin")
+		return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin", "-n", namespace)
 	}, 10 * time.Minute, 1 * time.Second).Should(ContainSubstring("Running"))
 })
 

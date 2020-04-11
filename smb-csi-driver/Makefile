@@ -49,6 +49,7 @@ fly-e2e:
 tag	:=	"$(shell (git symbolic-ref -q --short HEAD || git describe --tags --exact-match) | sed 's/master/latest/')"
 kapp: SHELL=/bin/bash
 kapp:
+	kubectl get namespace cf-smb || kubectl create namespace cf-smb
 	kapp deploy -y -a smb-csi-driver -f <(ytt -f ytt/base -v image.tag=$(tag))
 
 .PHONY: test fly fly-e2e image-local-registry

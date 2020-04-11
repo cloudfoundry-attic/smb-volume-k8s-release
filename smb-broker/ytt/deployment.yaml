@@ -38,6 +38,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: create-pvc
+  namespace: #@ data.values.targetNamespace
 rules:
   - apiGroups: ["v1", ""]
     resources: ["persistentvolumeclaims"]
@@ -55,6 +56,7 @@ subjects:
 roleRef:
   kind: Role
   name: create-pvc
+  namespace: #@ data.values.targetNamespace
   apiGroup: rbac.authorization.k8s.io
 
 ---
@@ -62,6 +64,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: create-secret
+  namespace: #@ data.values.targetNamespace
 rules:
   - apiGroups: ["v1", ""]
     resources: ["secrets"]
@@ -72,6 +75,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: smb-broker-secret-roles
+  namespace: #@ data.values.targetNamespace
 subjects:
   - kind: ServiceAccount
     name: #@ data.values.smbbroker.fullname
@@ -80,7 +84,7 @@ roleRef:
   kind: Role
   name: create-secret
   apiGroup: rbac.authorization.k8s.io
-
+  namespace: #@ data.values.targetNamespace
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -104,7 +108,7 @@ spec:
           imagePullPolicy: #@ data.values.image.pullPolicy
           env:
             - name: TARGET_NAMESPACE
-              value: #@ data.values.namespace
+              value: #@ data.values.targetNamespace
             - name: BROKER_USERNAME
               value: #@ data.values.smbBrokerUsername
             - name: BROKER_PASSWORD

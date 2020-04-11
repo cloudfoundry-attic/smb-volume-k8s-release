@@ -42,15 +42,15 @@ var _ = Describe("Main", func() {
 
 	Describe("#Provision", func() {
 		AfterEach(func() {
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
+			local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolume", instanceID)
 		})
 
 		It("provision a new service", func() {
 			var resp *http.Response
 
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumes")).NotTo(ContainSubstring(instanceID))
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")).NotTo(ContainSubstring(instanceID))
+			Expect(local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolumes")).NotTo(ContainSubstring(instanceID))
+			Expect(local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolumeclaims")).NotTo(ContainSubstring(instanceID))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("PUT", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s", basicAuth, instanceID), strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": "foo", "password": "bar", "share": "//unc.path/share" } }`))
@@ -68,12 +68,12 @@ var _ = Describe("Main", func() {
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
 			Eventually(func() string {
-				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)
+				return local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolume", instanceID)
 			}).Should(ContainSubstring("Available"))
 			Eventually(func() string {
-				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaim", instanceID)
+				return local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolumeclaim", instanceID)
 			}).Should(ContainSubstring("Bound"))
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
+			Expect(local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
 		})
 	})
 
@@ -95,9 +95,9 @@ var _ = Describe("Main", func() {
 		It("deprovision a new service", func() {
 			var resp *http.Response
 
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolume", instanceID)).To(Or(ContainSubstring("Available"), ContainSubstring("Bound")))
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
-			Expect(local_k8s_cluster.Kubectl("-n", namespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
+			Expect(local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolume", instanceID)).To(Or(ContainSubstring("Available"), ContainSubstring("Bound")))
+			Expect(local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolumeclaim", instanceID)).To(ContainSubstring("Pending"))
+			Expect(local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "secret", instanceID)).To(ContainSubstring(instanceID))
 
 			Eventually(func() string {
 				request, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s@localhost/v2/service_instances/%s?service_id=123&plan_id=plan-id", basicAuth, instanceID), nil)
@@ -115,15 +115,15 @@ var _ = Describe("Main", func() {
 			Expect(string(bytes)).Should(ContainSubstring(`{}`))
 
 			Eventually(func() string {
-				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumes")
+				return local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolumes")
 			}).ShouldNot(ContainSubstring(instanceID))
 
 			Eventually(func() string {
-				return local_k8s_cluster.Kubectl("-n", namespace, "get", "persistentvolumeclaims")
+				return local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "persistentvolumeclaims")
 			}).ShouldNot(ContainSubstring(instanceID))
 
 			Eventually(func() string {
-				return local_k8s_cluster.Kubectl("-n", namespace, "get", "secrets")
+				return local_k8s_cluster.Kubectl("-n", targetNamespace, "get", "secrets")
 			}).Should(Not(ContainSubstring(instanceID)))
 		})
 	})
@@ -133,8 +133,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
+			local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolume", instanceID)
 		})
 
 		BeforeEach(func() {
@@ -176,8 +176,8 @@ var _ = Describe("Main", func() {
 		var bindingID string
 
 		AfterEach(func() {
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
-			local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
+			local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolumeclaims", instanceID)
+			local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolume", instanceID)
 		})
 
 		BeforeEach(func() {
@@ -227,8 +227,8 @@ var _ = Describe("Main", func() {
 		Context("when a service instance has been provisioned", func() {
 
 			AfterEach(func() {
-				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolumeclaims", instanceID)
-				local_k8s_cluster.Kubectl("-n", namespace, "delete", "persistentvolume", instanceID)
+				local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolumeclaims", instanceID)
+				local_k8s_cluster.Kubectl("-n", targetNamespace, "delete", "persistentvolume", instanceID)
 			})
 
 			BeforeEach(func() {
