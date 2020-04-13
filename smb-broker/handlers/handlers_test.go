@@ -75,7 +75,8 @@ var _ = Describe("Handlers", func() {
 				serviceInstanceKey = randomString(source)
 
 				var err error
-				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar" } }`))
+				request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey,
+					strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar" } }`, ServiceID, PlanID)))
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -218,7 +219,8 @@ var _ = Describe("Handlers", func() {
 
 				Context("no required parameters are provided", func() {
 					BeforeEach(func() {
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id" }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey,
+							strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s" }`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -231,7 +233,8 @@ var _ = Describe("Handlers", func() {
 				Context("when username is not supplied", func() {
 
 					BeforeEach(func() {
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"password": "foo"}}`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey,
+							strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": {"password": "foo"}}`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -245,7 +248,7 @@ var _ = Describe("Handlers", func() {
 				Context("when password is not supplied", func() {
 
 					BeforeEach(func() {
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"username": "foo"}}`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": {"username": "foo"}}`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -259,7 +262,7 @@ var _ = Describe("Handlers", func() {
 				Context("when share is not supplied", func() {
 
 					BeforeEach(func() {
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"username": "foo", "password": "bar"}}`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": {"username": "foo", "password": "bar"}}`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -320,7 +323,7 @@ var _ = Describe("Handlers", func() {
 				Context("when an invalid username is supplied", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "username": 123, "password": "321", "share": "//unc.path/share" } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "username": 123, "password": "321", "share": "//unc.path/share" } }`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -333,7 +336,7 @@ var _ = Describe("Handlers", func() {
 				Context("when an invalid password is supplied", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "123", "password": 321 } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "//unc.path/share", "username": "123", "password": 321 } }`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -346,7 +349,7 @@ var _ = Describe("Handlers", func() {
 				Context("when share is not a valid unc path", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "invalidshare", "username": "123", "password": "321" } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "invalidshare", "username": "123", "password": "321" } }`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -359,7 +362,7 @@ var _ = Describe("Handlers", func() {
 				Context("when an empty strings are supplied", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "", "password": "" } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "//unc.path/share", "username": "", "password": "" } }`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -377,7 +380,7 @@ var _ = Describe("Handlers", func() {
 					fakeSecretClient.CreateReturns(nil, errors.New("secret-failed"))
 
 					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar" } }`))
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar" } }`, ServiceID, PlanID)))
 					Expect(err).NotTo(HaveOccurred())
 				})
 
@@ -392,7 +395,7 @@ var _ = Describe("Handlers", func() {
 			Context("when smb version is specified", func() {
 				BeforeEach(func() {
 					var err error
-					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers":"3.0" } }`))
+					request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers":"3.0" } }`, ServiceID, PlanID)))
 					Expect(err).NotTo(HaveOccurred())
 				})
 
@@ -405,7 +408,7 @@ var _ = Describe("Handlers", func() {
 				Context("when smb version is not a string but a number", func() {
 					BeforeEach(func() {
 						var err error
-						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers": 3 } }`))
+						request, err = http.NewRequest(http.MethodPut, "/v2/service_instances/"+serviceInstanceKey, strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "//unc.path/share", "username": "foo", "password": "bar", "vers": 3 } }`, ServiceID, PlanID)))
 						Expect(err).NotTo(HaveOccurred())
 					})
 
@@ -425,7 +428,7 @@ var _ = Describe("Handlers", func() {
 				serviceInstanceKey = randomString(source)
 
 				var err error
-				request, err = http.NewRequest(http.MethodDelete, "/v2/service_instances/"+serviceInstanceKey+"?service_id=123&plan_id=plan-id", nil)
+				request, err = http.NewRequest(http.MethodDelete, "/v2/service_instances/"+serviceInstanceKey+"?service_id="+ServiceID+"&plan_id="+PlanID, nil)
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -493,7 +496,7 @@ var _ = Describe("Handlers", func() {
 		Describe("#GetInstance endpoint", func() {
 			var (
 				err                                                      error
-				instanceID, share, username, password, serviceID, planID string
+				instanceID, share, username, password string
 			)
 
 			BeforeEach(func() {
@@ -507,8 +510,6 @@ var _ = Describe("Handlers", func() {
 				share = randomString(source)
 				username = randomString(source)
 				password = randomString(source)
-				serviceID = "123"
-				planID = "plan-id"
 
 				fakePersistentVolumeClient.GetReturns(&v1.PersistentVolume{
 					Spec: v1.PersistentVolumeSpec{
@@ -551,7 +552,7 @@ var _ = Describe("Handlers", func() {
 			})
 			It("shows share and username but not password", func() {
 				Expect(recorder.Body).To(MatchJSON(
-					fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "%s", "username": "%s" } }`, serviceID, planID, share, username)),
+					fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": { "share": "%s", "username": "%s" } }`, ServiceID, PlanID, share, username)),
 				)
 			})
 
@@ -589,7 +590,7 @@ var _ = Describe("Handlers", func() {
 				instanceID = randomString(source)
 				bindingID = randomString(source)
 				request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
-					strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"} }`))
+					strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "bind_resource": {"app_guid": "456"} }`, ServiceID, PlanID)))
 			})
 
 			It("fetches the PV from k8s", func() {
@@ -613,7 +614,7 @@ var _ = Describe("Handlers", func() {
 						bindingID = randomString(source)
 						mountBindConfig = "/foo/bar"
 						request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
-							strings.NewReader(fmt.Sprintf(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"}, "parameters": {"mount": "%s"} }`, mountBindConfig)))
+							strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "bind_resource": {"app_guid": "456"}, "parameters": {"mount": "%s"} }`, ServiceID, PlanID, mountBindConfig)))
 					})
 
 					It("should honor that bind option", func() {
@@ -633,7 +634,7 @@ var _ = Describe("Handlers", func() {
 						instanceID = randomString(source)
 						bindingID = randomString(source)
 						request, err = http.NewRequest(http.MethodPut, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
-							strings.NewReader(`{ "service_id": "123", "plan_id": "plan-id", "bind_resource": {"app_guid": "456"}, "parameters": {"mount": 123} }`))
+							strings.NewReader(fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "bind_resource": {"app_guid": "456"}, "parameters": {"mount": 123} }`, ServiceID, PlanID)))
 					})
 
 					It("should return a 422", func() {
@@ -667,7 +668,7 @@ var _ = Describe("Handlers", func() {
 				fakePersistentVolumeClient.GetReturns(&v1.PersistentVolume{}, nil)
 				instanceID = randomString(source)
 				bindingID = randomString(source)
-				request, err = http.NewRequest(http.MethodDelete, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s?service_id=123&plan_id=plan-id", instanceID, bindingID), nil)
+				request, err = http.NewRequest(http.MethodDelete, fmt.Sprintf("/v2/service_instances/%s/service_bindings/%s?service_id=%s&plan_id=%s", instanceID, bindingID, ServiceID, PlanID), nil)
 			})
 
 			It("returns 200", func() {

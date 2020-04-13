@@ -44,9 +44,11 @@ var _ = Describe("Integration", func() {
 
 		instanceID := "instance1"
 		bindingID := "binding1"
+		serviceID := "123"
+		planID := "plan-id"
 
 		Eventually(func() string {
-			requestPayload := fmt.Sprintf(`{ "service_id": "123", "plan_id": "plan-id", "parameters": {"share": "%s", "username": "%s", "password": "%s"} }`, share, username, password)
+			requestPayload := fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": {"share": "%s", "username": "%s", "password": "%s"} }`, serviceID, planID, share, username, password)
 			request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s", instanceID), strings.NewReader(requestPayload))
 			Expect(err).NotTo(HaveOccurred())
 
@@ -59,7 +61,7 @@ var _ = Describe("Integration", func() {
 
 		Eventually(func() string {
 			request, err := http.NewRequest("PUT", fmt.Sprintf("http://foo:bar@localhost/v2/service_instances/%s/service_bindings/%s", instanceID, bindingID),
-				strings.NewReader(`{"service_id": "123", "plan_id": "plan_id", "bind_resource": {"app_guid": "123"}}`))
+				strings.NewReader(fmt.Sprintf(`{"service_id": "%s", "plan_id": "%s", "bind_resource": {"app_guid": "123"}}`, serviceID, planID)))
 
 			Expect(err).NotTo(HaveOccurred())
 			resp, _ = http.DefaultClient.Do(request)
