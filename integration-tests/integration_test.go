@@ -44,8 +44,8 @@ var _ = Describe("Integration", func() {
 
 		instanceID := "instance1"
 		bindingID := "binding1"
-		serviceID := "123"
-		planID := "plan-id"
+		serviceID := "6cb45412-8161-44ec-b462-e3fd08f55448"
+		planID := "e805eb41-4fb4-485a-9066-b0edf57b90b3"
 
 		Eventually(func() string {
 			requestPayload := fmt.Sprintf(`{ "service_id": "%s", "plan_id": "%s", "parameters": {"share": "%s", "username": "%s", "password": "%s"} }`, serviceID, planID, share, username, password)

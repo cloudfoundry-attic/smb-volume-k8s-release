@@ -21,8 +21,8 @@ var _ = Describe("Main", func() {
 		http.DefaultClient.Timeout = 30 * time.Second
 		instanceID = randomString(source)
 		basicAuth = smbBrokerUsername + ":" + smbBrokerPassword
-		serviceID = "123"
-		planID = "plan-id"
+		serviceID = "6cb45412-8161-44ec-b462-e3fd08f55448"
+		planID = "e805eb41-4fb4-485a-9066-b0edf57b90b3"
 	})
 
 	Describe("#Catalog", func() {

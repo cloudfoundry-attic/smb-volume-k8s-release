@@ -1,6 +1,6 @@
 {
   "services": [{
-    "id": "123",
+    "id": "6cb45412-8161-44ec-b462-e3fd08f55448",
     "name": "SMB",
     "description": "SMB for K8s",
     "bindable": true,
@@ -14,7 +14,7 @@
     "plan_updateable": false,
     "plans": [
       {
-        "id": "plan-id",
+        "id": "e805eb41-4fb4-485a-9066-b0edf57b90b3",
         "name": "Existing",
         "description": "The only SMB Plan",
         "metadata": {
