@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: cfpersi/smb-k8s-kind
+    repository: cfpersi/smb-k8s-kind-tests
     tag: latest
 
 inputs:
