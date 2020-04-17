@@ -6,17 +6,10 @@ This contains kapp applications that package:
 
 - an smb broker
 - a smb csi driver
-- eirini persi
 
 # Deploying to Cloud Foundry
 ## Prerequisites
 - [Install Cloud Foundry on a k8s cluster](https://github.com/cloudfoundry/cf-for-k8s/blob/master/docs/deploy.md)
-
-## Installing eirini-persi (eirini-ext volume services extension)
-```
-cd eirini-persi
-make kapp
-```
 
 ## Installing smb-csi-driver
 ```

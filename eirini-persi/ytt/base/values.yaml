@@ -1,7 +1,0 @@
-#@data/values
----
-namespace:
-
-image:
-  repository: cfpersi/eirini-persi
-  tag: latest

@@ -34,7 +34,7 @@ var _ = Describe("Handlers", func() {
 	var fakePersistentVolumeClient *smbbrokerfakes.FakePersistentVolumeInterface
 	var fakePersistentVolumeClaimClient *smbbrokerfakes.FakePersistentVolumeClaimInterface
 	var fakeSecretClient *smbbrokerfakes.FakeSecretInterface
-	var namespace = "eirini"
+	var namespace = "cf-workloads"
 	var testLogger *lagertest.TestLogger
 	BeforeEach(func() {
 		recorder = httptest.NewRecorder()
@@ -103,7 +103,7 @@ var _ = Describe("Handlers", func() {
 									VolumeAttributes: map[string]string{"share": "//unc.path/share"},
 									NodePublishSecretRef: &v1.SecretReference{
 										Name:      serviceInstanceKey,
-										Namespace: "eirini",
+										Namespace: "cf-workloads",
 									},
 								},
 							},
@@ -308,7 +308,7 @@ var _ = Describe("Handlers", func() {
 										VolumeAttributes: map[string]string{"share": "//unc.path/share"},
 										NodePublishSecretRef: &v1.SecretReference{
 											Name:      serviceInstanceKey,
-											Namespace: "eirini",
+											Namespace: "cf-workloads",
 										},
 									},
 								},

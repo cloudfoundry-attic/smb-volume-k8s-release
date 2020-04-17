@@ -103,9 +103,6 @@ pushd smb-volume-k8s-release
     pushd smb-csi-driver
         kapp deploy -y -a smb-csi-driver -f <(ytt -f ytt/base -v image.tag=latest)
     popd
-    pushd eirini-persi
-        make kapp
-    popd
 popd
 
 # add cf-values to output mapping
