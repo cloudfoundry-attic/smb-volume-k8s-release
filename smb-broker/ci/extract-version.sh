@@ -34,8 +34,8 @@ function kill_docker() {
 }
 trap kill_docker EXIT
 
-pushd cf-acceptance-tests/assets/pora
-  pack build "pora" --builder cloudfoundry/cnb:bionic  --buildpack org.cloudfoundry.go-compiler
+pushd cf-volume-services-acceptance-tests/assets/pora
+  pack build "pora" --builder cloudfoundry/cnb:bionic  --buildpack paketo-buildpacks/go-compiler
   pack inspect-image pora --bom | jq -r '.local[0].version' > /tmp/go-version
   cat /tmp/go-version
 popd
