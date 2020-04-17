@@ -3,4 +3,4 @@
 image:
   repository: registry:5000/cfpersi/smb-plugin
   tag: local-test
-command: "/layers/org.cloudfoundry.go-mod/app-binary/bin/smb-csi-driver"
+command: "/layers/paketo-buildpacks_go-mod/app-binary/bin/smb-csi-driver"
