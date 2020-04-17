@@ -1,4 +1,5 @@
 .idea/
 smb-broker/.kube/
+smb-broker/smb-brokerfakes
 smb-csi-driver/smb-csi-driver
 .kube
