@@ -15,7 +15,7 @@ image-local-registry:
 	[ $(running) != "true" ] && docker run \
 	    --ip 172.17.0.2 -d --restart=always -p "5000:5000" --name "kind-registry" \
 	    registry:2 || true
-	pack build localhost:5000/cfpersi/smb-plugin:local-test --builder cloudfoundry/cnb:bionic --buildpack paketo-buildpacks/go-compiler --run-image cfpersi/cnb-cifs-run-stack --publish
+	pack build localhost:5000/cfpersi/smb-plugin:local-test --builder cloudfoundry/cnb:bionic --run-image cfpersi/cnb-cifs-run-stack --publish
 
 start-docker:
 	start-docker &
