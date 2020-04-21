@@ -1,0 +1,12 @@
+apiVersion: experimental.kpack.pivotal.io/v1alpha1
+kind: CustomBuilder
+metadata:
+  name: cf-volume-services
+spec:
+  tag: cfpersi/deletemebuilder
+  stack: tiny
+  store: build-service-store
+  order:
+    - group:
+        - id: org.cloudfoundry.go-compiler
+        - id: org.cloudfoundry.go-mod

@@ -1,0 +1,13 @@
+source:
+  git:
+    url: https://github.com/cloudfoundry/smb-volume-k8s-release.git
+    revision: master
+  subPath: "smb-broker"
+build:
+  env:
+namespace: cf-volume-services
+image:
+  tag: cfpersi/deletemebroker3
+builder:
+  name: cf-volume-services
+  scope: Project

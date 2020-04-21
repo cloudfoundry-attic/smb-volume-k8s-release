@@ -1,0 +1,4 @@
+project: cf-volume-services
+registry: https://index.docker.io/v1/
+username: cfpersi
+password: <registrysecret>
