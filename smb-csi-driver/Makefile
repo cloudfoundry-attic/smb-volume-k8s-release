@@ -26,17 +26,13 @@ start-docker:
 kill-docker:
 	pkill dockerd
 
-test:
-	@$(MAKE) -f $(THIS_FILE) vet
-	@$(MAKE) -f $(THIS_FILE) fakes
-	@$(MAKE) -f $(THIS_FILE) build
+test: vet fakes build
 	go get github.com/onsi/ginkgo/ginkgo
 	cd identityserver && ginkgo -race .
 	cd nodeserver && ginkgo -race .
 
 e2e: SHELL:=/bin/bash
-e2e:
-	@$(MAKE) -f $(THIS_FILE) image-local-registry
+e2e: image-local-registry
 	go get github.com/onsi/ginkgo/ginkgo
 	ginkgo -r -focus "CSI Volumes|CSIDriver"
 
