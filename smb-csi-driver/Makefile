@@ -34,7 +34,7 @@ test: vet fakes build
 e2e: SHELL:=/bin/bash
 e2e: image-local-registry
 	go get github.com/onsi/ginkgo/ginkgo
-	ginkgo -r -focus "CSI Volumes|CSIDriver"
+	ginkgo .
 
 fly:
 	fly -t persi execute --tag=kind  -p -c ~/workspace/smb-volume-k8s-release/smb-csi-driver/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release
