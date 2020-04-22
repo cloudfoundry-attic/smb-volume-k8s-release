@@ -9,10 +9,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/container-storage-interface/spec/lib/go/csi"
-	"strings"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -113,13 +113,14 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 		if opErr == nil {
 			return &csi.NodePublishVolumeResponse{}, nil
 		}
-		return nil, opErr
 	}
 
 	defer func() {
-		createErr := n.csiDriverStore.Create(r.TargetPath, r, opErr)
-		if createErr != nil {
-			opErr = createErr
+		if opErr == nil {
+			createErr := n.csiDriverStore.Create(r.TargetPath, r, opErr)
+			if createErr != nil {
+				opErr = createErr
+			}
 		}
 	}()
 

@@ -119,12 +119,7 @@ var _ = Describe("NodeServer", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
 
-				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
-				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
-				Expect(p).To(Equal(request.TargetPath))
-				Expect(k).To(Equal(request))
-				Expect(v).To(HaveOccurred())
-				Expect(v).To(MatchError("rpc error: code = InvalidArgument desc = Error: a required property [VolumeCapability] was not provided"))
+				Expect(fakeCSIDriverStore.CreateCallCount()).To(BeZero())
 			})
 		})
 
@@ -157,18 +152,6 @@ var _ = Describe("NodeServer", func() {
 				It("return the response of the previous request", func() {
 					Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(0))
 					Expect(nodePublishVolumeResponse).To(Equal(&csi.NodePublishVolumeResponse{}))
-				})
-			})
-
-			Context("when a second identical request is made after an error", func() {
-				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(errors.New("I <3 you."), true, true, nil)
-				})
-
-				It("return the response of the previous request", func() {
-					Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(0))
-					Expect(nodePublishVolumeResponse).To(BeNil())
-					Expect(err).To(HaveOccurred())
 				})
 			})
 
@@ -219,14 +202,26 @@ var _ = Describe("NodeServer", func() {
 				Eventually(logger.Buffer()).Should(Say("cmd-failed"))
 			})
 
-			It("should store the error in case we get called again", func() {
-				Expect(fakeCSIDriverStore.CreateCallCount()).NotTo(BeZero())
-				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
-				Expect(p).To(Equal(request.TargetPath))
-				Expect(k).To(Equal(request))
-				Expect(v).To(HaveOccurred())
-				Expect(v).To(MatchError("rpc error: code = Internal desc = cmd-failed"))
+			It("should not store the error", func() {
+				Expect(fakeCSIDriverStore.CreateCallCount()).To(BeZero())
+			})
 
+			Context("when NodePublishVolume is called a second time", func() {
+				BeforeEach(func() {
+					nodeServer = NewNodeServer(logger, fakeExec, fakeOs, NewStore())
+				})
+				JustBeforeEach(func() {
+					fakeCmd.CombinedOutputReturnsOnCall(1, []byte("some-stdout"), nil)
+					nodePublishVolumeResponse, err = nodeServer.NodePublishVolume(ctx, request)
+				})
+
+				It("should try the operation a second time", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(fakeExec.CommandCallCount()).To(Equal(2))
+					command, args := fakeExec.CommandArgsForCall(1)
+					Expect(command).To(Equal("mount"))
+					Expect(args).To(ContainElements("-t", "cifs", "-o", "uid=1000,gid=1000,username=user1,password=pass1", "//server/export", request.TargetPath))
+				})
 			})
 		})
 
