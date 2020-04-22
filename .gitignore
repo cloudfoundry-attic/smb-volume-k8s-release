@@ -2,4 +2,5 @@
 smb-broker/.kube/
 smb-broker/smb-brokerfakes
 smb-csi-driver/smb-csi-driver
+smb-csi-driver/smb-csi-driverfakes
 .kube
