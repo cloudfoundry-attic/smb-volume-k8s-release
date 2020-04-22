@@ -57,8 +57,8 @@ var _ = Describe("NodeServer", func() {
 					"password": "pass1",
 				},
 			}
-			fakeCSIDriverStore.GetReturns(nil, true, true, nil)
-			fakeCSIDriverStore.GetReturnsOnCall(0, nil, false, true, nil)
+			fakeCSIDriverStore.GetReturns(true, true, nil)
+			fakeCSIDriverStore.GetReturnsOnCall(0,  false, true, nil)
 
 		})
 
@@ -77,10 +77,9 @@ var _ = Describe("NodeServer", func() {
 			wg.Wait()
 
 			Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
-			p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+			p, k := fakeCSIDriverStore.CreateArgsForCall(0)
 			Expect(p).To(Equal(request.TargetPath))
 			Expect(k).To(Equal(request))
-			Expect(v).NotTo(HaveOccurred())
 		})
 	})
 
@@ -137,16 +136,15 @@ var _ = Describe("NodeServer", func() {
 
 			It("should audit the operation in a map", func() {
 				Expect(fakeCSIDriverStore.CreateCallCount()).To(Equal(1))
-				p, k, v := fakeCSIDriverStore.CreateArgsForCall(0)
+				p, k := fakeCSIDriverStore.CreateArgsForCall(0)
 
 				Expect(p).To(Equal(request.TargetPath))
 				Expect(k).To(Equal(request))
-				Expect(v).To(BeNil())
 			})
 
 			Context("when a second identical request is made", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(nil, true, false, nil)
+					fakeCSIDriverStore.GetReturns( true, false, nil)
 				})
 
 				It("return the response of the previous request", func() {
@@ -228,7 +226,7 @@ var _ = Describe("NodeServer", func() {
 		Context("when getting an entry in the store fails", func() {
 
 			BeforeEach(func() {
-				fakeCSIDriverStore.GetReturns(nil, true, true, errors.New("hash failure"))
+				fakeCSIDriverStore.GetReturns(true, true, errors.New("hash failure"))
 			})
 
 			It("should return an error", func() {
@@ -259,7 +257,7 @@ var _ = Describe("NodeServer", func() {
 
 			Context("when it uses different mount options", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns(nil, true, false, nil)
+					fakeCSIDriverStore.GetReturns(true, false, nil)
 				})
 
 				It("return ALREADY_EXISTS", func() {

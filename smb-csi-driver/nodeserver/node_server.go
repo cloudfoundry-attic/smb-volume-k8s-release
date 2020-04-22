@@ -21,9 +21,9 @@ var defaultMountOptions = "uid=1000,gid=1000"
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ../smb-csi-driverfakes/fake_csi_driver_store.go . CSIDriverStore
 type CSIDriverStore interface {
-	Create(string, *csi.NodePublishVolumeRequest, error) error
+	Create(string, *csi.NodePublishVolumeRequest) error
 	Delete(string)
-	Get(string, *csi.NodePublishVolumeRequest) (opError error, exists bool, optionsMatch bool, err error)
+	Get(string, *csi.NodePublishVolumeRequest) (exists bool, optionsMatch bool, err error)
 }
 
 func NewStore() CSIDriverStore {
@@ -31,7 +31,6 @@ func NewStore() CSIDriverStore {
 }
 
 type volumeInfo struct {
-	err  error
 	hash [32]byte
 }
 
@@ -39,29 +38,29 @@ type CheckParallelCSIDriverRequests struct {
 	store map[string]volumeInfo
 }
 
-func (c *CheckParallelCSIDriverRequests) Get(targetPath string, k *csi.NodePublishVolumeRequest) (opErr error, exists bool, optionsMatch bool, err error) {
+func (c *CheckParallelCSIDriverRequests) Get(targetPath string, k *csi.NodePublishVolumeRequest) (exists bool, optionsMatch bool, err error) {
 	options, err := json.Marshal(k.VolumeContext)
 	if err != nil {
-		return nil, true, true, err
+		return true, true, err
 	}
 	hash := sha256.Sum256(options)
 
 	if val, ok := c.store[targetPath]; ok {
 		if val.hash == hash {
-			return val.err, ok, true, nil
+			return ok, true, nil
 		}
-		return val.err, ok, false, nil
+		return ok, false, nil
 	}
-	return nil, false, false, nil
+	return false, false, nil
 }
 
-func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePublishVolumeRequest, v error) error {
+func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePublishVolumeRequest) error {
 	options, err := json.Marshal(k.VolumeContext)
 	if err != nil {
 		return err
 	}
 	hash := sha256.Sum256(options)
-	c.store[targetPath] = volumeInfo{v, hash}
+	c.store[targetPath] = volumeInfo{ hash}
 	return nil
 }
 
@@ -101,7 +100,7 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 		n.lock.Unlock()
 	}()
 
-	opErr, found, optionsMatch, err := n.csiDriverStore.Get(r.TargetPath, r)
+	found, optionsMatch, err := n.csiDriverStore.Get(r.TargetPath, r)
 	if err != nil {
 		return &csi.NodePublishVolumeResponse{}, err
 	}
@@ -117,7 +116,7 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 
 	defer func() {
 		if opErr == nil {
-			createErr := n.csiDriverStore.Create(r.TargetPath, r, opErr)
+			createErr := n.csiDriverStore.Create(r.TargetPath, r)
 			if createErr != nil {
 				opErr = createErr
 			}
