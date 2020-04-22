@@ -16,7 +16,7 @@ image:
   pullPolicy: Always
 
 ingress:
-  enabled: true
+  enabled: false
   hosts:
     - host: localhost
       paths:

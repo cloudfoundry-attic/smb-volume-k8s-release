@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end data.values.ingress.enabled:
+#@ if data.values.ingress.enabled:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -21,3 +21,4 @@ spec:
               servicePort: http
           #@ end
   #@ end
+#@ end
