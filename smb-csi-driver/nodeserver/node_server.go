@@ -1,19 +1,20 @@
 package nodeserver
 
 import (
-	"code.cloudfoundry.org/goshims/execshim"
-	"code.cloudfoundry.org/goshims/osshim"
-	"code.cloudfoundry.org/lager"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"github.com/container-storage-interface/spec/lib/go/csi"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"os"
 	"strings"
 	"sync"
+
+	"code.cloudfoundry.org/goshims/execshim"
+	"code.cloudfoundry.org/goshims/osshim"
+	"code.cloudfoundry.org/lager"
+	"github.com/container-storage-interface/spec/lib/go/csi"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var errorFmt = "Error: a required property [%s] was not provided"
@@ -60,7 +61,7 @@ func (c *CheckParallelCSIDriverRequests) Create(targetPath string, k *csi.NodePu
 		return err
 	}
 	hash := sha256.Sum256(options)
-	c.store[targetPath] = volumeInfo{ hash}
+	c.store[targetPath] = volumeInfo{hash}
 	return nil
 }
 
@@ -174,7 +175,7 @@ func (n smbNodeServer) NodeUnpublishVolume(c context.Context, r *csi.NodeUnpubli
 
 	n.logger.Info("about to remove dir")
 
-	cmdshim := n.execshim.Command("umount", r.TargetPath)
+	cmdshim := n.execshim.Command("umount", "-l", r.TargetPath)
 	err = cmdshim.Start()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

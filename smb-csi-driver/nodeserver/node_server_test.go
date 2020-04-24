@@ -1,18 +1,19 @@
 package nodeserver_test
 
 import (
+	"context"
+	"errors"
+	"sync"
+
 	"code.cloudfoundry.org/goshims/execshim/exec_fake"
 	"code.cloudfoundry.org/goshims/osshim/os_fake"
 	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/smb-csi-driver/nodeserver"
 	smbcsidriverfakes "code.cloudfoundry.org/smb-csi-driver/smb-csi-driverfakes"
-	"context"
-	"errors"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
-	"sync"
 )
 
 var _ = Describe("NodeServer", func() {
@@ -58,7 +59,7 @@ var _ = Describe("NodeServer", func() {
 				},
 			}
 			fakeCSIDriverStore.GetReturns(true, true, nil)
-			fakeCSIDriverStore.GetReturnsOnCall(0,  false, true, nil)
+			fakeCSIDriverStore.GetReturnsOnCall(0, false, true, nil)
 
 		})
 
@@ -144,7 +145,7 @@ var _ = Describe("NodeServer", func() {
 
 			Context("when a second identical request is made", func() {
 				BeforeEach(func() {
-					fakeCSIDriverStore.GetReturns( true, false, nil)
+					fakeCSIDriverStore.GetReturns(true, false, nil)
 				})
 
 				It("return the response of the previous request", func() {
@@ -289,6 +290,7 @@ var _ = Describe("NodeServer", func() {
 			command, args := fakeExec.CommandArgsForCall(0)
 			Expect(command).To(Equal("umount"))
 			Expect(args).To(ContainElements(request.TargetPath))
+			Expect(args).To(ContainElements("-l"))
 			Expect(fakeCmd.StartCallCount()).To(Equal(1))
 			Expect(fakeCmd.WaitCallCount()).To(Equal(1))
 		})
