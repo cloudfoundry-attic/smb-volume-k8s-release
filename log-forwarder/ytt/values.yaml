@@ -1,0 +1,27 @@
+#@data/values
+---
+smbBrokerUsername: ""
+smbBrokerPassword: ""
+
+targetNamespace: cf-workloads
+namespace: cf-smb
+replicaCount: 1
+logforwarder:
+  fullname: log-forwarder
+  name: log-forwarder
+
+image:
+  repository: cfpersi/log-forwarder
+  tag: latest
+  pullPolicy: Always
+
+ingress:
+  enabled: false
+  hosts:
+    - host: localhost
+      paths:
+        - "/v2"
+
+service:
+  type: ClusterIP
+  port: 80
