@@ -7,17 +7,21 @@ import (
 const TAG = "fluentd_dest"
 const SOURCE_TYPE = "VOL"
 
-type Forwarder struct {
+type forwarder struct {
 	fluent fluentshims.FluentInterface
 }
 
-func NewForwarder(fluent fluentshims.FluentInterface) Forwarder {
-	return Forwarder{
+type Forwarder interface {
+	Forward(appId string, instanceId string, log string) error
+}
+
+func NewForwarder(fluent fluentshims.FluentInterface) forwarder {
+	return forwarder{
 		fluent: fluent,
 	}
 }
 
-func (f Forwarder) Forward(appId string, instanceId string, log string) error {
+func (f forwarder) Forward(appId string, instanceId string, log string) error {
 	msg := map[string]string{
 		"app_id":      appId,
 		"instance_id": instanceId,

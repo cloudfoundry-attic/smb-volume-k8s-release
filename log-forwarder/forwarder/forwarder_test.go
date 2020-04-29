@@ -9,6 +9,7 @@ import (
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ./fluentshims/fluent_fake/fake_fluent.go ./fluentshims FluentInterface
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ./forwarder_fakes/fake_forwarder.go . Forwarder
 
 var _ = Describe("Forwarder", func() {
 
