@@ -7,6 +7,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ./filter_fakes/fake_filter.go . Filter
+
 var _ = Describe("Filter", func() {
 
 	var (
