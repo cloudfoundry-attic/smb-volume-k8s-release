@@ -13,78 +13,27 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: create-pv
+  name: watch-events
+  namespace: #@ data.values.targetNamespace
 rules:
   - apiGroups: ["v1", ""]
     resources: ["events"]
-    verbs: ["get"]
+    verbs: ["get","watch","list"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: log-forwarder-pv-roles
+  name: watch-events
 subjects:
   - kind: ServiceAccount
     name: #@ data.values.logforwarder.fullname
     namespace: #@ data.values.namespace
 roleRef:
   kind: ClusterRole
-  name: create-pv
+  name: watch-events
   apiGroup: rbac.authorization.k8s.io
 
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: Role
-metadata:
-  name: create-pvc
-  namespace: #@ data.values.targetNamespace
-rules:
-  - apiGroups: ["v1", ""]
-    resources: ["events"]
-    verbs: ["get"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: log-forwarder-pvc-roles
-subjects:
-  - kind: ServiceAccount
-    name: #@ data.values.logforwarder.fullname
-    namespace: #@ data.values.namespace
-roleRef:
-  kind: Role
-  name: create-pvc
-  namespace: #@ data.values.targetNamespace
-  apiGroup: rbac.authorization.k8s.io
-
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: Role
-metadata:
-  name: create-secret
-  namespace: #@ data.values.targetNamespace
-rules:
-  - apiGroups: ["v1", ""]
-    resources: ["secrets"]
-    verbs: ["get", "create", "delete"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: log-forwarder-secret-roles
-  namespace: #@ data.values.targetNamespace
-subjects:
-  - kind: ServiceAccount
-    name: #@ data.values.logforwarder.fullname
-    namespace: #@ data.values.namespace
-roleRef:
-  kind: Role
-  name: create-secret
-  apiGroup: rbac.authorization.k8s.io
-  namespace: #@ data.values.targetNamespace
 ---
 apiVersion: apps/v1
 kind: Deployment

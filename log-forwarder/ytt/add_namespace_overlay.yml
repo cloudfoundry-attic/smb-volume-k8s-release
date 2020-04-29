@@ -20,16 +20,3 @@ metadata:
 metadata:
   #@overlay/remove
   namespace:
----
-#@overlay/match by=overlay.subset({"kind":"Role"}),expects="1+"
----
-metadata:
-  #@overlay/match missing_ok=True
-  namespace: #@ data.values.targetNamespace
-
----
-#@overlay/match by=overlay.subset({"kind":"RoleBinding"}),expects="1+"
----
-metadata:
-  #@overlay/match missing_ok=True
-  namespace: #@ data.values.targetNamespace
