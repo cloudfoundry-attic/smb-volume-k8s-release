@@ -100,7 +100,7 @@ var _ = Describe("Handlers", func() {
 								CSI: &v1.CSIPersistentVolumeSource{
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
-									VolumeAttributes: map[string]string{"share": "//unc.path/share"},
+									VolumeAttributes: map[string]string{"share": "//unc.path/share", "uid": "1000", "gid": "1000"},
 									NodePublishSecretRef: &v1.SecretReference{
 										Name:      serviceInstanceKey,
 										Namespace: "cf-workloads",
@@ -305,7 +305,7 @@ var _ = Describe("Handlers", func() {
 									CSI: &v1.CSIPersistentVolumeSource{
 										Driver:           "org.cloudfoundry.smb",
 										VolumeHandle:     "volume-handle",
-										VolumeAttributes: map[string]string{"share": "//unc.path/share"},
+										VolumeAttributes: map[string]string{"share": "//unc.path/share", "uid": "1000", "gid": "1000"},
 										NodePublishSecretRef: &v1.SecretReference{
 											Name:      serviceInstanceKey,
 											Namespace: "cf-workloads",
@@ -515,7 +515,7 @@ var _ = Describe("Handlers", func() {
 					Spec: v1.PersistentVolumeSpec{
 						PersistentVolumeSource: v1.PersistentVolumeSource{
 							CSI: &v1.CSIPersistentVolumeSource{
-								VolumeAttributes: map[string]string{"share": share},
+								VolumeAttributes: map[string]string{"share": share, "uid": "1000", "gid": "1000"},
 								NodePublishSecretRef: &v1.SecretReference{
 									Name: instanceID,
 								},

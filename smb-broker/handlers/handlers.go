@@ -26,6 +26,8 @@ const MountBindOptionKey = "mount"
 const DefaultMountPath = "/home/vcap/data/"
 const ServiceID = "6cb45412-8161-44ec-b462-e3fd08f55448"
 const PlanID = "e805eb41-4fb4-485a-9066-b0edf57b90b3"
+const DefaultUID = "1000"
+const DefaultGID = "1000"
 const UncPathRegex = `^[\\\/]{2,}[^\\\/]+[\\\/]+[^\\\/]+`
 
 func BrokerHandler(namespace string, pv corev1.PersistentVolumeInterface, pvc corev1.PersistentVolumeClaimInterface, secret corev1.SecretInterface, username string, password string, logger lager.Logger) (http.Handler, error) {
@@ -152,7 +154,7 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	volumeAttributesMap := map[string]string{"share": share}
+	volumeAttributesMap := map[string]string{"share": share, "uid": DefaultUID, "gid": DefaultGID}
 	if vers, found := serviceInstanceParameters["vers"]; found {
 		var ok bool
 		if volumeAttributesMap["vers"], ok = vers.(string); !ok {
