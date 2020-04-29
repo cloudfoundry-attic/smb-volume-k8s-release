@@ -137,7 +137,7 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	username := r.GetSecrets()["username"]
 	password := r.GetSecrets()["password"]
 
-	mountOptions := fmt.Sprintf("%s,username=%s,password=%s", defaultMountOptions, username, password)
+	mountOptions := fmt.Sprintf("username=%s,password=%s", username, password)
 
 	vers, ok := r.GetVolumeContext()["vers"]
 	if ok {
@@ -145,6 +145,13 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 			return nil, status.Error(codes.InvalidArgument, "Error: invalid VolumeContext value for 'vers'")
 		}
 		mountOptions += ",vers=" + vers
+	}
+
+	if uid, ok := r.GetVolumeContext()["uid"]; ok {
+		mountOptions += ",uid=" + uid
+	}
+	if gid, ok := r.GetVolumeContext()["gid"]; ok {
+		mountOptions += ",gid=" + gid
 	}
 
 	n.logger.Info("started mount", lager.Data{"share": share})

@@ -176,12 +176,36 @@ var _ = Describe("NodeServer", func() {
 				})
 			})
 
+			Context(" when given a uid", func() {
+				BeforeEach(func() {
+					request.VolumeContext["uid"] = "1000"
+				})
+
+				It("should perform a mount", func() {
+					Expect(err).NotTo(HaveOccurred())
+					_, args := fakeExec.CommandArgsForCall(0)
+					Expect(args[3]).To(ContainSubstring("uid=1000"))
+				})
+			})
+
+			Context(" when given a gid", func() {
+				BeforeEach(func() {
+					request.VolumeContext["gid"] = "1000"
+				})
+
+				It("should perform a mount", func() {
+					Expect(err).NotTo(HaveOccurred())
+					_, args := fakeExec.CommandArgsForCall(0)
+					Expect(args[3]).To(ContainSubstring("gid=1000"))
+				})
+			})
+
 			It("should perform a mount", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(fakeExec.CommandCallCount()).To(Equal(1))
 				command, args := fakeExec.CommandArgsForCall(0)
 				Expect(command).To(Equal("mount"))
-				Expect(args).To(ContainElements("-t", "cifs", "-o", "uid=1000,gid=1000,username=user1,password=pass1", "//server/export", request.TargetPath))
+				Expect(args).To(ContainElements("-t", "cifs", "-o", "username=user1,password=pass1", "//server/export", request.TargetPath))
 			})
 		})
 
@@ -219,7 +243,7 @@ var _ = Describe("NodeServer", func() {
 					Expect(fakeExec.CommandCallCount()).To(Equal(2))
 					command, args := fakeExec.CommandArgsForCall(1)
 					Expect(command).To(Equal("mount"))
-					Expect(args).To(ContainElements("-t", "cifs", "-o", "uid=1000,gid=1000,username=user1,password=pass1", "//server/export", request.TargetPath))
+					Expect(args).To(ContainElements("-t", "cifs", "-o", "username=user1,password=pass1", "//server/export", request.TargetPath))
 				})
 			})
 		})
