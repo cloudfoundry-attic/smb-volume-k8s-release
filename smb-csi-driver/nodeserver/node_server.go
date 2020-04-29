@@ -135,7 +135,16 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 
 	share := r.GetVolumeContext()["share"]
 
-	mountOptions := r.GetVolumeCapability().GetMount().GetMountFlags()
+	allMountOptions := r.GetVolumeCapability().GetMount().GetMountFlags()
+	mountOptions := []string{}
+	for _, option := range allMountOptions {
+		optionKeyVals := strings.Split(option, "=")
+		if len(optionKeyVals) != 2 || !allowedKey(optionKeyVals[0]){
+			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Error: invalid mountOption value for '%s'", option))
+		}
+		mountOptions = append(mountOptions, option)
+	}
+
 	mountOptions = append(mountOptions, fmt.Sprintf("username=%s", r.GetSecrets()["username"]))
 	mountOptions = append(mountOptions, fmt.Sprintf("password=%s", r.GetSecrets()["password"]))
 
@@ -216,4 +225,14 @@ func (s smbNodeServer) NodeGetInfo(context.Context, *csi.NodeGetInfoRequest) (*c
 	return &csi.NodeGetInfoResponse{
 		NodeId: nodeId,
 	}, nil
+}
+
+func allowedKey(opt string) bool {
+	allowedKeys := []string{"uid", "gid", "vers"}
+	for _, key := range allowedKeys {
+		if opt == key {
+			return true
+		}
+	}
+	return false
 }

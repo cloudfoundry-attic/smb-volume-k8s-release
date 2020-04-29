@@ -248,6 +248,28 @@ var _ = Describe("NodeServer", func() {
 				})
 			})
 
+			Context(" when given a random option", func() {
+				BeforeEach(func() {
+					request = &csi.NodePublishVolumeRequest{
+						VolumeCapability: &csi.VolumeCapability{AccessType: &csi.VolumeCapability_Mount{
+							Mount: &csi.VolumeCapability_MountVolume{MountFlags: []string{"foo=bar"}},
+						}},
+						TargetPath:       "/tmp/target_path",
+						VolumeContext: map[string]string{
+							"share": "//server/export",
+						},
+						Secrets: map[string]string{
+							"username": "user1",
+							"password": "pass1",
+						},
+					}
+				})
+
+				It("should return an error.", func() {
+					Expect(err).To(HaveOccurred())
+				})
+			})
+
 			It("should perform a mount", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(fakeExec.CommandCallCount()).To(Equal(1))
