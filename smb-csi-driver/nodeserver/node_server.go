@@ -134,28 +134,21 @@ func (n smbNodeServer) NodePublishVolume(c context.Context, r *csi.NodePublishVo
 	}
 
 	share := r.GetVolumeContext()["share"]
-	username := r.GetSecrets()["username"]
-	password := r.GetSecrets()["password"]
 
-	mountOptions := fmt.Sprintf("username=%s,password=%s", username, password)
+	mountOptions := r.GetVolumeCapability().GetMount().GetMountFlags()
+	mountOptions = append(mountOptions, fmt.Sprintf("username=%s", r.GetSecrets()["username"]))
+	mountOptions = append(mountOptions, fmt.Sprintf("password=%s", r.GetSecrets()["password"]))
 
-	vers, ok := r.GetVolumeContext()["vers"]
-	if ok {
-		if strings.Contains(vers, ",") {
-			return nil, status.Error(codes.InvalidArgument, "Error: invalid VolumeContext value for 'vers'")
+	for _, option := range mountOptions {
+		if strings.Contains(option, ",") {
+			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Error: invalid mountOption value for '%s'", option))
 		}
-		mountOptions += ",vers=" + vers
 	}
 
-	if uid, ok := r.GetVolumeContext()["uid"]; ok {
-		mountOptions += ",uid=" + uid
-	}
-	if gid, ok := r.GetVolumeContext()["gid"]; ok {
-		mountOptions += ",gid=" + gid
-	}
+	mountOptionsString := strings.Join(mountOptions, ",")
 
 	n.logger.Info("started mount", lager.Data{"share": share})
-	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptions, share, r.TargetPath)
+	cmdshim := n.execshim.Command("mount", "-t", "cifs", "-o", mountOptionsString, share, r.TargetPath)
 	combinedOutput, opErr := cmdshim.CombinedOutput()
 	if opErr != nil {
 		n.logger.Error("mount-failed", opErr, lager.Data{"combinedOutput": string(combinedOutput)})

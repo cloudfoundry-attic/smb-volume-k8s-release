@@ -96,11 +96,12 @@ var _ = Describe("Handlers", func() {
 						Spec: v1.PersistentVolumeSpec{
 							AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 							Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+							MountOptions: []string{"uid=1000", "gid=1000"},
 							PersistentVolumeSource: v1.PersistentVolumeSource{
 								CSI: &v1.CSIPersistentVolumeSource{
 									Driver:           "org.cloudfoundry.smb",
 									VolumeHandle:     "volume-handle",
-									VolumeAttributes: map[string]string{"share": "//unc.path/share", "uid": "1000", "gid": "1000"},
+									VolumeAttributes: map[string]string{"share": "//unc.path/share"},
 									NodePublishSecretRef: &v1.SecretReference{
 										Name:      serviceInstanceKey,
 										Namespace: "cf-workloads",
@@ -301,11 +302,12 @@ var _ = Describe("Handlers", func() {
 							Spec: v1.PersistentVolumeSpec{
 								AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 								Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+								MountOptions: []string{"uid=1000", "gid=1000"},
 								PersistentVolumeSource: v1.PersistentVolumeSource{
 									CSI: &v1.CSIPersistentVolumeSource{
 										Driver:           "org.cloudfoundry.smb",
 										VolumeHandle:     "volume-handle",
-										VolumeAttributes: map[string]string{"share": "//unc.path/share", "uid": "1000", "gid": "1000"},
+										VolumeAttributes: map[string]string{"share": "//unc.path/share"},
 										NodePublishSecretRef: &v1.SecretReference{
 											Name:      serviceInstanceKey,
 											Namespace: "cf-workloads",
@@ -402,7 +404,7 @@ var _ = Describe("Handlers", func() {
 				It("should create a persistent volume with the version in the attributes", func() {
 					Expect(fakePersistentVolumeClient.CreateCallCount()).To(Equal(1))
 					_, pv, _ := fakePersistentVolumeClient.CreateArgsForCall(0)
-					Expect(pv.Spec.PersistentVolumeSource.CSI.VolumeAttributes).To(HaveKeyWithValue("vers", "3.0"))
+					Expect(pv.Spec.MountOptions).To(ContainElement("vers=3.0"))
 				})
 
 				Context("when smb version is not a string but a number", func() {
@@ -513,9 +515,10 @@ var _ = Describe("Handlers", func() {
 
 				fakePersistentVolumeClient.GetReturns(&v1.PersistentVolume{
 					Spec: v1.PersistentVolumeSpec{
+						MountOptions: []string{"uid=1000", "gid=1000"},
 						PersistentVolumeSource: v1.PersistentVolumeSource{
 							CSI: &v1.CSIPersistentVolumeSource{
-								VolumeAttributes: map[string]string{"share": share, "uid": "1000", "gid": "1000"},
+								VolumeAttributes: map[string]string{"share": share},
 								NodePublishSecretRef: &v1.SecretReference{
 									Name: instanceID,
 								},

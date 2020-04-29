@@ -154,13 +154,15 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 		return domain.ProvisionedServiceSpec{}, err
 	}
 
-	volumeAttributesMap := map[string]string{"share": share, "uid": DefaultUID, "gid": DefaultGID}
+	mountOptions := []string{"uid=1000", "gid=1000"}
 	if vers, found := serviceInstanceParameters["vers"]; found {
-		var ok bool
-		if volumeAttributesMap["vers"], ok = vers.(string); !ok {
+		versionType := fmt.Sprintf("%T", vers)
+		if versionType != "string" {
 			resp := apiresponses.NewFailureResponse(errors.New("'vers' configuration value must be a string"), http.StatusBadRequest, "")
 			return domain.ProvisionedServiceSpec{}, resp
 		}
+
+		mountOptions = append(mountOptions, fmt.Sprintf("vers=%s", vers))
 	}
 
 	_, err = s.PersistentVolume.Create(
@@ -172,11 +174,12 @@ func (s smbServiceBroker) Provision(ctx context.Context, instanceID string, deta
 			Spec: v1.PersistentVolumeSpec{
 				AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 				Capacity:    v1.ResourceList{v1.ResourceStorage: resource.MustParse("100M")},
+				MountOptions: mountOptions,
 				PersistentVolumeSource: v1.PersistentVolumeSource{
 					CSI: &v1.CSIPersistentVolumeSource{
 						Driver:           "org.cloudfoundry.smb",
 						VolumeHandle:     "volume-handle",
-						VolumeAttributes: volumeAttributesMap,
+						VolumeAttributes: map[string]string{"share": share},
 						NodePublishSecretRef: &v1.SecretReference{
 							Name:      instanceID,
 							Namespace: s.Namespace,

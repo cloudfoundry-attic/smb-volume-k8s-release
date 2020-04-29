@@ -156,7 +156,19 @@ var _ = Describe("NodeServer", func() {
 
 			Context(" when given a smb version", func() {
 				BeforeEach(func() {
-					request.VolumeContext["vers"] = "1.0"
+					request = &csi.NodePublishVolumeRequest{
+						VolumeCapability: &csi.VolumeCapability{AccessType: &csi.VolumeCapability_Mount{
+							Mount: &csi.VolumeCapability_MountVolume{MountFlags: []string{"vers=1.0"}},
+						}},
+						TargetPath:       "/tmp/target_path",
+						VolumeContext: map[string]string{
+							"share": "//server/export",
+						},
+						Secrets: map[string]string{
+							"username": "user1",
+							"password": "pass1",
+						},
+					}
 				})
 
 				It("should perform a mount", func() {
@@ -167,7 +179,19 @@ var _ = Describe("NodeServer", func() {
 
 				Context("when the smb version contains a comma (which introduces injection vulnerabilities)", func() {
 					BeforeEach(func() {
-						request.VolumeContext["vers"] = "1.0,"
+						request = &csi.NodePublishVolumeRequest{
+							VolumeCapability: &csi.VolumeCapability{AccessType: &csi.VolumeCapability_Mount{
+								Mount: &csi.VolumeCapability_MountVolume{MountFlags: []string{"vers=1.0,"}},
+							}},
+							TargetPath:       "/tmp/target_path",
+							VolumeContext: map[string]string{
+								"share": "//server/export",
+							},
+							Secrets: map[string]string{
+								"username": "user1",
+								"password": "pass1",
+							},
+						}
 					})
 
 					It("should return an error.", func() {
@@ -178,7 +202,19 @@ var _ = Describe("NodeServer", func() {
 
 			Context(" when given a uid", func() {
 				BeforeEach(func() {
-					request.VolumeContext["uid"] = "1000"
+					request = &csi.NodePublishVolumeRequest{
+						VolumeCapability: &csi.VolumeCapability{AccessType: &csi.VolumeCapability_Mount{
+							Mount: &csi.VolumeCapability_MountVolume{MountFlags: []string{"uid=1000"}},
+						}},
+						TargetPath:       "/tmp/target_path",
+						VolumeContext: map[string]string{
+							"share": "//server/export",
+						},
+						Secrets: map[string]string{
+							"username": "user1",
+							"password": "pass1",
+						},
+					}
 				})
 
 				It("should perform a mount", func() {
@@ -190,7 +226,19 @@ var _ = Describe("NodeServer", func() {
 
 			Context(" when given a gid", func() {
 				BeforeEach(func() {
-					request.VolumeContext["gid"] = "1000"
+					request = &csi.NodePublishVolumeRequest{
+						VolumeCapability: &csi.VolumeCapability{AccessType: &csi.VolumeCapability_Mount{
+							Mount: &csi.VolumeCapability_MountVolume{MountFlags: []string{"gid=1000"}},
+						}},
+						TargetPath:       "/tmp/target_path",
+						VolumeContext: map[string]string{
+							"share": "//server/export",
+						},
+						Secrets: map[string]string{
+							"username": "user1",
+							"password": "pass1",
+						},
+					}
 				})
 
 				It("should perform a mount", func() {
