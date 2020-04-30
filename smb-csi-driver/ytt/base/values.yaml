@@ -5,4 +5,3 @@ namespace: cf-smb
 image:
   repository: cfpersi/smb-csi-driver
   tag: latest
-command: "/app/main"

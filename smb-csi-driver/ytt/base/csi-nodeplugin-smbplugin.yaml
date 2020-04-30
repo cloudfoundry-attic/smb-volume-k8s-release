@@ -55,7 +55,7 @@ spec:
             allowPrivilegeEscalation: true
           image: #@ data.values.image.repository + ":" + data.values.image.tag
           command:
-          - #@ data.values.command
+          - "/layers/paketo-buildpacks_go-mod/app-binary/bin/smb-csi-driver"
           args :
             - "--nodeid=$(NODE_ID)"
             - "--endpoint=$(CSI_ENDPOINT)"

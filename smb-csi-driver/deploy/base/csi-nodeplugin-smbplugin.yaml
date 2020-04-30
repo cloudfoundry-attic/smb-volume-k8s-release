@@ -52,7 +52,7 @@ spec:
             allowPrivilegeEscalation: true
           image: cfpersi/smb-csi-driver:0.143.0
           command:
-          - "/app/main"
+          - "/layers/paketo-buildpacks_go-mod/app-binary/bin/smb-csi-driver"
           args :
             - "--nodeid=$(NODE_ID)"
             - "--endpoint=$(CSI_ENDPOINT)"
