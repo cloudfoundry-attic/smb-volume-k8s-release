@@ -10,6 +10,9 @@ image_resource:
 inputs:
   - name: smb-volume-k8s-release
 
+outputs:
+  - name: built-images
+
 run:
   path: make
   args: [ "--keep-going", "--directory=smb-volume-k8s-release/smb-csi-driver", "start-docker", "e2e", "kill-docker" ]
@@ -17,3 +20,4 @@ run:
 params:
   K8S_IMAGE: kindest/node:v1.17.0
   VOLUME_MODE_SUITE: true
+  IMAGE_DESTINATION: "../../built-images/smb-csi-driver.tgz"
