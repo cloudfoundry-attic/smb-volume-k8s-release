@@ -1,6 +1,6 @@
 #@data/values
 ---
 image:
-  repository: registry:5000/cfpersi/smb-plugin
+  repository: registry:5000/cfpersi/smb-csi-driver
   tag: local-test
 command: "/layers/paketo-buildpacks_go-mod/app-binary/bin/smb-csi-driver"

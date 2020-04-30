@@ -44,6 +44,18 @@ var _ = BeforeSuite(func() {
 	Eventually(func()string{
 		return local_k8s_cluster.Kubectl("get", "pod", "-l", "app=csi-nodeplugin-smbplugin", "-n", namespace)
 	}, 10 * time.Minute, 1 * time.Second).Should(ContainSubstring("Running"))
+
+	By("pulling the image into the docker daemon", func() {
+		local_k8s_cluster.Docker("pull", "localhost:5000/cfpersi/smb-csi-driver:local-test")
+	})
+
+	var imageDestination string
+	var found bool
+	if imageDestination, found = os.LookupEnv("IMAGE_DESTINATION"); !found {
+		imageDestination = "/tmp/smb-csi-driver.tgz"
+	}
+
+	local_k8s_cluster.Docker("save", "localhost:5000/cfpersi/smb-csi-driver:local-test", "-o", imageDestination)
 })
 
 var _ = AfterSuite(func() {

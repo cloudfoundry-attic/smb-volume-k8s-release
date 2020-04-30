@@ -13,3 +13,6 @@ inputs:
 run:
   path: make
   args: [ "--keep-going", "--directory=smb-volume-k8s-release/smb-csi-driver", "test"]
+
+params:
+  IMAGE_DESTINATION: "../../built-images/smb-csi-driver.tgz"
