@@ -17,6 +17,16 @@ cd smb-csi-driver
 make kapp
 ```
 
+## Installing smb-csi-driver alpha version with kustomize
+```
+kubectl apply --kustomize "https://github.com/cloudfoundry/smb-volume-k8s-release/smb-csi-driver/deploy/overlays/alpha/?ref=master"
+```
+
+## Installing smb-csi-driver dev version with kustomize
+```
+kubectl apply --kustomize "https://github.com/cloudfoundry/smb-volume-k8s-release/smb-csi-driver/deploy/overlays/dev/?ref=master"
+```
+
 ## Installing smbbroker
 ```
 cd smb-broker
