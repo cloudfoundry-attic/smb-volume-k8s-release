@@ -5,5 +5,3 @@ bases:
 images:
   - name: cfpersi/smb-csi-driver
     newTag: latest
-  - name: quay.io/k8scsi/csi-node-driver-registrar
-    newTag: latest
