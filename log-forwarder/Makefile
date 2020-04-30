@@ -29,7 +29,7 @@ kapp: SHELL=/bin/bash
 kapp:
 	kubectl get namespace cf-workloads || kubectl create namespace cf-workloads
 	kubectl get namespace cf-smb || kubectl create namespace cf-smb
-	kapp deploy -y -a volume-services-log-forwarder -f <(ytt -f ytt/ -v image.tag=$(tag))
+	kapp deploy -y -a volume-services-log-forwarder -f <(ytt -f ytt/)
 
 fly:
 	fly -t persi execute --tag=kind -c $$HOME/workspace/smb-volume-k8s-release/log-forwarder/ci/unit-tests.yml -i smb-volume-k8s-release=$$HOME/workspace/smb-volume-k8s-release -p

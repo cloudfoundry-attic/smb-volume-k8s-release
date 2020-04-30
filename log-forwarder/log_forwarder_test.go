@@ -6,7 +6,6 @@ import (
 
 var _ = Describe("LogForwarder", func() {
 
-	It("should be running", func() {
-
+	It("should build", func() {
 	})
 })

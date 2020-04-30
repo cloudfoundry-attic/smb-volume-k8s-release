@@ -2,6 +2,7 @@ package forwarder
 
 import (
 	"code.cloudfoundry.org/volume-services-log-forwarder/forwarder/fluentshims"
+	"log"
 )
 
 const TAG = "fluentd_dest"
@@ -21,13 +22,14 @@ func NewForwarder(fluent fluentshims.FluentInterface) forwarder {
 	}
 }
 
-func (f forwarder) Forward(appId string, instanceId string, log string) error {
+func (f forwarder) Forward(appId string, instanceId string, message string) error {
 	msg := map[string]string{
 		"app_id":      appId,
 		"instance_id": instanceId,
 		"source_type": SOURCE_TYPE,
-		"log": log,
+		"log": message,
 	}
+	log.Printf("Forwarding: %#v", msg)
 	return f.fluent.Post(TAG, msg)
 }
 

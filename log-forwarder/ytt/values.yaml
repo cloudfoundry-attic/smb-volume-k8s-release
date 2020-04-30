@@ -1,7 +1,7 @@
 #@data/values
 ---
 targetNamespace: cf-workloads
-namespace: cf-smb
+namespace: cf-system
 replicaCount: 1
 logforwarder:
   fullname: log-forwarder

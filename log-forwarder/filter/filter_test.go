@@ -28,17 +28,17 @@ var _ = Describe("Filter", func() {
 			matches = filter.Matches(event)
 		})
 
-		Context("given an event that is not MountFailed", func() {
+		Context("given an event that is not FailedMount", func() {
 
 			It("should return false", func() {
 				Expect(matches).To(BeFalse())
 			})
 		})
 
-		Context("given an event that is MountFailed", func() {
+		Context("given an event that is FailedMount", func() {
 
 			BeforeEach(func() {
-				event.Reason = "MountFailed"
+				event.Reason = "FailedMount"
 			})
 
 			It("should return true", func() {

@@ -3,4 +3,7 @@ smb-broker/.kube/
 smb-broker/smb-brokerfakes
 smb-csi-driver/smb-csi-driver
 smb-csi-driver/smb-csi-driverfakes
+log-forwarder/filter/filter_fakes/
+log-forwarder/forwarder/forwarder_fakes/
+log-forwarder/watcher/k8s_fakes/
 .kube

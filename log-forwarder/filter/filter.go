@@ -2,6 +2,7 @@ package filter
 
 import (
 	v1 "k8s.io/api/core/v1"
+	"log"
 )
 
 type filter struct {
@@ -16,7 +17,8 @@ func NewFilter() Filter {
 }
 
 func (filter filter) Matches(event *v1.Event) (bool) {
-	if event.Reason == "MountFailed" {
+	if event.Reason == "FailedMount" {
+		log.Print("matched")
 		return true
 	}
 	return false
