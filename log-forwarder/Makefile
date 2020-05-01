@@ -25,4 +25,13 @@ kapp:
 	kubectl get namespace cf-smb || kubectl create namespace cf-smb
 	kapp deploy -y -a volume-services-log-forwarder -f <(ytt -f ytt/)
 
+start-docker:
+	start-docker &
+	echo 'until docker info; do sleep 5; done' >/usr/local/bin/wait_for_docker
+	chmod +x /usr/local/bin/wait_for_docker
+	timeout 300 wait_for_docker
+
+kill-docker:
+	pkill dockerd
+
 .PHONY: test kapp
