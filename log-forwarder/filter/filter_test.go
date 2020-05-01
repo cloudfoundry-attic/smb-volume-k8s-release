@@ -1,9 +1,11 @@
 package filter_test
 
 import (
+	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/volume-services-log-forwarder/filter"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gbytes"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -15,16 +17,18 @@ var _ = Describe("Filter", func() {
 		filter  Filter
 		matches bool
 		event   *v1.Event
+		logger *lagertest.TestLogger
 	)
 
 	Describe("#Matches", func() {
 
 		BeforeEach(func() {
 			event = &v1.Event{}
+			logger = lagertest.NewTestLogger("filter")
 		})
 
 		JustBeforeEach(func() {
-			filter = NewFilter()
+			filter = NewFilter(logger)
 			matches = filter.Matches(event)
 		})
 
@@ -43,6 +47,10 @@ var _ = Describe("Filter", func() {
 
 			It("should return true", func() {
 				Expect(matches).To(BeTrue())
+			})
+
+			It("should log", func(){
+				Eventually(logger.Buffer()).Should(gbytes.Say("matched"))
 			})
 		})
 	})

@@ -37,8 +37,8 @@ func main() {
 		FluentHost: "fluentd-forwarder-ingress.cf-system.svc.cluster.local",
 	}
 	fluentClient, _ := fluent.New(fluentConfig)
-	fltr := filter.NewFilter()
-	fwdr := forwarder.NewForwarder(fluentClient)
+	fltr := filter.NewFilter(logger)
+	fwdr := forwarder.NewForwarder(logger, fluentClient)
 	podInterface := clientset.CoreV1().Pods("cf-workloads")
 	wtchr := watcher.NewWatcher(logger, fltr, fwdr, podInterface)
 

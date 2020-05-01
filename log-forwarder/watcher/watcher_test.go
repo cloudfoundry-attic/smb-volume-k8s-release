@@ -36,7 +36,7 @@ var _ = Describe("Watcher", func() {
 
 		BeforeEach(func() {
 			logger = lagertest.NewTestLogger("test-log-forwarder")
-			fltr = filter.NewFilter()
+			fltr = filter.NewFilter(logger)
 			fakeForwarder = &forwarder_fakes.FakeForwarder{}
 			fakePodInterface = &k8s_fakes.FakePodInterface{}
 			event = &v1.Event{}

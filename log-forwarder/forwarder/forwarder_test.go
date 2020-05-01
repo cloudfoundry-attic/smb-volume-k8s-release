@@ -1,11 +1,13 @@
 package forwarder_test
 
 import (
+	"code.cloudfoundry.org/lager/lagertest"
 	. "code.cloudfoundry.org/volume-services-log-forwarder/forwarder"
 	"code.cloudfoundry.org/volume-services-log-forwarder/forwarder/fluentshims/fluent_fake"
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gbytes"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ./fluentshims/fluent_fake/fake_fluent.go ./fluentshims FluentInterface
@@ -18,7 +20,7 @@ var _ = Describe("Forwarder", func() {
 			forwarder Forwarder
 			err error
 			fakeFluent *fluent_fake.FakeFluentInterface
-
+			logger *lagertest.TestLogger
 			appId string
 			instanceId string
 			log string
@@ -26,10 +28,11 @@ var _ = Describe("Forwarder", func() {
 
 		BeforeEach(func() {
 			fakeFluent = &fluent_fake.FakeFluentInterface{}
+			logger = lagertest.NewTestLogger("forwarder")
 		})
 
 		JustBeforeEach(func() {
-			forwarder = NewForwarder(fakeFluent)
+			forwarder = NewForwarder(logger, fakeFluent)
 			err = forwarder.Forward(appId, instanceId, log)
 		})
 
@@ -50,6 +53,10 @@ var _ = Describe("Forwarder", func() {
 				Expect(message.(map[string]string)["instance_id"]).To(Equal("instance-id"))
 				Expect(message.(map[string]string)["source_type"]).To(Equal("VOL"))
 				Expect(message.(map[string]string)["log"]).To(Equal("this is a test"))
+			})
+
+			It("should log", func(){
+				Eventually(logger.Buffer()).Should(gbytes.Say("this is a test"))
 			})
 		})
 
