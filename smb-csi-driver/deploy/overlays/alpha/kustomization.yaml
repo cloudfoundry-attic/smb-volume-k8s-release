@@ -7,3 +7,5 @@ images:
     newTag: 0.143.0
   - name: quay.io/k8scsi/csi-node-driver-registrar
     newTag: v1.0.2
+patchesStrategicMerge:
+  - command-for-dockerfile-built-image.yaml
