@@ -50,12 +50,9 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: cfpersi/smb-csi-driver:0.143.0
-          command:
-          - "/layers/paketo-buildpacks_go-mod/app-binary/bin/smb-csi-driver"
+          image: cfpersi/smb-csi-driver:latest
           args :
-            - "--nodeid=$(NODE_ID)"
-            - "--endpoint=$(CSI_ENDPOINT)"
+            - "smb-csi-driver --nodeid=$(NODE_ID) --endpoint=$(CSI_ENDPOINT)"
           env:
             - name: NODE_ID
               valueFrom:

@@ -54,11 +54,8 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: #@ data.values.image.repository + ":" + data.values.image.tag
-          command:
-          - "/layers/paketo-buildpacks_go-mod/app-binary/bin/smb-csi-driver"
           args :
-            - "--nodeid=$(NODE_ID)"
-            - "--endpoint=$(CSI_ENDPOINT)"
+            - "smb-csi-driver --nodeid=$(NODE_ID) --endpoint=$(CSI_ENDPOINT)"
           env:
             - name: NODE_ID
               valueFrom:
