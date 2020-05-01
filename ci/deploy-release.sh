@@ -89,8 +89,8 @@ app_registry:
 
 istio_static_ip: ${LB_IP}
 EOF
-
-    ./bin/install-cf.sh /tmp/cf-values.yml
+    ytt -f config -f /tmp/cf-values.yml > /tmp/cf-for-k8s-rendered.yml
+    kapp deploy -a cf -f /tmp/cf-for-k8s-rendered.yml -y
 popd
 
 pushd smb-volume-k8s-release
