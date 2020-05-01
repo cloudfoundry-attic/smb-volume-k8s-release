@@ -21,7 +21,7 @@ func NewFilter(logger lager.Logger) Filter {
 
 func (f filter) Matches(event *v1.Event) (bool) {
 	if event.Reason == "FailedMount" {
-		f.logger.Info("matched")
+		f.logger.Info("matched", lager.Data{"event": event.UID})
 		return true
 	}
 	return false

@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	v1 "k8s.io/api/core/v1"
+	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o ./filter_fakes/fake_filter.go . Filter
@@ -23,7 +24,7 @@ var _ = Describe("Filter", func() {
 	Describe("#Matches", func() {
 
 		BeforeEach(func() {
-			event = &v1.Event{}
+			event = &v1.Event{ObjectMeta: v12.ObjectMeta{UID: "event-uid"}}
 			logger = lagertest.NewTestLogger("filter")
 		})
 
@@ -50,7 +51,7 @@ var _ = Describe("Filter", func() {
 			})
 
 			It("should log", func(){
-				Eventually(logger.Buffer()).Should(gbytes.Say("matched"))
+				Eventually(logger.Buffer()).Should(gbytes.Say("event-uid"))
 			})
 		})
 	})
