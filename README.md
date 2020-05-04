@@ -35,6 +35,13 @@ cf create-service-broker smbbroker foo foo http://smb-broker.cf-smb
 cf enable-service-access smb
 ```
 
+## Installing the log forwarder for cf
+(assumes the logging feature has been integrated with cf-for-k8s)
+```
+cd log-forwarder
+make kapp
+```
+
 ## Push pora and bind and smb volume
 ```
 cd /tmp
