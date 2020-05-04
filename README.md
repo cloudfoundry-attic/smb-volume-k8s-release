@@ -36,7 +36,6 @@ cf enable-service-access smb
 ```
 
 ## Installing the log forwarder for cf
-(assumes the logging feature has been integrated with cf-for-k8s)
 ```
 cd log-forwarder
 make kapp
