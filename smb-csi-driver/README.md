@@ -10,16 +10,17 @@ kubectl apply --kustomize "https://github.com/cloudfoundry/smb-volume-k8s-releas
 ```
 
 # Usage example
+1. Edit the example (in `./example/pv.yaml`) to use your SMB server:
+- `//SERVER/SHARE`: the SMB address of your server and share
+- `USERNAME`: username for the share
+- `PASSWORD`: password for the share
+- `mountOptions`: (optional) supported mount options are uid, gid and vers 
 
-1. Deploy the test samba server
-``` 
-kubectl apply -f ./example/samba.yml
-```
-1. Deploy a sample pv, pvc and pod
+1. Deploy the example
 ```bash
 kubectl apply -f ./example/pv.yaml
 ```
-1. Use the sample nginx app by writing a file to the mounted directory
+1. Use the example nginx app by writing a file to the mounted directory
 ```bash
 kubectl exec -it nginx bash
 > echo hello > /usr/share/nginx/html/index.html
@@ -27,12 +28,6 @@ kubectl exec -it nginx bash
 > curl localhost:80
 > hello
 ```
-
-1. Use with your own SMB server by editing the `pv.yaml` fields as follows:
-- `share`: the SMB address of your server and share
-- `username`: username for the share
-- `password`: password for the share
-- `mountOptions`: (optional) supported mount options are uid, gid and vers 
 
 # Testing
 ```
