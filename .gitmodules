@@ -1,0 +1,3 @@
+[submodule "smb-csi-driver"]
+	path = smb-csi-driver
+	url = git@github.com:cloudfoundry/smb-csi-driver.git
