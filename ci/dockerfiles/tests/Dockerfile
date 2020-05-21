@@ -57,7 +57,7 @@ RUN tar xvf pack-v0.9.0-linux.tgz
 RUN mv ./pack /usr/local/bin
 RUN rm pack-v0.9.0-linux.tgz
 
-RUN wget https://github.com/k14s/kapp/releases/download/v0.21.0/kapp-linux-amd64
+RUN wget https://github.com/k14s/kapp/releases/download/v0.26.0/kapp-linux-amd64
 RUN mv ./kapp-linux-amd64 /usr/local/bin/kapp
 RUN chmod +x /usr/local/bin/kapp
 
