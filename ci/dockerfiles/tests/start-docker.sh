@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Ensure that all nodes in /dev/mapper correspond to mapped devices currently loaded by the device-mapper kernel driver
 dmsetup mknodes
 
